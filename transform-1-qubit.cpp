@@ -9,11 +9,52 @@
 
 */
 
+// disable Eigen's multi threading
+#define EIGEN_DONT_PARALLELIZE
+
+#include <Eigen/Eigen>
+
+using Eigen::Matrix2cd;
+using Eigen::VectorXcd;
+
+// for n = 2**m returns m
+int log2(const int n)
+{
+    int result = 0;
+    int t = n;
+    while (t >>= 1)
+      result++;
+    return result;
+}
+
+void Transform1Qubit(const VectorXcd& x, const Matrix2cd& U, const int k, VectorXcd& y)
+{
+    const int N = x.size();
+    const int n = log2(N);
+    const int mask = 1 << k;
+    for (int i = 0; i < N; i++)
+    {
+        const int i_k = i & mask ? 1 : 0; // k-th bit of i
+        const int i0 = i & ~ mask; // i with k-th bit set to 0
+        const int i1 = i | mask; // i with k-th bit set to 1
+        y[i] = U(i_k, 0) * x(i0) + U(i_k, 1) * x(i1);
+    }
+}
+
 int main()
 {
-    psi; // state vector
-    k; // target qubit index
-    U; // transform matrix
-    Transform1Qubit(psi, k, transform_matrix);
+    VectorXcd x; // initial state vector
+    VectorXcd y; // transformed state vector
+    int k; // target qubit index
+    Matrix2cd U; // transform matrix
+
+    // read x, U from files
+
+    y.resize(x.size());
+
+    Transform1Qubit(x, U, k, y);
+
+    // write y to file
+
     return 0;
 }
