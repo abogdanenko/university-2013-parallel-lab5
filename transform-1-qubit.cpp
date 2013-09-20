@@ -7,6 +7,8 @@
         n-qubit system. Only pure states are considered so system state is
         represented by a vector 2**n complex numbers long.
 
+        See 'usage' string in main for invocation information.
+
 */
 
 // disable Eigen's multi threading
@@ -17,6 +19,9 @@
 #include <complex>
 #include <iterator>
 #include <vector>
+#include <unistd.h>
+#include <ctype.h>
+#include <iomanip>
 
 using Eigen::Matrix2cd;
 using Eigen::VectorXcd;
@@ -26,8 +31,17 @@ using std::istream_iterator;
 using std::complex;
 using std::string;
 using std::vector;
+using std::stringstream;
 
 typedef complex<double> complexd;
+
+int string_to_int(const string s)
+{
+    int n;
+    stringstream ss(s);
+    ss >> n;
+    return n;
+}
 
 void Transform1Qubit(const VectorXcd& x, const Matrix2cd& U, const int k, VectorXcd& y)
 {
@@ -41,23 +55,71 @@ void Transform1Qubit(const VectorXcd& x, const Matrix2cd& U, const int k, Vector
     }
 }
 
-int main()
+int main(int argc, char** argv)
 {
+    string usage = string("Usage: ") + argv[0] + " -U operator_file "
+        "-x state_vector_file [-k target_qubit] [-t threads] "
+        "-y state_vector_output_file [-T execution_time_output_file]";
+
     VectorXcd x; // initial state vector
     VectorXcd y; // transformed state vector
     Matrix2cd U; // transform matrix
-    int k; // target qubit index
+    int k = 0; // target qubit index
+    int threads_count = 1;
 
-    // todo: parse command line arguments
-    string x_filename = "vector-0";
-    string y_filename = "result";
-    string U_filename = "not";
-    k = 0;
+    // parse options
+    char* x_filename = NULL;
+    char* y_filename = NULL;
+    char* U_filename = NULL;
+    char* T_filename = NULL;
+  
+    int c; // option character
+    while ((c = getopt(argc, argv, ":U:x:k:t:y:T:")) != -1)
+    {
+        switch(c)
+        {
+            case 'U':
+                U_filename = optarg;
+                break;
+            case 'x':
+                x_filename = optarg;
+                break;
+            case 'k':
+                k = string_to_int(optarg);
+                break;
+            case 't':
+                threads_count = string_to_int(optarg);
+                break;
+            case 'y':
+                y_filename = optarg;
+                break;
+            case 'T':
+                T_filename = optarg;
+                break;
+            case ':':
+                cerr << "Option -" << optopt << " requires an argument."
+                    << endl; 
+                break;
+            case '?':
+                if (isprint(optopt))
+                {
+                    cerr << "Unknown option `-" << optopt << "'." << endl;
+                }
+                else
+                {
+                    cerr << "Unknown option character `\\x" << hex << optopt <<
+                        "'." << endl;
+                }
+                return 1;
+            default:
+                return 1;
+        }
+    }
 
     // read x from file
     {
         // ifstream f(x_filename);
-        ifstream f(x_filename.c_str());
+        ifstream f(x_filename);
         istream_iterator<complexd> start(f);
         istream_iterator<complexd> eos; // end of stream iterator
         vector<complexd> x_stl(start, eos);
@@ -71,7 +133,7 @@ int main()
 
     // read U from file
     {
-        ifstream f(U_filename.c_str());
+        ifstream f(U_filename);
         f >> U(0, 0) >> U(0, 1) >> U(1, 0) >> U(1, 1);
     }
 
@@ -81,7 +143,7 @@ int main()
 
     // write y to file
     {
-        ofstream f(y_filename.c_str());
+        ofstream f(y_filename);
         f << y;
     }
 
