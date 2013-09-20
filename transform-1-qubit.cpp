@@ -13,9 +13,13 @@
 #define EIGEN_DONT_PARALLELIZE
 
 #include <Eigen/Eigen>
+#include <fstream>
+#include <complex>
+typedef std::complex<double> complexd;
 
 using Eigen::Matrix2cd;
 using Eigen::VectorXcd;
+using std::ofstream;
 
 // for n = 2**m returns m
 int log2(const int n)
@@ -45,16 +49,38 @@ int main()
 {
     VectorXcd x; // initial state vector
     VectorXcd y; // transformed state vector
-    int k; // target qubit index
     Matrix2cd U; // transform matrix
+    int k; // target qubit index
 
-    // read x, U from files
+    // todo: parse command line arguments
+    x_filename = "vector-0";
+    y_filename = "result";
+    U_filename = "not";
+    k = 0;
+
+    // read x from file
+    {
+        ifstream f(x_filename);
+        istream_iterator<complexd> start(f);
+        istream_iterator<complexd> eos; // end of stream iterator
+        x.assign(start, eos);
+    }
+
+    // read U from file
+    {
+        ifstream f(U_filename);
+        f >> U(0, 0) >> U(0, 1) >> U(1, 0) >> U(1, 1);
+    }
 
     y.resize(x.size());
 
     Transform1Qubit(x, U, k, y);
 
     // write y to file
+    {
+        ofstream f(y_filename);
+        f << y;
+    }
 
     return 0;
 }
