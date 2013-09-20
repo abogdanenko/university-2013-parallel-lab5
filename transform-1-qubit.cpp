@@ -23,6 +23,7 @@
 #include <ctype.h>
 #include <iomanip>
 #include <iostream>
+#include <time.h>
 
 using Eigen::Matrix2cd;
 using Eigen::VectorXcd;
@@ -46,6 +47,18 @@ int string_to_int(const string s)
     stringstream ss(s);
     ss >> n;
     return n;
+}
+
+// returns normally distributed random number
+double normal_random()
+{
+   const int n = 12;
+   double sum = 0;
+   for (int i = 0; i < n; i++)
+   {
+       sum += ((double) rand()) / RAND_MAX - 0.5;
+   }
+   return sum;
 }
 
 void Transform1Qubit(const VectorXcd& x, const Matrix2cd& U, const int k, VectorXcd& y)
@@ -76,6 +89,8 @@ int main(int argc, char** argv)
     Matrix2cd U = Matrix2cd::Identity(); // transform matrix
     int k = 0; // target qubit index
     int threads_count = 1;
+
+    srand(time(NULL));
 
     // parse options
     if (argc == 1)
@@ -170,8 +185,14 @@ int main(int argc, char** argv)
     else
     {
         // set random n qubit state
-        cerr << "not implemented" << endl;
-        return 1;
+        int N = 1;
+        N <<= n; // N = 2**n;
+        x.resize(N);
+        for (int i = 0; i < N; i++)
+        {
+            x(i) = complexd(normal_random(), normal_random());
+        }
+        x.normalize();
     }
 
     if (U_filename)
