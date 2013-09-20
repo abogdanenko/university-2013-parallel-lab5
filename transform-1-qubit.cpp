@@ -15,28 +15,24 @@
 #include <Eigen/Eigen>
 #include <fstream>
 #include <complex>
-typedef std::complex<double> complexd;
+#include <iterator>
+#include <vector>
 
 using Eigen::Matrix2cd;
 using Eigen::VectorXcd;
+using std::ifstream;
 using std::ofstream;
+using std::istream_iterator;
+using std::complex;
+using std::string;
+using std::vector;
 
-// for n = 2**m returns m
-int log2(const int n)
-{
-    int result = 0;
-    int t = n;
-    while (t >>= 1)
-      result++;
-    return result;
-}
+typedef complex<double> complexd;
 
 void Transform1Qubit(const VectorXcd& x, const Matrix2cd& U, const int k, VectorXcd& y)
 {
-    const int N = x.size();
-    const int n = log2(N);
     const int mask = 1 << k;
-    for (int i = 0; i < N; i++)
+    for (int i = 0; i < x.size(); i++)
     {
         const int i_k = i & mask ? 1 : 0; // k-th bit of i
         const int i0 = i & ~ mask; // i with k-th bit set to 0
@@ -53,22 +49,29 @@ int main()
     int k; // target qubit index
 
     // todo: parse command line arguments
-    x_filename = "vector-0";
-    y_filename = "result";
-    U_filename = "not";
+    string x_filename = "vector-0";
+    string y_filename = "result";
+    string U_filename = "not";
     k = 0;
 
     // read x from file
     {
-        ifstream f(x_filename);
+        // ifstream f(x_filename);
+        ifstream f(x_filename.c_str());
         istream_iterator<complexd> start(f);
         istream_iterator<complexd> eos; // end of stream iterator
-        x.assign(start, eos);
+        vector<complexd> x_stl(start, eos);
+        const int n = x_stl.size();
+        x.resize(n);
+        for (int i = 0; i < n; i++)
+        {
+            x(i) = x_stl[i];
+        }
     }
 
     // read U from file
     {
-        ifstream f(U_filename);
+        ifstream f(U_filename.c_str());
         f >> U(0, 0) >> U(0, 1) >> U(1, 0) >> U(1, 1);
     }
 
@@ -78,7 +81,7 @@ int main()
 
     // write y to file
     {
-        ofstream f(y_filename);
+        ofstream f(y_filename.c_str());
         f << y;
     }
 
