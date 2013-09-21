@@ -7,7 +7,7 @@
         n-qubit system. Only pure states are considered so system state is
         represented by a vector 2**n complex numbers long.
 
-        See print_usage function for invocation information.
+        See PrintUsage function for invocation information.
 
 */
 
@@ -35,19 +35,32 @@ using std::complex;
 using std::string;
 using std::vector;
 using std::stringstream;
+using std::ostringstream;
 using std::hex;
 using std::cout;
 using std::cerr;
 using std::endl;
+using std::runtime_error;
 
 typedef complex<double> complexd;
 
-void print_usage()
+void PrintUsage()
 {
     cout << "Usage: transform-1-qubit [[-U operator_file] "
         "{-x state_vector_file | -n random_state_qubit_count} "
         "[-k target_qubit] [-t threads_count] [-y state_vector_output_file] "
         "[-T computation_time_output_file]]" << endl;
+}
+
+class ParseError: runtime_error
+{
+    public:
+    ParseError(string const& msg):
+        runtime_error(msg)
+    {
+
+    }
+
 }
 
 int string_to_int(const string s)
@@ -70,7 +83,7 @@ double normal_random()
    return sum;
 }
 
-void Transform1Qubit(const VectorXcd& x, const Matrix2cd& U, const int k, VectorXcd& y)
+void ApplyOperator()
 {
     const int mask = 1 << k;
     for (int i = 0; i < x.size(); i++)
@@ -82,8 +95,7 @@ void Transform1Qubit(const VectorXcd& x, const Matrix2cd& U, const int k, Vector
     }
 }
 
-void parse_options(argc, argv, U_filename, x_filename, n, k, t, y_filename,
-    T_filename)
+void ParseOptions()
 {
     // NULL means 'not specified by user'
     char* x_filename = NULL;
@@ -91,6 +103,7 @@ void parse_options(argc, argv, U_filename, x_filename, n, k, t, y_filename,
     char* U_filename = NULL;
     char* T_filename = NULL;
   
+    string msg;
     int c; // option character
     while ((c = getopt(argc, argv, ":U:x:n:k:t:y:T:")) != -1)
     {
@@ -118,52 +131,49 @@ void parse_options(argc, argv, U_filename, x_filename, n, k, t, y_filename,
                 T_filename = optarg;
                 break;
             case ':':
-                cerr << "Option -" << optopt << " requires an argument."
-                    << endl; 
-                print_usage();
-                exit(EXIT_FAILURE);
+                msg = string("Option -") + optopt + " requires an argument.";
+                throw ParseError(msg);
             case '?':
                 if (isprint(optopt))
                 {
-                    cerr << "Unknown option `-" << optopt << "'." << endl;
+                    msg = string("Unknown option `-") + optopt + "'.";
                 }
                 else
                 {
-                    cerr << "Unknown option character `\\x" << hex << optopt <<
-                        "'." << endl;
+                    ostringstream oss;
+                    oss << "Unknown option character `\\x" << hex << optopt << "'.";
+                    msg = oss.str();
                 }
-                print_usage();
-                exit(EXIT_FAILURE);
+                throw ParseError(msg);
             default:
-                print_usage();
-                exit(EXIT_FAILURE);
+                throw ParseError("An error occured while parsing options.");
         }
     }
 
     if (optind > argc)
     {
-        cerr << "Extra non-option arguments found" << endl;
-        print_usage();
-        exit(EXIT_FAILURE);
+        msg = "Extra non-option arguments found";
+        throw ParseError(msg);
     }
 
     if (x_filename == NULL && n == -1)
     {
-        cerr << "State vector filename not specified and number of qubits for "
-            "random state not specified" << endl;
-        print_usage();
-        exit(EXIT_FAILURE);
+        msg =  "State vector filename not specified and number of qubits for "
+            "random state not specified";
+        throw ParseError(msg);
     }
+    return true;
 }
 
 int main(int argc, char** argv)
 {
     Transform1Qubit t;
-    if (t.parse_options(argc, argv))
+    try
     {
+        t.ParseOptions(argc, argv);
         if (argc == 1)
         {
-            print_usage();
+            t.PrintUsage();
         }
         else
         {
@@ -172,11 +182,12 @@ int main(int argc, char** argv)
             t.WriteResults();
         }
     }
-    else
+    catch (Transform1Qubit::ParseError& e)
     {
-        cerr << t.parse_err_msg << endl;
-        t.print_usage();
+        cerr << e.what() << endl;
+        t.PrintUsage();
         return EXIT_FAILURE;
+
     }
     return EXIT_SUCCESS;
 }
