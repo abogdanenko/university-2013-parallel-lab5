@@ -7,7 +7,7 @@
         n-qubit system. Only pure states are considered so system state is
         represented by a vector 2**n complex numbers long.
 
-        See 'usage' string in main for invocation information.
+        See print_usage function for invocation information.
 
 */
 
@@ -24,6 +24,7 @@
 #include <iomanip>
 #include <iostream>
 #include <time.h>
+#include <stdlib.h>
 
 using Eigen::Matrix2cd;
 using Eigen::VectorXcd;
@@ -40,6 +41,14 @@ using std::cerr;
 using std::endl;
 
 typedef complex<double> complexd;
+
+void print_usage()
+{
+    cout << "Usage: transform-1-qubit [[-U operator_file] "
+        "{-x state_vector_file | -n random_state_qubit_count} "
+        "[-k target_qubit] [-t threads_count] [-y state_vector_output_file] "
+        "[-T computation_time_output_file]]" << endl;
+}
 
 int string_to_int(const string s)
 {
@@ -73,31 +82,9 @@ void Transform1Qubit(const VectorXcd& x, const Matrix2cd& U, const int k, Vector
     }
 }
 
-int main(int argc, char** argv)
+void parse_options(argc, argv, U_filename, x_filename, n, k, t, y_filename,
+    T_filename)
 {
-    string usage = string("Usage: ") + argv[0] + " [[-U operator_file] "
-        "{-x state_vector_file | -n random_state_qubit_count} "
-        "[-k target_qubit] [-t threads_count] [-y state_vector_output_file] "
-        "[-T computation_time_output_file]]";
-
-    double T = -1.0; // Transform1Qubit function computation time
-
-    VectorXcd x; // initial state vector
-    VectorXcd y; // transformed state vector
-    int n = -1; // number of qubits for random state, -1 means 'not specified'
-    // set default values
-    Matrix2cd U = Matrix2cd::Identity(); // transform matrix
-    int k = 0; // target qubit index
-    int threads_count = 1;
-
-    srand(time(NULL));
-
-    // parse options
-    if (argc == 1)
-    {
-        cout << usage << endl;
-    }
-
     // NULL means 'not specified by user'
     char* x_filename = NULL;
     char* y_filename = NULL;
@@ -133,8 +120,8 @@ int main(int argc, char** argv)
             case ':':
                 cerr << "Option -" << optopt << " requires an argument."
                     << endl; 
-                cout << usage << endl;
-                return 1;
+                print_usage();
+                exit(EXIT_FAILURE);
             case '?':
                 if (isprint(optopt))
                 {
@@ -145,28 +132,71 @@ int main(int argc, char** argv)
                     cerr << "Unknown option character `\\x" << hex << optopt <<
                         "'." << endl;
                 }
-                cout << usage << endl;
-                return 1;
+                print_usage();
+                exit(EXIT_FAILURE);
             default:
-                cout << usage << endl;
-                return 1;
+                print_usage();
+                exit(EXIT_FAILURE);
         }
     }
 
     if (optind > argc)
     {
         cerr << "Extra non-option arguments found" << endl;
-        cout << usage << endl;
-        return 1;
+        print_usage();
+        exit(EXIT_FAILURE);
     }
 
     if (x_filename == NULL && n == -1)
     {
         cerr << "State vector filename not specified and number of qubits for "
             "random state not specified" << endl;
-        cout << usage << endl;
-        return 1;
+        print_usage();
+        exit(EXIT_FAILURE);
     }
+}
+
+int main(int argc, char** argv)
+{
+    Transform1Qubit t;
+    if (t.parse_options(argc, argv))
+    {
+        if (argc == 1)
+        {
+            print_usage();
+        }
+        else
+        {
+            t.InitStateVector();
+            t.ApplyOperator();
+            t.WriteResults();
+        }
+    }
+    else
+    {
+        cerr << t.parse_err_msg << endl;
+        t.print_usage();
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
+}
+
+// extra code to be moved to Transform1Qubit class
+{    
+    double T = -1.0; // Transform1Qubit function computation time
+
+    VectorXcd x; // initial state vector
+    VectorXcd y; // transformed state vector
+    int n = -1; // number of qubits for random state, -1 means 'not specified'
+    // set default values
+    Matrix2cd U = Matrix2cd::Identity(); // transform matrix
+    int k = 0; // target qubit index
+    int threads_count = 1;
+
+    srand(time(NULL));
+
+    parse_options(argc, argv, U_filename, x_filename, n, k, t, y_filename,
+        T_filename);
 
     if (x_filename)
     {
