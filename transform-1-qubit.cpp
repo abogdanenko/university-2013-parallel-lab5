@@ -7,7 +7,7 @@
         n-qubit system. Only pure states are considered so system state is
         represented by a vector 2**n complex numbers long.
 
-        See PrintUsage function for invocation information.
+        See Transform1Qubit::PrintUsage function for invocation information.
 
 */
 
@@ -25,6 +25,7 @@
 #include <iostream>
 #include <time.h>
 #include <stdlib.h>
+#include <stdexcept>
 
 using Eigen::Matrix2cd;
 using Eigen::VectorXcd;
@@ -43,25 +44,6 @@ using std::endl;
 using std::runtime_error;
 
 typedef complex<double> complexd;
-
-void PrintUsage()
-{
-    cout << "Usage: transform-1-qubit [[-U operator_file] "
-        "{-x state_vector_file | -n random_state_qubit_count} "
-        "[-k target_qubit] [-t threads_count] [-y state_vector_output_file] "
-        "[-T computation_time_output_file]]" << endl;
-}
-
-class ParseError: runtime_error
-{
-    public:
-    ParseError(string const& msg):
-        runtime_error(msg)
-    {
-
-    }
-
-}
 
 int string_to_int(const string s)
 {
@@ -83,9 +65,70 @@ double normal_random()
    return sum;
 }
 
-void ApplyOperator()
+class Transform1Qubit
+{
+    VectorXcd x; // initial state vector
+    VectorXcd y; // transformed state vector
+    Matrix2cd U; // transform matrix
+    int n; // number of qubits for random state, -1 means 'not specified'
+    int k; // target qubit index
+    int threads_count;
+    double T; // ApplyOperator method computation time
+
+    // NULL means 'not specified by user'
+    char* x_filename;
+    char* y_filename;
+    char* U_filename;
+    char* T_filename;
+
+    public:
+    class ParseError: public runtime_error
+    {
+        public:
+        ParseError(string const& msg):
+            runtime_error(msg)
+        {
+    
+        }
+    
+    };
+    
+    Transform1Qubit();
+    void ParseOptions(const int argc, char** const argv);
+    void PrintUsage();
+    void PrepareInputData();
+    void ApplyOperator();
+    void WriteResults();
+};
+
+Transform1Qubit::Transform1Qubit():
+    U(Matrix2cd::Identity()), 
+    n(-1), 
+    k(0), 
+    threads_count(1),
+    T(-1.0),
+    x_filename(NULL),
+    y_filename(NULL),
+    U_filename(NULL),
+    T_filename(NULL)
+{
+    srand(time(NULL));
+}
+
+
+void Transform1Qubit::PrintUsage()
+{
+    cout << "Usage: transform-1-qubit [[-U operator_file] "
+        "{-x state_vector_file | -n random_state_qubit_count} "
+        "[-k target_qubit] [-t threads_count] [-y state_vector_output_file] "
+        "[-T computation_time_output_file]]" << endl;
+}
+
+
+void Transform1Qubit::ApplyOperator()
 {
     const int mask = 1 << k;
+    y.resize(x.size());
     for (int i = 0; i < x.size(); i++)
     {
         const int i_k = i & mask ? 1 : 0; // k-th bit of i
@@ -95,15 +138,9 @@ void ApplyOperator()
     }
 }
 
-void ParseOptions()
+void Transform1Qubit::ParseOptions(const int argc, char** const argv)
 {
-    // NULL means 'not specified by user'
-    char* x_filename = NULL;
-    char* y_filename = NULL;
-    char* U_filename = NULL;
-    char* T_filename = NULL;
-  
-    string msg;
+    ostringstream oss;
     int c; // option character
     while ((c = getopt(argc, argv, ":U:x:n:k:t:y:T:")) != -1)
     {
@@ -131,20 +168,18 @@ void ParseOptions()
                 T_filename = optarg;
                 break;
             case ':':
-                msg = string("Option -") + optopt + " requires an argument.";
-                throw ParseError(msg);
+                oss << "Option -" << optopt << " requires an argument.";
+                throw ParseError(oss.str());
             case '?':
                 if (isprint(optopt))
                 {
-                    msg = string("Unknown option `-") + optopt + "'.";
+                    oss << "Unknown option `-" << optopt << "'.";
                 }
                 else
                 {
-                    ostringstream oss;
                     oss << "Unknown option character `\\x" << hex << optopt << "'.";
-                    msg = oss.str();
                 }
-                throw ParseError(msg);
+                throw ParseError(oss.str());
             default:
                 throw ParseError("An error occured while parsing options.");
         }
@@ -152,17 +187,14 @@ void ParseOptions()
 
     if (optind > argc)
     {
-        msg = "Extra non-option arguments found";
-        throw ParseError(msg);
+        throw ParseError("Extra non-option arguments found");
     }
 
     if (x_filename == NULL && n == -1)
     {
-        msg =  "State vector filename not specified and number of qubits for "
-            "random state not specified";
-        throw ParseError(msg);
+        throw ParseError("State vector filename not specified and number of "
+            "qubits for random state not specified");
     }
-    return true;
 }
 
 int main(int argc, char** argv)
@@ -177,7 +209,7 @@ int main(int argc, char** argv)
         }
         else
         {
-            t.InitStateVector();
+            t.PrepareInputData();
             t.ApplyOperator();
             t.WriteResults();
         }
@@ -192,22 +224,14 @@ int main(int argc, char** argv)
     return EXIT_SUCCESS;
 }
 
-// extra code to be moved to Transform1Qubit class
-{    
-    double T = -1.0; // Transform1Qubit function computation time
-
-    VectorXcd x; // initial state vector
-    VectorXcd y; // transformed state vector
-    int n = -1; // number of qubits for random state, -1 means 'not specified'
-    // set default values
-    Matrix2cd U = Matrix2cd::Identity(); // transform matrix
-    int k = 0; // target qubit index
-    int threads_count = 1;
-
-    srand(time(NULL));
-
-    parse_options(argc, argv, U_filename, x_filename, n, k, t, y_filename,
-        T_filename);
+void Transform1Qubit::PrepareInputData()
+{
+    if (U_filename)
+    {
+        // read U from file
+        ifstream f(U_filename);
+        f >> U(0, 0) >> U(0, 1) >> U(1, 0) >> U(1, 1);
+    }
 
     if (x_filename)
     {
@@ -236,17 +260,10 @@ int main(int argc, char** argv)
         x.normalize();
     }
 
-    if (U_filename)
-    {
-        // read U from file
-        ifstream f(U_filename);
-        f >> U(0, 0) >> U(0, 1) >> U(1, 0) >> U(1, 1);
-    }
+}
 
-    y.resize(x.size());
-
-    Transform1Qubit(x, U, k, y);
-
+void Transform1Qubit::WriteResults()
+{
     if (y_filename)
     {
         // write y to file
@@ -260,6 +277,5 @@ int main(int argc, char** argv)
         ofstream f(T_filename);
         f << T << endl;
     }
-
-    return 0;
 }
+
