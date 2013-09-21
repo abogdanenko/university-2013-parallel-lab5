@@ -56,13 +56,18 @@ int string_to_int(const string s)
 // returns normally distributed random number
 double normal_random()
 {
-   const int n = 12;
-   double sum = 0;
-   for (int i = 0; i < n; i++)
-   {
-       sum += ((double) rand()) / RAND_MAX - 0.5;
-   }
-   return sum;
+    /*
+    Gaussian random variables are calculated as described here [1].
+    [1] "http://en.wikipedia.org/wiki/Normal_distribution
+    #Generating_values_from_normal_distribution"
+    */
+    const int n = 12;
+    double sum = 0;
+    for (int i = 0; i < n; i++)
+    {
+        sum += ((double) rand()) / RAND_MAX - 0.5;
+    }
+    return sum;
 }
 
 class Transform1Qubit
@@ -249,7 +254,10 @@ void Transform1Qubit::PrepareInputData()
     }
     else
     {
-        // set random n qubit state
+        /* set random n qubit state
+        Pick a point on hypersphere as shown here [1]. 
+        [1] http://mathworld.wolfram.com/HyperspherePointPicking.html
+        */
         int N = 1;
         N <<= n; // N = 2**n;
         x.resize(N);
