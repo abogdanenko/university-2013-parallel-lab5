@@ -58,7 +58,7 @@ int intlog2(const int n)
     return result;
 }
 
-int string_to_int(const string s)
+int string_to_int(const string& s)
 {
     int n;
     stringstream ss(s);
@@ -205,16 +205,17 @@ void Transform1Qubit::ParseOptions(const int argc, char** const argv)
                 T_filename = optarg;
                 break;
             case ':':
-                oss << "Option -" << optopt << " requires an argument.";
+                oss << "Option -" << char(optopt) << " requires an argument.";
                 throw ParseError(oss.str());
             case '?':
                 if (isprint(optopt))
                 {
-                    oss << "Unknown option `-" << optopt << "'.";
+                    oss << "Unknown option `-" << char(optopt) << "'.";
                 }
                 else
                 {
-                    oss << "Unknown option character `\\x" << hex << optopt << "'.";
+                    oss << "Unknown option character `\\x" << hex << optopt <<
+                        "'.";
                 }
                 throw ParseError(oss.str());
             default:
