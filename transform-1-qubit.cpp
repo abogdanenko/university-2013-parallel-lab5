@@ -29,6 +29,7 @@
 
 using Eigen::Matrix2cd;
 using Eigen::VectorXcd;
+using std::ostream;
 using std::ifstream;
 using std::ofstream;
 using std::istream_iterator;
@@ -51,6 +52,24 @@ int string_to_int(const string s)
     stringstream ss(s);
     ss >> n;
     return n;
+}
+
+// If filename is "-", write obj to stdout, otherwise write obj to file.
+template <class T>
+void WriteToFileOrStdout(const T& obj, const string& filename)
+{
+    ostream* fp;
+    ofstream fout;
+    if (filename == "-")
+    {
+        fp = &cout;
+    }
+    else
+    {
+        fout.open(filename.c_str());
+        fp = &fout;
+    }
+    *fp << obj << endl;
 }
 
 // returns normally distributed random number
@@ -124,7 +143,7 @@ Transform1Qubit::Transform1Qubit():
 void Transform1Qubit::PrintUsage()
 {
     cout << "Usage: transform-1-qubit [[-U operator_file] "
-        "{-x state_vector_file | -n random_state_qubit_count} "
+        "{-x state_vector_file | -n random_state_qubits_count} "
         "[-k target_qubit] [-t threads_count] [-y state_vector_output_file] "
         "[-T computation_time_output_file]]" << endl;
 }
@@ -202,33 +221,6 @@ void Transform1Qubit::ParseOptions(const int argc, char** const argv)
     }
 }
 
-int main(int argc, char** argv)
-{
-    Transform1Qubit t;
-    try
-    {
-        t.ParseOptions(argc, argv);
-        if (argc == 1)
-        {
-            t.PrintUsage();
-        }
-        else
-        {
-            t.PrepareInputData();
-            t.ApplyOperator();
-            t.WriteResults();
-        }
-    }
-    catch (Transform1Qubit::ParseError& e)
-    {
-        cerr << e.what() << endl;
-        t.PrintUsage();
-        return EXIT_FAILURE;
-
-    }
-    return EXIT_SUCCESS;
-}
-
 void Transform1Qubit::PrepareInputData()
 {
     if (U_filename)
@@ -272,18 +264,41 @@ void Transform1Qubit::PrepareInputData()
 
 void Transform1Qubit::WriteResults()
 {
-    if (y_filename)
-    {
-        // write y to file
-        ofstream f(y_filename);
-        f << y << endl;
-    }
-
     if (T_filename)
     {
-        // write T to file
-        ofstream f(T_filename);
-        f << T << endl;
+        WriteToFileOrStdout(T, T_filename);
     }
+
+    if (y_filename)
+    {
+        WriteToFileOrStdout(y, y_filename);
+    }
+}
+
+int main(int argc, char** argv)
+{
+    Transform1Qubit t;
+    try
+    {
+        if (argc == 1)
+        {
+            t.PrintUsage();
+        }
+        else
+        {
+            t.ParseOptions(argc, argv);
+            t.PrepareInputData();
+            t.ApplyOperator();
+            t.WriteResults();
+        }
+    }
+    catch (Transform1Qubit::ParseError& e)
+    {
+        cerr << e.what() << endl;
+        t.PrintUsage();
+        return EXIT_FAILURE;
+
+    }
+    return EXIT_SUCCESS;
 }
 
