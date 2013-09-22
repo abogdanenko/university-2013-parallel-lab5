@@ -46,6 +46,16 @@ using std::runtime_error;
 
 typedef complex<double> complexd;
 
+// for n = 2**m returns m
+int intlog2(const int n)
+{
+    int result = 0;
+    int t = n;
+    while (t >>= 1)
+      result++;
+    return result;
+}
+
 int string_to_int(const string s)
 {
     int n;
@@ -99,7 +109,7 @@ class Transform1Qubit
     int threads_count;
     double T; // ApplyOperator method computation time
 
-    // NULL means 'not specified by user'
+    // NULL means 'not specified by user', "-" means 'write to stdout'
     char* x_filename;
     char* y_filename;
     char* U_filename;
@@ -128,7 +138,7 @@ class Transform1Qubit
 Transform1Qubit::Transform1Qubit():
     U(Matrix2cd::Identity()), 
     n(-1), 
-    k(0), 
+    k(1), 
     threads_count(1),
     T(-1.0),
     x_filename(NULL),
@@ -148,17 +158,18 @@ void Transform1Qubit::PrintUsage()
         "[-T computation_time_output_file]]" << endl;
 }
 
-
 void Transform1Qubit::ApplyOperator()
 {
-    const int mask = 1 << k;
+    const int n = intlog2(x.size());
+    const int mask = 1 << (n - k); // k-th most significant bit
     y.resize(x.size());
     for (int i = 0; i < x.size(); i++)
     {
-        const int i_k = i & mask ? 1 : 0; // k-th bit of i
-        const int i0 = i & ~ mask; // i with k-th bit set to 0
-        const int i1 = i | mask; // i with k-th bit set to 1
-        y[i] = U(i_k, 0) * x(i0) + U(i_k, 1) * x(i1);
+        // bit of i corresponding to k-th qubit ("selected bit")
+        const int i_k = i & mask ? 1 : 0; 
+        const int i0 = i & ~ mask; // clear selected bit
+        const int i1 = i | mask; // set selected bit
+        y(i) = U(i_k, 0) * x(i0) + U(i_k, 1) * x(i1);
     }
 }
 
