@@ -30,6 +30,7 @@
 using Eigen::Matrix2cd;
 using Eigen::VectorXcd;
 using std::ostream;
+using std::istream;
 using std::ifstream;
 using std::ofstream;
 using std::istream_iterator;
@@ -40,6 +41,7 @@ using std::stringstream;
 using std::ostringstream;
 using std::hex;
 using std::cout;
+using std::cin;
 using std::cerr;
 using std::endl;
 using std::runtime_error;
@@ -236,18 +238,33 @@ void Transform1Qubit::PrepareInputData()
 {
     if (U_filename)
     {
-        // read U from file
-        ifstream f(U_filename);
-        f >> U(0, 0) >> U(0, 1) >> U(1, 0) >> U(1, 1);
+        // read U
+        istream* fp;
+        ifstream fin;
+        if (string(U_filename) == "-")
+        {
+            fp = &cin;
+        }
+        else
+        {
+            fin.open(U_filename);
+            fp = &fin;
+        }
+        *fp >> U(0, 0) >> U(0, 1) >> U(1, 0) >> U(1, 1);
     }
 
     if (x_filename)
     {
-        // read x from file
-        ifstream f(x_filename);
+        // read x
+        ifstream file_stream;
+        istream& f = (string(x_filename) == "-") ? cin :
+            (file_stream.open(x_filename), file_stream);
         istream_iterator<complexd> start(f);
         istream_iterator<complexd> eos; // end of stream iterator
-        vector<complexd> x_stl(start, eos);
+
+        vector<complexd> x_stl(start, eos); // read all numbers to std vector
+
+        // copy all numbers to Eigen vector
         const int n = x_stl.size();
         x.resize(n);
         for (int i = 0; i < n; i++)
