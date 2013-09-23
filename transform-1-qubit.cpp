@@ -226,19 +226,19 @@ void Transform1Qubit::PrepareInputData()
     if (U_filename)
     {
         // read U
-        ifstream file_stream;
-        istream& f = (string(U_filename) == "-") ? cin :
-            (file_stream.open(U_filename), file_stream);
-        f >> U[0][0] >> U[0][1] >> U[1][0] >> U[1][1];
+        ifstream fs;
+        istream& s = (string(U_filename) == "-") ? cin :
+            (fs.open(U_filename), fs);
+        s >> U[0][0] >> U[0][1] >> U[1][0] >> U[1][1];
     }
 
     if (x_filename)
     {
         // read x
-        ifstream file_stream;
-        istream& f = (string(x_filename) == "-") ? cin :
-            (file_stream.open(x_filename), file_stream);
-        istream_iterator<complexd> start(f);
+        ifstream fs;
+        istream& s = (string(x_filename) == "-") ? cin :
+            (fs.open(x_filename), fs);
+        istream_iterator<complexd> start(s);
         istream_iterator<complexd> eos; // end of stream iterator
 
         x.assign(start, eos); // read all numbers
@@ -271,18 +271,18 @@ void Transform1Qubit::WriteResults()
 {
     if (T_filename)
     {
-        ofstream file_stream;
-        ostream& f = (string(T_filename) == "-") ? cout :
-            (file_stream.open(T_filename), file_stream);
-        f << T << endl;
+        ofstream fs;
+        ostream& s = (string(T_filename) == "-") ? cout :
+            (fs.open(T_filename), fs);
+        s << T << endl;
     }
 
     if (y_filename)
     {
-        ofstream file_stream;
-        ostream& f = (string(y_filename) == "-") ? cout :
-            (file_stream.open(y_filename), file_stream);
-        ostream_iterator<complexd> out_it (f, "\n");
+        ofstream fs;
+        ostream& s = (string(y_filename) == "-") ? cout :
+            (fs.open(y_filename), fs);
+        ostream_iterator<complexd> out_it (s, "\n");
         copy(y.begin(), y.end(), out_it);
     }
 }
