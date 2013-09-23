@@ -49,10 +49,11 @@ using std::runtime_error;
 typedef complex<double> complexd;
 
 // for n = 2**m returns m
-int intlog2(const int n)
+template <class Index>
+int intlog2(const Index n)
 {
     int result = 0;
-    int t = n;
+    Index t = n;
     while (t >>= 1)
       result++;
     return result;
@@ -163,14 +164,14 @@ void Transform1Qubit::PrintUsage()
 void Transform1Qubit::ApplyOperator()
 {
     const int n = intlog2(x.size());
-    const int mask = 1 << (n - k); // k-th most significant bit
+    const VectorXcd::Index mask = 1L << (n - k); // k-th most significant bit
     y.resize(x.size());
-    for (int i = 0; i < x.size(); i++)
+    for (VectorXcd::Index i = 0; i < x.size(); i++)
     {
         // bit of i corresponding to k-th qubit ("selected bit")
         const int i_k = i & mask ? 1 : 0; 
-        const int i0 = i & ~ mask; // clear selected bit
-        const int i1 = i | mask; // set selected bit
+        const VectorXcd::Index i0 = i & ~ mask; // clear selected bit
+        const VectorXcd::Index i1 = i | mask; // set selected bit
         y(i) = U(i_k, 0) * x(i0) + U(i_k, 1) * x(i1);
     }
 }
@@ -266,9 +267,9 @@ void Transform1Qubit::PrepareInputData()
         vector<complexd> x_stl(start, eos); // read all numbers to std vector
 
         // copy all numbers to Eigen vector
-        const int n = x_stl.size();
+        const VectorXcd::Index n = x_stl.size();
         x.resize(n);
-        for (int i = 0; i < n; i++)
+        for (VectorXcd::Index i = 0; i < n; i++)
         {
             x(i) = x_stl[i];
         }
@@ -279,10 +280,9 @@ void Transform1Qubit::PrepareInputData()
         Pick a point on hypersphere as shown here [1]. 
         [1] http://mathworld.wolfram.com/HyperspherePointPicking.html
         */
-        int N = 1;
-        N <<= n; // N = 2**n;
+        VectorXcd::Index N = 1L << n;
         x.resize(N);
-        for (int i = 0; i < N; i++)
+        for (VectorXcd::Index i = 0; i < N; i++)
         {
             x(i) = complexd(normal_random(), normal_random());
         }
