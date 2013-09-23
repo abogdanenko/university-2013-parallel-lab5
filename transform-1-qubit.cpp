@@ -11,10 +11,6 @@
 
 */
 
-// disable Eigen's multi threading
-#define EIGEN_DONT_PARALLELIZE
-
-#include <Eigen/Eigen>
 #include <fstream>
 #include <complex>
 #include <iterator>
@@ -26,14 +22,14 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdexcept>
+#include <algorithm>
 
-using Eigen::Matrix2cd;
-using Eigen::VectorXcd;
 using std::ostream;
 using std::istream;
 using std::ifstream;
 using std::ofstream;
 using std::istream_iterator;
+using std::ostream_iterator;
 using std::complex;
 using std::string;
 using std::vector;
@@ -45,15 +41,17 @@ using std::cin;
 using std::cerr;
 using std::endl;
 using std::runtime_error;
+using std::copy;
 
 typedef complex<double> complexd;
+typedef vector<complexd>::size_type Index;
 
 // for n = 2**m returns m
-template <class Index>
-int intlog2(const Index n)
+template <class Integer>
+int intlog2(const Integer n)
 {
     int result = 0;
-    Index t = n;
+    Integer t = n;
     while (t >>= 1)
       result++;
     return result;
@@ -65,24 +63,6 @@ int string_to_int(const string& s)
     stringstream ss(s);
     ss >> n;
     return n;
-}
-
-// If filename is "-", write obj to stdout, otherwise write obj to file.
-template <class T>
-void WriteToFileOrStdout(const T& obj, const string& filename)
-{
-    ostream* fp;
-    ofstream fout;
-    if (filename == "-")
-    {
-        fp = &cout;
-    }
-    else
-    {
-        fout.open(filename.c_str());
-        fp = &fout;
-    }
-    *fp << obj << endl;
 }
 
 // returns normally distributed random number
@@ -104,9 +84,10 @@ double normal_random()
 
 class Transform1Qubit
 {
-    VectorXcd x; // initial state vector
-    VectorXcd y; // transformed state vector
-    Matrix2cd U; // transform matrix
+    vector<complexd> x; // initial state vector
+    vector<complexd> y; // transformed state vector
+    vector< vector<complexd> > U; // transform matrix
+
     int n; // number of qubits for random state, -1 means 'not specified'
     int k; // target qubit index
     int threads_count;
@@ -139,7 +120,7 @@ class Transform1Qubit
 };
 
 Transform1Qubit::Transform1Qubit():
-    U(Matrix2cd::Identity()), 
+    U(vector< vector<complexd> >(2, vector<complexd>(2))),
     n(-1), 
     k(1), 
     threads_count(1),
@@ -150,8 +131,12 @@ Transform1Qubit::Transform1Qubit():
     T_filename(NULL)
 {
     srand(time(NULL));
-}
 
+    U[0][0] = 1;
+    U[0][1] = 0;
+    U[1][0] = 0;
+    U[1][1] = 1;
+}
 
 void Transform1Qubit::PrintUsage()
 {
@@ -164,15 +149,15 @@ void Transform1Qubit::PrintUsage()
 void Transform1Qubit::ApplyOperator()
 {
     const int n = intlog2(x.size());
-    const VectorXcd::Index mask = 1L << (n - k); // k-th most significant bit
+    const Index mask = 1L << (n - k); // k-th most significant bit
     y.resize(x.size());
-    for (VectorXcd::Index i = 0; i < x.size(); i++)
+    for (Index i = 0; i < x.size(); i++)
     {
         // bit of i corresponding to k-th qubit ("selected bit")
         const int i_k = i & mask ? 1 : 0; 
-        const VectorXcd::Index i0 = i & ~ mask; // clear selected bit
-        const VectorXcd::Index i1 = i | mask; // set selected bit
-        y(i) = U(i_k, 0) * x(i0) + U(i_k, 1) * x(i1);
+        const Index i0 = i & ~ mask; // clear selected bit
+        const Index i1 = i | mask; // set selected bit
+        y[i] = U[i_k][0] * x[i0] + U[i_k][1] * x[i1];
     }
 }
 
@@ -241,18 +226,10 @@ void Transform1Qubit::PrepareInputData()
     if (U_filename)
     {
         // read U
-        istream* fp;
-        ifstream fin;
-        if (string(U_filename) == "-")
-        {
-            fp = &cin;
-        }
-        else
-        {
-            fin.open(U_filename);
-            fp = &fin;
-        }
-        *fp >> U(0, 0) >> U(0, 1) >> U(1, 0) >> U(1, 1);
+        ifstream file_stream;
+        istream& f = (string(U_filename) == "-") ? cin :
+            (file_stream.open(U_filename), file_stream);
+        f >> U[0][0] >> U[0][1] >> U[1][0] >> U[1][1];
     }
 
     if (x_filename)
@@ -264,15 +241,7 @@ void Transform1Qubit::PrepareInputData()
         istream_iterator<complexd> start(f);
         istream_iterator<complexd> eos; // end of stream iterator
 
-        vector<complexd> x_stl(start, eos); // read all numbers to std vector
-
-        // copy all numbers to Eigen vector
-        const VectorXcd::Index n = x_stl.size();
-        x.resize(n);
-        for (VectorXcd::Index i = 0; i < n; i++)
-        {
-            x(i) = x_stl[i];
-        }
+        x.assign(start, eos); // read all numbers
     }
     else
     {
@@ -280,27 +249,41 @@ void Transform1Qubit::PrepareInputData()
         Pick a point on hypersphere as shown here [1]. 
         [1] http://mathworld.wolfram.com/HyperspherePointPicking.html
         */
-        VectorXcd::Index N = 1L << n;
+        Index N = 1L << n;
         x.resize(N);
-        for (VectorXcd::Index i = 0; i < N; i++)
+        long double sum = 0.0;
+        for (Index i = 0; i < N; i++)
         {
-            x(i) = complexd(normal_random(), normal_random());
+            const complexd elem(normal_random(), normal_random());
+            x[i] = elem;
+            sum += norm(elem);
         }
-        x.normalize();
+        // Normalize x
+        const double coef = 1.0 / sqrt(sum);
+        for (Index i = 0; i < N; i++)
+        {
+            x[i] *= coef;
+        }
     }
-
 }
 
 void Transform1Qubit::WriteResults()
 {
     if (T_filename)
     {
-        WriteToFileOrStdout(T, T_filename);
+        ofstream file_stream;
+        ostream& f = (string(T_filename) == "-") ? cout :
+            (file_stream.open(T_filename), file_stream);
+        f << T << endl;
     }
 
     if (y_filename)
     {
-        WriteToFileOrStdout(y, y_filename);
+        ofstream file_stream;
+        ostream& f = (string(y_filename) == "-") ? cout :
+            (file_stream.open(y_filename), file_stream);
+        ostream_iterator<complexd> out_it (f, "\n");
+        copy(y.begin(), y.end(), out_it);
     }
 }
 
