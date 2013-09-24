@@ -66,23 +66,6 @@ int string_to_int(const string& s)
     return n;
 }
 
-// returns normally distributed random number
-double normal_random()
-{
-    /*
-    Gaussian random variables are calculated as described here [1].
-    [1] "http://en.wikipedia.org/wiki/Normal_distribution
-    #Generating_values_from_normal_distribution"
-    */
-    const int n = 12;
-    double sum = 0;
-    for (int i = 0; i < n; i++)
-    {
-        sum += ((double) rand()) / RAND_MAX - 0.5;
-    }
-    return sum;
-}
-
 class Transform1Qubit
 {
     vector<complexd> x; // initial state vector
@@ -291,28 +274,18 @@ void Transform1Qubit::PrepareInputData()
     }
     else
     {
-        /* set random n qubit state
-        Pick a point on hypersphere as shown here [1]. 
-        [1] http://mathworld.wolfram.com/HyperspherePointPicking.html
-        */
+        // set random n qubit state
+
         Index N = 1L << n;
         x.resize(N);
         long double sum = 0.0;
 
         int runtime_threads;
-        #pragma omp parallel
+        for (Index i = 0; i < N; i++)
         {
-            #pragma omp single nowait
-            {
-                runtime_threads = omp_get_num_threads();            
-            }
-
-            #pragma omp for
-            for (Index i = 0; i < N; i++)
-            {
-                const complexd elem(normal_random(), normal_random());
-                x[i] = elem;
-            }
+            double const r1 = double (rand()) / RAND_MAX - 0.5;
+            double const r2 = double (rand()) / RAND_MAX - 0.5;
+            x[i] = complexd(r1, r2);
         }
 
         #pragma omp parallel
