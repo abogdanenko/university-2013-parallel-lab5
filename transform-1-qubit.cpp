@@ -43,6 +43,7 @@ using std::cerr;
 using std::endl;
 using std::runtime_error;
 using std::copy;
+using std::min;
 
 typedef complex<double> complexd;
 typedef vector<complexd>::size_type Index;
@@ -95,14 +96,14 @@ class Transform1Qubit
     // computation time
     double start_time; 
     double end_time; 
+    // minimum of actual number of threads in parallel regions
+    int min_runtime_threads; // -1 means 'not initialized'
+
     // NULL means 'not specified by user', "-" means 'write to stdout'
     char* x_filename;
     char* y_filename;
     char* U_filename;
     char* T_filename;
-
-    // minimum of actual number of threads in parallel regions
-    int min_runtime_threads; // -1 means 'not initialized'
 
     public:
     class ParseError: public runtime_error
@@ -125,20 +126,20 @@ class Transform1Qubit
     void WriteResults();
     void TimerStart();
     void TimerStop();
-    void UpdateMinRuntimeThreads()
+    void UpdateMinRuntimeThreads();
 };
 
-Transform1Qubit::ParseError.ParseError(string const& msg):
+Transform1Qubit::ParseError::ParseError(string const& msg):
     runtime_error(msg)
 {
 
-};
+}
 
-Transform1Qubit::ThreadError.ThreadError():
+Transform1Qubit::ThreadError::ThreadError():
     runtime_error("Failed to spawn requested number of threads")
 {
 
-};
+}
  
 Transform1Qubit::Transform1Qubit():
     U(vector< vector<complexd> >(2, vector<complexd>(2))),
@@ -203,15 +204,13 @@ void Transform1Qubit::ApplyOperator()
         }
 
         #pragma omp for
+        for (Index i = 0; i < N; i++)
         {
-            for (Index i = 0; i < N; i++)
-            {
-                // bit of i corresponding to k-th qubit ("selected bit")
-                const int i_k = i & mask ? 1 : 0; 
-                const Index i0 = i & ~ mask; // clear selected bit
-                const Index i1 = i | mask; // set selected bit
-                y[i] = U[i_k][0] * x[i0] + U[i_k][1] * x[i1];
-            }
+            // bit of i corresponding to k-th qubit ("selected bit")
+            const int i_k = i & mask ? 1 : 0; 
+            const Index i0 = i & ~ mask; // clear selected bit
+            const Index i1 = i | mask; // set selected bit
+            y[i] = U[i_k][0] * x[i0] + U[i_k][1] * x[i1];
         }
     }
     
@@ -322,13 +321,11 @@ void Transform1Qubit::PrepareInputData()
             }
     
             #pragma omp for reduction(+:sum)
+            for (Index i = 0; i < N; i++)
             {
-                for (Index i = 0; i < N; i++)
-                {
-                    const complexd elem(normal_random(), normal_random());
-                    x[i] = elem;
-                    sum += norm(elem);
-                }
+                const complexd elem(normal_random(), normal_random());
+                x[i] = elem;
+                sum += norm(elem);
             }
         }
 
@@ -347,11 +344,9 @@ void Transform1Qubit::PrepareInputData()
             }
 
             #pragma omp for
+            for (Index i = 0; i < N; i++)
             {
-                for (Index i = 0; i < N; i++)
-                {
-                    x[i] *= coef;
-                }
+                x[i] *= coef;
             }
         }
    
@@ -359,7 +354,6 @@ void Transform1Qubit::PrepareInputData()
         {
             throw ThreadError();
         }
-
     }
 }
 
@@ -413,7 +407,6 @@ int main(int argc, char** argv)
         cerr << e.what() << endl;
         return EXIT_FAILURE;
     }
-
 
     return EXIT_SUCCESS;
 }
