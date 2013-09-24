@@ -101,18 +101,22 @@ class Transform1Qubit
     char* U_filename;
     char* T_filename;
 
+    // minimum of actual number of threads in parallel regions
+    int min_runtime_threads; // -1 means 'not initialized'
+
     public:
     class ParseError: public runtime_error
     {
         public:
-        ParseError(string const& msg):
-            runtime_error(msg)
-        {
-    
-        }
-    
+        ParseError(string const& msg);
     };
     
+    class ThreadError: public runtime_error
+    {
+        public:
+        ThreadError();
+    };
+
     Transform1Qubit();
     void ParseOptions(const int argc, char** const argv);
     void PrintUsage();
@@ -121,13 +125,27 @@ class Transform1Qubit
     void WriteResults();
     void TimerStart();
     void TimerStop();
+    void UpdateMinRuntimeThreads()
 };
 
+Transform1Qubit::ParseError.ParseError(string const& msg):
+    runtime_error(msg)
+{
+
+};
+
+Transform1Qubit::ThreadError.ThreadError():
+    runtime_error("Failed to spawn requested number of threads")
+{
+
+};
+ 
 Transform1Qubit::Transform1Qubit():
     U(vector< vector<complexd> >(2, vector<complexd>(2))),
     n(-1), 
     k(1), 
     threads_count(1),
+    min_runtime_threads(-1),
     x_filename(NULL),
     y_filename(NULL),
     U_filename(NULL),
@@ -159,18 +177,47 @@ void Transform1Qubit::TimerStop()
     end_time = omp_get_wtime();
 }
 
+void Transform1Qubit::UpdateMinRuntimeThreads()
+{
+    if (min_runtime_threads == -1)
+    {
+        min_runtime_threads = omp_get_num_threads();
+    }
+    else
+    {
+        min_runtime_threads = min(min_runtime_threads, omp_get_num_threads());
+    }
+}
+
 void Transform1Qubit::ApplyOperator()
 {
     const int n = intlog2(x.size());
     const Index mask = 1L << (n - k); // k-th most significant bit
     y.resize(x.size());
-    for (Index i = 0; i < x.size(); i++)
+    const Index N = x.size();
+    #pragma omp parallel
     {
-        // bit of i corresponding to k-th qubit ("selected bit")
-        const int i_k = i & mask ? 1 : 0; 
-        const Index i0 = i & ~ mask; // clear selected bit
-        const Index i1 = i | mask; // set selected bit
-        y[i] = U[i_k][0] * x[i0] + U[i_k][1] * x[i1];
+        #pragma omp master
+        {
+            UpdateMinRuntimeThreads();
+        }
+
+        #pragma omp for
+        {
+            for (Index i = 0; i < N; i++)
+            {
+                // bit of i corresponding to k-th qubit ("selected bit")
+                const int i_k = i & mask ? 1 : 0; 
+                const Index i0 = i & ~ mask; // clear selected bit
+                const Index i1 = i | mask; // set selected bit
+                y[i] = U[i_k][0] * x[i0] + U[i_k][1] * x[i1];
+            }
+        }
+    }
+    
+    if (min_runtime_threads < threads_count)
+    {
+        throw ThreadError();
     }
 }
 
@@ -236,6 +283,8 @@ void Transform1Qubit::ParseOptions(const int argc, char** const argv)
 
 void Transform1Qubit::PrepareInputData()
 {
+    omp_set_num_threads(threads_count);
+
     if (U_filename)
     {
         // read U
@@ -265,18 +314,52 @@ void Transform1Qubit::PrepareInputData()
         Index N = 1L << n;
         x.resize(N);
         long double sum = 0.0;
-        for (Index i = 0; i < N; i++)
+        #pragma omp parallel
         {
-            const complexd elem(normal_random(), normal_random());
-            x[i] = elem;
-            sum += norm(elem);
+            #pragma omp master
+            {
+                UpdateMinRuntimeThreads();
+            }
+    
+            #pragma omp for reduction(+:sum)
+            {
+                for (Index i = 0; i < N; i++)
+                {
+                    const complexd elem(normal_random(), normal_random());
+                    x[i] = elem;
+                    sum += norm(elem);
+                }
+            }
         }
+
+        if (min_runtime_threads < threads_count)
+        {
+            throw ThreadError();
+        }
+
         // Normalize x
         const double coef = 1.0 / sqrt(sum);
-        for (Index i = 0; i < N; i++)
+        #pragma omp parallel
         {
-            x[i] *= coef;
+            #pragma omp master
+            {
+                UpdateMinRuntimeThreads();
+            }
+
+            #pragma omp for
+            {
+                for (Index i = 0; i < N; i++)
+                {
+                    x[i] *= coef;
+                }
+            }
         }
+   
+        if (min_runtime_threads < threads_count)
+        {
+            throw ThreadError();
+        }
+
     }
 }
 
@@ -324,8 +407,14 @@ int main(int argc, char** argv)
         cerr << e.what() << endl;
         t.PrintUsage();
         return EXIT_FAILURE;
-
     }
+    catch (Transform1Qubit::ThreadError& e)
+    {
+        cerr << e.what() << endl;
+        return EXIT_FAILURE;
+    }
+
+
     return EXIT_SUCCESS;
 }
 
