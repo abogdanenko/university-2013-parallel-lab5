@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <stdexcept>
 #include <algorithm>
+#include <omp.h>
 
 using std::ostream;
 using std::istream;
@@ -91,8 +92,9 @@ class Transform1Qubit
     int n; // number of qubits for random state, -1 means 'not specified'
     int k; // target qubit index
     int threads_count;
-    double T; // ApplyOperator method computation time
-
+    // computation time
+    double start_time; 
+    double end_time; 
     // NULL means 'not specified by user', "-" means 'write to stdout'
     char* x_filename;
     char* y_filename;
@@ -117,6 +119,8 @@ class Transform1Qubit
     void PrepareInputData();
     void ApplyOperator();
     void WriteResults();
+    void TimerStart();
+    void TimerStop();
 };
 
 Transform1Qubit::Transform1Qubit():
@@ -124,7 +128,6 @@ Transform1Qubit::Transform1Qubit():
     n(-1), 
     k(1), 
     threads_count(1),
-    T(-1.0),
     x_filename(NULL),
     y_filename(NULL),
     U_filename(NULL),
@@ -144,6 +147,16 @@ void Transform1Qubit::PrintUsage()
         "{-x state_vector_file | -n random_state_qubits_count} "
         "[-k target_qubit] [-t threads_count] [-y state_vector_output_file] "
         "[-T computation_time_output_file]]" << endl;
+}
+
+void Transform1Qubit::TimerStart()
+{
+    start_time = omp_get_wtime();
+}
+
+void Transform1Qubit::TimerStop()
+{
+    end_time = omp_get_wtime();
 }
 
 void Transform1Qubit::ApplyOperator()
@@ -269,14 +282,6 @@ void Transform1Qubit::PrepareInputData()
 
 void Transform1Qubit::WriteResults()
 {
-    if (T_filename)
-    {
-        ofstream fs;
-        ostream& s = (string(T_filename) == "-") ? cout :
-            (fs.open(T_filename), fs);
-        s << T << endl;
-    }
-
     if (y_filename)
     {
         ofstream fs;
@@ -284,6 +289,15 @@ void Transform1Qubit::WriteResults()
             (fs.open(y_filename), fs);
         ostream_iterator<complexd> out_it (s, "\n");
         copy(y.begin(), y.end(), out_it);
+    }
+
+    if (T_filename)
+    {
+        ofstream fs;
+        ostream& s = (string(T_filename) == "-") ? cout :
+            (fs.open(T_filename), fs);
+        TimerStop();
+        s << end_time - start_time << endl;
     }
 }
 
@@ -298,6 +312,7 @@ int main(int argc, char** argv)
         }
         else
         {
+            t.TimerStart();
             t.ParseOptions(argc, argv);
             t.PrepareInputData();
             t.ApplyOperator();
