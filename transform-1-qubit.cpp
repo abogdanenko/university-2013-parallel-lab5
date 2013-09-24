@@ -66,6 +66,21 @@ int string_to_int(const string& s)
     return n;
 }
 
+/*
+    Pseudo-random number generator
+
+    Returns real numbers between 0 and 1
+    copied from
+    http://en.wikipedia.org/wiki/Random_number_generation#cite_ref-6
+*/
+inline double random01d(unsigned& m_w, unsigned& m_z)
+{
+    m_z = 36969 * (m_z & 65535) + (m_z >> 16);
+    m_w = 18000 * (m_w & 65535) + (m_w >> 16);
+    unsigned r = (m_z << 16) + m_w;  /* 32-bit result */
+    return double (r) / 0xffffffff;
+}
+
 class Transform1Qubit
 {
     vector<complexd> x; // initial state vector
@@ -281,11 +296,25 @@ void Transform1Qubit::PrepareInputData()
         long double sum = 0.0;
 
         int runtime_threads;
-        for (Index i = 0; i < N; i++)
+
+        #pragma omp parallel
         {
-            double const r1 = double (rand()) / RAND_MAX - 0.5;
-            double const r2 = double (rand()) / RAND_MAX - 0.5;
-            x[i] = complexd(r1, r2);
+            #pragma omp single nowait
+            {
+                runtime_threads = omp_get_num_threads();            
+            }
+
+            unsigned next_seed1 = rand();
+            unsigned next_seed2 = rand();
+   
+            #pragma omp for 
+            for (Index i = 0; i < N; i++)
+            {
+                double re = random01d(next_seed1, next_seed2) - 0.5;
+                double im = random01d(next_seed1, next_seed2) - 0.5;
+                x[i] = complexd(re, im);
+            }
+    
         }
 
         #pragma omp parallel
