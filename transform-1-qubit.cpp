@@ -43,7 +43,6 @@ using std::cerr;
 using std::endl;
 using std::runtime_error;
 using std::copy;
-using std::min;
 
 typedef complex<double> complexd;
 typedef vector<complexd>::size_type Index;
@@ -96,8 +95,6 @@ class Transform1Qubit
     // computation time
     double start_time; 
     double end_time; 
-    // minimum of actual number of threads in parallel regions
-    int min_runtime_threads; // -1 means 'not initialized'
 
     // NULL means 'not specified by user', "-" means 'write to stdout'
     char* x_filename;
@@ -126,7 +123,6 @@ class Transform1Qubit
     void WriteResults();
     void TimerStart();
     void TimerStop();
-    void UpdateMinRuntimeThreads();
 };
 
 Transform1Qubit::ParseError::ParseError(string const& msg):
@@ -146,7 +142,6 @@ Transform1Qubit::Transform1Qubit():
     n(-1), 
     k(1), 
     threads_count(1),
-    min_runtime_threads(-1),
     x_filename(NULL),
     y_filename(NULL),
     U_filename(NULL),
@@ -178,29 +173,19 @@ void Transform1Qubit::TimerStop()
     end_time = omp_get_wtime();
 }
 
-void Transform1Qubit::UpdateMinRuntimeThreads()
-{
-    if (min_runtime_threads == -1)
-    {
-        min_runtime_threads = omp_get_num_threads();
-    }
-    else
-    {
-        min_runtime_threads = min(min_runtime_threads, omp_get_num_threads());
-    }
-}
-
 void Transform1Qubit::ApplyOperator()
 {
     const int n = intlog2(x.size());
     const Index mask = 1L << (n - k); // k-th most significant bit
     y.resize(x.size());
     const Index N = x.size();
+    
+    int runtime_threads;
     #pragma omp parallel
     {
-        #pragma omp master
+        #pragma omp single nowait
         {
-            UpdateMinRuntimeThreads();
+            runtime_threads = omp_get_num_threads();            
         }
 
         #pragma omp for
@@ -214,7 +199,7 @@ void Transform1Qubit::ApplyOperator()
         }
     }
     
-    if (min_runtime_threads < threads_count)
+    if (runtime_threads < threads_count)
     {
         throw ThreadError();
     }
@@ -313,23 +298,38 @@ void Transform1Qubit::PrepareInputData()
         Index N = 1L << n;
         x.resize(N);
         long double sum = 0.0;
+
+        int runtime_threads;
         #pragma omp parallel
         {
-            #pragma omp master
+            #pragma omp single nowait
             {
-                UpdateMinRuntimeThreads();
+                runtime_threads = omp_get_num_threads();            
             }
-    
-            #pragma omp for reduction(+:sum)
+
+            #pragma omp for
             for (Index i = 0; i < N; i++)
             {
                 const complexd elem(normal_random(), normal_random());
                 x[i] = elem;
-                sum += norm(elem);
             }
         }
 
-        if (min_runtime_threads < threads_count)
+        #pragma omp parallel
+        {
+            #pragma omp single nowait
+            {
+                runtime_threads = omp_get_num_threads();            
+            }
+   
+            #pragma omp for reduction(+:sum)
+            for (Index i = 0; i < N; i++)
+            {
+                sum += norm(x[i]);
+            }
+        }
+
+        if (runtime_threads < threads_count)
         {
             throw ThreadError();
         }
@@ -338,9 +338,9 @@ void Transform1Qubit::PrepareInputData()
         const double coef = 1.0 / sqrt(sum);
         #pragma omp parallel
         {
-            #pragma omp master
+            #pragma omp single nowait
             {
-                UpdateMinRuntimeThreads();
+                runtime_threads = omp_get_num_threads();            
             }
 
             #pragma omp for
@@ -350,7 +350,7 @@ void Transform1Qubit::PrepareInputData()
             }
         }
    
-        if (min_runtime_threads < threads_count)
+        if (runtime_threads < threads_count)
         {
             throw ThreadError();
         }
