@@ -382,59 +382,67 @@ void Transform1Qubit::WriteResults()
     }
 }
 
+void Master::Run()
+{
+    if (argc == 1)
+    {
+        PrintUsage();
+        AbortWorkers();
+    }
+    else
+    {
+        Timer.Start();
+        DistributeInputData();
+        ManageLocalWorker();
+        ReceiveWriteResults();
+        Timer.Stop();
+        WriteComputationTime();
+    }
+}
+
+void Worker::Run()
+{
+    if (WaitForGoAhead())
+    {
+        ReceiveInstructions();
+        ReceiveInputData();
+        ApplyOperator();
+        SendResults();
+    }
+}
+
 int main(int argc, char** argv)
 {
-    MPI_Status status;
     int rank;
-    int np; // number of processes
-    int peer;
+    int size; // number of processes
     int exit_code = EXIT_SUCCESS;
 
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &np);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     if (rank == 0)
     {
-        Transform1QubitMaster master(np);
+        Parser parser(argc, argv);
+        Master master(size);
         try
         {
-            if (argc == 1)
-            {
-                master.PrintUsage();
-                master.AbortWorkers();
-            }
-            else
-            {
-                master.ParseOptions(argc, argv);
-                master.TellWorkersToGoAhead();
-                master.Timer.Start();
-                master.DistributeInputData();
-                localworker.ApplyOperator();
-                master.WriteTransformedVector();
-                master.Timer.Stop();
-                master.WriteComputationTime();
-            }
+            parse_struct = parser.Parse();
+            master.Init(parse_struct, size);
+            master.Run();
         }
-        catch (Transform1Qubit::ParseError& e)
+        catch (Parser::ParseError& e)
         {
             cerr << e.what() << endl;
-            master.PrintUsage();
+            parser.PrintUsage();
             master.AbortWorkers();
             exit_code = EXIT_FAILURE;
         }
-
     }
     else
     {
-        Transform1QubitWorker worker(rank, np);
-        if (worker.WaitForGoAhead())
-        {
-            worker.ReceiveInstructions();
-            worker.ReceiveInputData();
-            worker.ApplyOperator();
-            worker.SendResults();
-        }
+        Worker worker();
+        worker.Run();
     }
     MPI_Finalize();
     return exit_code;
