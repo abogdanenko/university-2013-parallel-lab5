@@ -123,8 +123,36 @@ class Timer
     double GetDelta();
 }
 
+class BaseWorker
+{
+    vector<complexd> x; // initial state vector slice
+    vector< vector<complexd> > U; // transform matrix
+
+    public:
+    ApplyOperator();
+};
+
+class RemoteWorker: public BaseWorker
+{
+    public:
+    static const int GO_AHEAD = 0;
+    Run();
+    WaitForGoAheadOrAbort();
+    ReceiveInstructions();
+    ReceiveInputData();
+    SendResults();
+};
+
+class LocalWorker: public BaseWorker
+{
+    public:
+    Init(n, k);
+    BUF GetNextResults();
+}
+
 class Master
 {
+    LocalWorker worker;
     Parser::Args args; // parsed program arguments
     Timer timer; // measure computation time
 
@@ -137,20 +165,6 @@ class Master
     void ManageLocalWorker();
     void ReceiveAndWriteResults();
     void WriteComputationTime();
-};
-
-class Worker
-{
-    vector<complexd> x; // initial state vector slice
-    vector< vector<complexd> > U; // transform matrix
-
-    public:
-    Run();
-    WaitForGoAhead()
-    ReceiveInstructions();
-    ReceiveInputData();
-    ApplyOperator();
-    SendResults();
 };
 
 Parser::ParseError::ParseError(string const& msg):
@@ -243,12 +257,12 @@ Worker::Worker():
 
 void Timer::TimerStart()
 {
-    start_time = omp_get_wtime();
+    start = MPI_Wtime();
 }
 
 void Timer::TimerStop()
 {
-    end_time = omp_get_wtime();
+    end = MPI_Wtime();
 }
 
 void Timer::GetDelta()
@@ -389,23 +403,28 @@ void Master::Run()
     }
     else
     {
+        // implicit barrier here to measure time consistently
+        SendBlockingGoAhead();
+        // All processes have started and are standing by
         timer.Start();
         DistributeInputData();
         ManageLocalWorker();
         ReceiveAndWriteResults();
+        // implicit barrier here to measure time consistently
+        WaitForRemoteWorkers();
         timer.Stop();
         WriteComputationTime();
     }
 }
 
-void Worker::Run()
+void RemoteWorker::Run()
 {
-    if (WaitForGoAhead())
+    if (WaitForGoAheadOrAbort() == GO_AHEAD)
     {
-        ReceiveInstructions();
         ReceiveInputData();
         ApplyOperator();
         SendResults();
+        SendCompletionNotification();
     }
 }
 
@@ -437,7 +456,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        Worker worker();
+        RemoteWorker worker();
         worker.Run();
     }
     MPI_Finalize();
