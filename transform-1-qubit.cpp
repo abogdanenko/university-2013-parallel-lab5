@@ -7,7 +7,7 @@
         n-qubit system. Only pure states are considered so system state is
         represented by a vector 2**n complex numbers long.
 
-        See Transform1Qubit::PrintUsage function for invocation information.
+        See Parser::PrintUsage function for invocation information.
 
         This is program uses MPI to speed up computation and allow for larger
         input.
@@ -123,22 +123,34 @@ class Timer
     double GetDelta();
 }
 
-class Transform1Qubit
+class Master
 {
-    vector<complexd> x; // initial state vector
-    vector<complexd> y; // transformed state vector
-    vector< vector<complexd> > U; // transform matrix
-
     Parser::Args args; // parsed program arguments
     Timer timer; // measure computation time
 
     public:
    
-    Transform1Qubit();
     void Init(const Parser::Args &args);
-    void PrepareInputData();
-    void ApplyOperator();
-    void WriteResults();
+    void Run();
+    void AbortWorkers();
+    void DistributeInputData();
+    void ManageLocalWorker();
+    void ReceiveAndWriteResults();
+    void WriteComputationTime();
+};
+
+class Worker
+{
+    vector<complexd> x; // initial state vector slice
+    vector< vector<complexd> > U; // transform matrix
+
+    public:
+    Run();
+    WaitForGoAhead()
+    ReceiveInstructions();
+    ReceiveInputData();
+    ApplyOperator();
+    SendResults();
 };
 
 Parser::ParseError::ParseError(string const& msg):
@@ -223,15 +235,10 @@ Parser::Args Parser::Parse()
     }
 }
 
-Transform1Qubit::Transform1Qubit():
+Worker::Worker():
     U(vector< vector<complexd> >(2, vector<complexd>(2)))
 {
     srand(time(NULL));
-
-    U[0][0] = 1;
-    U[0][1] = 0;
-    U[1][0] = 0;
-    U[1][1] = 1;
 }
 
 void Timer::TimerStart()
@@ -273,6 +280,9 @@ void Transform1Qubit::ApplyOperator()
 
 void Transform1Qubit::PrepareInputData()
 {
+    // transform matrix
+    vector< vector<complexd> > U(
+        vector< vector<complexd> >(2, vector<complexd>(2)))
 
     if (U_filename)
     {
@@ -281,6 +291,13 @@ void Transform1Qubit::PrepareInputData()
         istream& s = (string(U_filename) == "-") ? cin :
             (fs.open(U_filename), fs);
         s >> U[0][0] >> U[0][1] >> U[1][0] >> U[1][1];
+    }
+    else
+    {
+        U[0][0] = 1;
+        U[0][1] = 0;
+        U[1][0] = 0;
+        U[1][1] = 1;
     }
 
     if (x_filename)
@@ -340,7 +357,7 @@ void Transform1Qubit::PrepareInputData()
     }
 }
 
-void Transform1Qubit::WriteResults()
+void Master::ReceiveAndWriteResults()
 {
     if (y_filename)
     {
@@ -350,7 +367,10 @@ void Transform1Qubit::WriteResults()
         ostream_iterator<complexd> out_it (s, "\n");
         copy(y.begin(), y.end(), out_it);
     }
+}
 
+void Master::WriteComputationTime()
+{
     if (T_filename)
     {
         ofstream fs;
