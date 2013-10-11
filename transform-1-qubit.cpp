@@ -388,52 +388,55 @@ int main(int argc, char** argv)
     int rank;
     int np; // number of processes
     int peer;
-    const int MASTER = 0;
+    int exit_code = EXIT_SUCCESS;
+
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &np);
-    if (rank == MASTER)
+
+    if (rank == 0)
     {
+        Transform1QubitMaster master(np);
+        try
+        {
+            if (argc == 1)
+            {
+                master.PrintUsage();
+                master.AbortWorkers();
+            }
+            else
+            {
+                master.ParseOptions(argc, argv);
+                master.TellWorkersToGoAhead();
+                master.Timer.Start();
+                master.DistributeInputData();
+                localworker.ApplyOperator();
+                master.WriteTransformedVector();
+                master.Timer.Stop();
+                master.WriteComputationTime();
+            }
+        }
+        catch (Transform1Qubit::ParseError& e)
+        {
+            cerr << e.what() << endl;
+            master.PrintUsage();
+            master.AbortWorkers();
+            exit_code = EXIT_FAILURE;
+        }
 
     }
     else
     {
-
+        Transform1QubitWorker worker(rank, np);
+        if (worker.WaitForGoAhead())
+        {
+            worker.ReceiveInstructions();
+            worker.ReceiveInputData();
+            worker.ApplyOperator();
+            worker.SendResults();
+        }
     }
     MPI_Finalize();
-    return EXIT_SUCCESS;
-
-
-
-
-    Transform1Qubit t;
-    try
-    {
-        if (argc == 1)
-        {
-            t.PrintUsage();
-        }
-        else
-        {
-            t.TimerStart();
-            t.ParseOptions(argc, argv);
-            t.PrepareInputData();
-            t.ApplyOperator();
-            t.WriteResults();
-        }
-    }
-    catch (Transform1Qubit::ParseError& e)
-    {
-        cerr << e.what() << endl;
-        t.PrintUsage();
-        return EXIT_FAILURE;
-    }
-    catch (Transform1Qubit::ThreadError& e)
-    {
-        cerr << e.what() << endl;
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
+    return exit_code;
 }
 
