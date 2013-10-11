@@ -112,6 +112,16 @@ class Parser
     static void PrintUsage();
 };
 
+class Timer
+{
+    double start; 
+    double end; 
+
+    public:
+    void TimerStart();
+    void TimerStop();
+    double GetDelta();
+}
 
 class Transform1Qubit
 {
@@ -120,10 +130,7 @@ class Transform1Qubit
     vector< vector<complexd> > U; // transform matrix
 
     Parser::Args args; // parsed program arguments
-
-    // computation time
-    double start_time; 
-    double end_time; 
+    Timer timer; // measure computation time
 
     public:
    
@@ -132,8 +139,6 @@ class Transform1Qubit
     void PrepareInputData();
     void ApplyOperator();
     void WriteResults();
-    void TimerStart();
-    void TimerStop();
 };
 
 Parser::ParseError::ParseError(string const& msg):
@@ -229,14 +234,19 @@ Transform1Qubit::Transform1Qubit():
     U[1][1] = 1;
 }
 
-void Transform1Qubit::TimerStart()
+void Timer::TimerStart()
 {
     start_time = omp_get_wtime();
 }
 
-void Transform1Qubit::TimerStop()
+void Timer::TimerStop()
 {
     end_time = omp_get_wtime();
+}
+
+void Timer::GetDelta()
+{
+    return end_time - start_time;
 }
 
 void Transform1Qubit::ApplyOperator()
@@ -346,8 +356,7 @@ void Transform1Qubit::WriteResults()
         ofstream fs;
         ostream& s = (string(T_filename) == "-") ? cout :
             (fs.open(T_filename), fs);
-        TimerStop();
-        s << end_time - start_time << endl;
+        s << timer.GetDelta() << endl;
     }
 }
 
@@ -360,11 +369,11 @@ void Master::Run()
     }
     else
     {
-        Timer.Start();
+        timer.Start();
         DistributeInputData();
         ManageLocalWorker();
         ReceiveAndWriteResults();
-        Timer.Stop();
+        timer.Stop();
         WriteComputationTime();
     }
 }
