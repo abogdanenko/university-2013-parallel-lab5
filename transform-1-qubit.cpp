@@ -157,7 +157,7 @@ void Parser::PrintUsage()
 {
     cout << "Usage: transform-1-qubit [[-U operator_file] "
         "{-x state_vector_file | -n random_state_qubits_count} "
-        "[-k target_qubit] [-t threads_count] [-y state_vector_output_file] "
+        "[-k target_qubit] [-y state_vector_output_file] "
         "[-T computation_time_output_file]]" << endl;
 }
 
@@ -180,9 +180,6 @@ Parser::Args Parser::Parse()
                 break;
             case 'k':
                 k = string_to_int(optarg);
-                break;
-            case 't':
-                threads_count = string_to_int(optarg);
                 break;
             case 'y':
                 y_filename = optarg;
@@ -249,14 +246,8 @@ void Transform1Qubit::ApplyOperator()
     y.resize(x.size());
     const Index N = x.size();
     
-    int runtime_threads;
     #pragma omp parallel
     {
-        #pragma omp single nowait
-        {
-            runtime_threads = omp_get_num_threads();            
-        }
-
         #pragma omp for
         for (Index i = 0; i < N; i++)
         {
@@ -268,15 +259,10 @@ void Transform1Qubit::ApplyOperator()
         }
     }
     
-    if (runtime_threads < threads_count)
-    {
-        throw ThreadError();
-    }
 }
 
 void Transform1Qubit::PrepareInputData()
 {
-    omp_set_num_threads(threads_count);
 
     if (U_filename)
     {
@@ -306,15 +292,8 @@ void Transform1Qubit::PrepareInputData()
         x.resize(N);
         long double sum = 0.0;
 
-        int runtime_threads;
-
         #pragma omp parallel
         {
-            #pragma omp single nowait
-            {
-                runtime_threads = omp_get_num_threads();            
-            }
-
             unsigned next_seed1 = rand();
             unsigned next_seed2 = rand();
    
@@ -330,11 +309,7 @@ void Transform1Qubit::PrepareInputData()
 
         #pragma omp parallel
         {
-            #pragma omp single nowait
-            {
-                runtime_threads = omp_get_num_threads();            
-            }
-   
+  
             #pragma omp for reduction(+:sum)
             for (Index i = 0; i < N; i++)
             {
@@ -342,30 +317,15 @@ void Transform1Qubit::PrepareInputData()
             }
         }
 
-        if (runtime_threads < threads_count)
-        {
-            throw ThreadError();
-        }
-
         // Normalize x
         const double coef = 1.0 / sqrt(sum);
         #pragma omp parallel
         {
-            #pragma omp single nowait
-            {
-                runtime_threads = omp_get_num_threads();            
-            }
-
             #pragma omp for
             for (Index i = 0; i < N; i++)
             {
                 x[i] *= coef;
             }
-        }
-   
-        if (runtime_threads < threads_count)
-        {
-            throw ThreadError();
         }
     }
 }
