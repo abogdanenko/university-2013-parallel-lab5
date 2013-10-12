@@ -68,37 +68,6 @@ int string_to_int(const string& s)
     return n;
 }
 
-class BaseWorker
-{
-    /* Slice of initial state vector, split into two halves. First half
-       corresponds to k-th qubit state 0, second half corresponds to target
-       qubit state 1. The vector is modified in-place, so result is also stored
-       here  */
-    vector<complexd> x; 
-    vector< vector<complexd> > U; // transform matrix
-
-    public:
-    ApplyOperator();
-};
-
-class RemoteWorker: public BaseWorker
-{
-    public:
-    static const int GO_AHEAD = 0;
-    Run();
-    WaitForGoAheadOrAbort();
-    ReceiveInstructions();
-    ReceiveInputData();
-    SendResults();
-};
-
-class LocalWorker: public BaseWorker
-{
-    public:
-    Init(n, k);
-    SendNextBuf();
-}
-
 class Master
 {
     LocalWorker local_worker;
@@ -115,45 +84,6 @@ class Master
     void ReceiveAndWriteResults();
     void WriteComputationTime();
 };
-
-Worker::Worker():
-    U(vector< vector<complexd> >(2, vector<complexd>(2)))
-{
-    srand(time(NULL));
-}
-
-void BaseWorker::InitRandom()
-{
-    x.resize(N);
-    RandomComplexGenerator gen;
-    generate(x.begin(), x.end(), gen);
-
-    // normalize
-    long double sum = 0.0;
-    for (vector<complexd>::const_iterator it = x.begin(); it != x.end(); it++)
-    {
-        sum += norm(*it);
-    }
-    MPI_Reduce_send(sum);
-    long double coef;
-    MPI_Broadcast_receive(coef);
-    // "x = coef * x"
-    transorm(x.begin(), x.end(), x.begin(),
-        bind1st(multiplies<complexd>(), (complexd) coef));
-}
-
-void BaseWorker::ApplyOperator()
-{
-    const Index N = x.size() / 2;
-    for (Index i = 0; i < N; i++)
-    {
-        const Index j = i + N;
-        const complexd a = x[i];
-        const complexd b = x[j];
-        x[i] = U[0][0] * a + U[0][1] * b;
-        x[j] = U[1][0] * a + U[1][1] * b;
-    }
-}
 
 void Master::PrepareOperator()
 {
@@ -298,17 +228,6 @@ void Master::Run()
         WaitForRemoteWorkers();
         timer.Stop();
         WriteComputationTime();
-    }
-}
-
-void RemoteWorker::Run()
-{
-    if (WaitForGoAheadOrAbort() == GO_AHEAD)
-    {
-        ReceiveInputData();
-        ApplyOperator();
-        SendResults();
-        SendCompletionNotification();
     }
 }
 
