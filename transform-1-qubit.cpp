@@ -125,7 +125,11 @@ class Timer
 
 class BaseWorker
 {
-    vector<complexd> x; // initial state vector slice
+    /* Slice of initial state vector, split into two halves. First half
+       corresponds to k-th qubit state 0, second half corresponds to target
+       qubit state 1. The vector is modified in-place, so result is also stored
+       here  */
+    vector<complexd> x; 
     vector< vector<complexd> > U; // transform matrix
 
     public:
@@ -270,26 +274,17 @@ void Timer::GetDelta()
     return end_time - start_time;
 }
 
-void Transform1Qubit::ApplyOperator()
+void BaseWorker::ApplyOperator()
 {
-    const int n = intlog2(x.size());
-    const Index mask = 1L << (n - k); // k-th most significant bit
-    y.resize(x.size());
-    const Index N = x.size();
-    
-    #pragma omp parallel
+    const Index N = x.size() / 2;
+    for (Index i = 0; i < N; i++)
     {
-        #pragma omp for
-        for (Index i = 0; i < N; i++)
-        {
-            // bit of i corresponding to k-th qubit ("selected bit")
-            const int i_k = i & mask ? 1 : 0; 
-            const Index i0 = i & ~ mask; // clear selected bit
-            const Index i1 = i | mask; // set selected bit
-            y[i] = U[i_k][0] * x[i0] + U[i_k][1] * x[i1];
-        }
+        const Index j = i + N;
+        const complexd a = x[i];
+        const complexd b = x[j];
+        x[i] = U[0][0] * a + U[0][1] * b;
+        x[j] = U[1][0] * a + U[1][1] * b;
     }
-    
 }
 
 void Transform1Qubit::PrepareInputData()
