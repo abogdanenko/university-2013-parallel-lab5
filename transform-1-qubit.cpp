@@ -97,17 +97,6 @@ class Parser
     static void PrintUsage();
 };
 
-class Timer
-{
-    double start; 
-    double end; 
-
-    public:
-    void TimerStart();
-    void TimerStop();
-    double GetDelta();
-}
-
 class BaseWorker
 {
     /* Slice of initial state vector, split into two halves. First half
@@ -242,21 +231,6 @@ Worker::Worker():
     U(vector< vector<complexd> >(2, vector<complexd>(2)))
 {
     srand(time(NULL));
-}
-
-void Timer::TimerStart()
-{
-    start = MPI_Wtime();
-}
-
-void Timer::TimerStop()
-{
-    end = MPI_Wtime();
-}
-
-void Timer::GetDelta()
-{
-    return end_time - start_time;
 }
 
 class RandomComplexGenerator()
