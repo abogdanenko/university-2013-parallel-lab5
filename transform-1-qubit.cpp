@@ -68,21 +68,6 @@ int string_to_int(const string& s)
     return n;
 }
 
-/*
-    Pseudo-random number generator
-
-    Returns real numbers between 0 and 1
-    copied from
-    http://en.wikipedia.org/wiki/Random_number_generation#cite_ref-6
-*/
-inline double random01d(unsigned& m_w, unsigned& m_z)
-{
-    m_z = 36969 * (m_z & 65535) + (m_z >> 16);
-    m_w = 18000 * (m_w & 65535) + (m_w >> 16);
-    unsigned r = (m_z << 16) + m_w;  /* 32-bit result */
-    return double (r) / 0xffffffff;
-}
-
 class Parser
 {
     const int argc;
@@ -274,6 +259,64 @@ void Timer::GetDelta()
     return end_time - start_time;
 }
 
+class RandomComplexGenerator()
+{
+    unsigned m_w;
+    unsigned m_z;
+    inline double random01d()
+    public:
+    RandomComplexGenerator();
+    static complexd operator()();
+};
+
+/*
+    Pseudo-random number generator
+
+    Returns real numbers between 0 and 1
+    copied from
+    http://en.wikipedia.org/wiki/Random_number_generation#cite_ref-6
+*/
+double RandomComplexGenerator::random01d()
+{
+    m_z = 36969 * (m_z & 65535) + (m_z >> 16);
+    m_w = 18000 * (m_w & 65535) + (m_w >> 16);
+    unsigned r = (m_z << 16) + m_w;  // 32-bit result 
+    return double (r) / 0xffffffff;
+}
+
+RandomComplexGenerator::RandomComplexGenerator():
+    next_seed1(rand()),
+    next_seed2(rand())
+{
+}
+
+complexd RandomComplexGenerator::operator()()
+{
+    double re = random01d() - 0.5;
+    double im = random01d() - 0.5;
+    return complexd(re, im);
+}
+
+void BaseWorker::InitRandom()
+{
+    x.resize(N);
+    RandomComplexGenerator gen;
+    generate(x.begin(), x.end(), gen);
+
+    // normalize
+    long double sum = 0.0;
+    for (vector<complexd>::const_iterator it = x.begin(); it != x.end(); it++)
+    {
+        sum += norm(*it);
+    }
+    MPI_Reduce_send(sum);
+    long double coef;
+    MPI_Broadcast_receive(coef);
+    // "x = coef * x"
+    transorm(x.begin(), x.end(), x.begin(),
+        bind1st(multiplies<complexd>(), (complexd) coef));
+}
+
 void BaseWorker::ApplyOperator()
 {
     const Index N = x.size() / 2;
@@ -287,15 +330,11 @@ void BaseWorker::ApplyOperator()
     }
 }
 
-void Transform1Qubit::PrepareInputData()
+void Master::PrepareOperator()
 {
-    // transform matrix
-    vector< vector<complexd> > U(
-        vector< vector<complexd> >(2, vector<complexd>(2)))
-
     if (U_filename)
     {
-        // read U
+        // read U from file or stdin
         ifstream fs;
         istream& s = (string(U_filename) == "-") ? cin :
             (fs.open(U_filename), fs);
@@ -303,66 +342,45 @@ void Transform1Qubit::PrepareInputData()
     }
     else
     {
+        // Assign identity matrix to U
         U[0][0] = 1;
         U[0][1] = 0;
         U[1][0] = 0;
         U[1][1] = 1;
     }
+}
+
+void Master::DistributeInputData()
+{
+    // transform matrix
+    vector< vector<complexd> > U(
+        vector< vector<complexd> >(2, vector<complexd>(2)))
+    PrepareOperator(U);
 
     if (x_filename)
     {
-        // read x
+        // read x from file or stdin
         ifstream fs;
         istream& s = (string(x_filename) == "-") ? cin :
             (fs.open(x_filename), fs);
-        istream_iterator<complexd> start(s);
-        istream_iterator<complexd> eos; // end of stream iterator
-
-        x.assign(start, eos); // read all numbers
+        istream_iterator<complexd> in_it(s);
+        if (split_slices_between_workers)
+        {
+            ReadAndSendSplit(in_it);
+        }
+        else
+        {
+            ReadAndSendNoSplit(in_it);
+        }
     }
     else
     {
         // set random n qubit state
-
-        Index N = 1L << n;
-        x.resize(N);
-        long double sum = 0.0;
-
-        #pragma omp parallel
-        {
-            unsigned next_seed1 = rand();
-            unsigned next_seed2 = rand();
-   
-            #pragma omp for 
-            for (Index i = 0; i < N; i++)
-            {
-                double re = random01d(next_seed1, next_seed2) - 0.5;
-                double im = random01d(next_seed1, next_seed2) - 0.5;
-                x[i] = complexd(re, im);
-            }
-    
-        }
-
-        #pragma omp parallel
-        {
-  
-            #pragma omp for reduction(+:sum)
-            for (Index i = 0; i < N; i++)
-            {
-                sum += norm(x[i]);
-            }
-        }
+        MPI_Reduce_receive(sum);
 
         // Normalize x
         const double coef = 1.0 / sqrt(sum);
-        #pragma omp parallel
-        {
-            #pragma omp for
-            for (Index i = 0; i < N; i++)
-            {
-                x[i] *= coef;
-            }
-        }
+        MPI_Broadcast_send(coef);
     }
 }
 
