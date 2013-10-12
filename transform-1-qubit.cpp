@@ -151,12 +151,12 @@ class LocalWorker: public BaseWorker
 {
     public:
     Init(n, k);
-    BUF GetNextResults();
+    SendNextBuf();
 }
 
 class Master
 {
-    LocalWorker worker;
+    LocalWorker local_worker;
     Parser::Args args; // parsed program arguments
     Timer timer; // measure computation time
 
@@ -366,6 +366,44 @@ void Transform1Qubit::PrepareInputData()
     }
 }
 
+void Master::ReceiveAndWriteSplit(const ostream_iterator<complexd>& f)
+{
+    for (int slice = 0; slice < slices_count; slice++)
+    {
+        // we get the same peer twice
+        for (int peer = FirstPeer(slice); peer < EndPeer(slice); peer++)
+        {
+            for (int i = 0; i < bufs_per_peer / 2; j++)
+            {
+                if (peer == 0)
+                {
+                    local_worker.SendNextBuf();
+                }
+                MPI_Irecv(buf, peer);
+                MPI_Wait();
+                copy(buf.begin(), buf.end(), out_it);
+            }
+        }
+    }
+}
+
+void Master::ReceiveAndWriteNoSplit(const ostream_iterator<complexd>& f)
+{
+    for (int peer = 0; peer < np; peer++)
+    {
+        if (peer == 0)
+        {
+            local_worker.SendNextBuf();
+        }
+        for (i = 0; i < bufs_per_peer_count; i++)
+        {
+            MPI_Irecv(buf, peer);
+            MPI_Wait();
+            copy(buf.begin(), buf.end(), out_it);
+        }
+    }
+}
+
 void Master::ReceiveAndWriteResults()
 {
     if (y_filename)
@@ -374,7 +412,15 @@ void Master::ReceiveAndWriteResults()
         ostream& s = (string(y_filename) == "-") ? cout :
             (fs.open(y_filename), fs);
         ostream_iterator<complexd> out_it (s, "\n");
-        copy(y.begin(), y.end(), out_it);
+
+        if (split_slices_between_workers)
+        {
+            ReceiveAndWriteSplit(out_it);
+        }
+        else
+        {
+            ReceiveAndWriteNoSplit(out_it);
+        }
     }
 }
 
