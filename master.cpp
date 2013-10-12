@@ -17,6 +17,26 @@ void Master::PrepareOperator()
         U[1][1] = 1;
     }
 }
+void Master::ReadAndSendSplit(const istream_iterator<complexd>& f);
+{
+    for (int slice = 0; slice < slices_count; slice++)
+    {
+        // we get the same peer twice
+        for (int peer = FirstPeer(slice); peer < EndPeer(slice); peer++)
+        {
+            for (int i = 0; i < bufs_per_peer / 2; i++)
+            {
+                copy(f, f + buf.size(), buf.begin());
+                MPI_Isend(buf, peer);
+                if (peer == 0)
+                {
+                    local_worker.ReceiveNextBuf();
+                }
+                MPI_Wait();
+            }
+        }
+    }
+}
 
 void Master::DistributeInputData()
 {
@@ -43,12 +63,7 @@ void Master::DistributeInputData()
     }
     else
     {
-        // set random n qubit state
-        MPI_Reduce_receive(sum);
-
-        // Normalize x
-        const double coef = 1.0 / sqrt(sum);
-        MPI_Broadcast_send(coef);
+        local_worker.InitRandom();
     }
 }
 
@@ -67,7 +82,7 @@ void Master::ReceiveAndWriteSplit(const ostream_iterator<complexd>& f)
                 }
                 MPI_Irecv(buf, peer);
                 MPI_Wait();
-                copy(buf.begin(), buf.end(), out_it);
+                copy(buf.begin(), buf.end(), f);
             }
         }
     }
@@ -77,15 +92,15 @@ void Master::ReceiveAndWriteNoSplit(const ostream_iterator<complexd>& f)
 {
     for (int peer = 0; peer < np; peer++)
     {
-        if (peer == 0)
-        {
-            local_worker.SendNextBuf();
-        }
         for (i = 0; i < bufs_per_peer_count; i++)
         {
+            if (peer == 0)
+            {
+                local_worker.SendNextBuf();
+            }
             MPI_Irecv(buf, peer);
             MPI_Wait();
-            copy(buf.begin(), buf.end(), out_it);
+            copy(buf.begin(), buf.end(), f);
         }
     }
 }

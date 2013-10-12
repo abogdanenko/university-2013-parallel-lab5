@@ -11,14 +11,13 @@ void BaseWorker::InitRandom()
     generate(x.begin(), x.end(), gen);
 
     // normalize
-    long double sum = 0.0;
+    long double local_sum = 0.0;
     for (vector<complexd>::const_iterator it = x.begin(); it != x.end(); it++)
     {
-        sum += norm(*it);
+        local_sum += norm(*it);
     }
-    MPI_Reduce_send(sum);
-    long double coef;
-    MPI_Broadcast_receive(coef);
+    MPI_Reduce_all(local_sum, global_sum);
+    const long double coef = 1.0 / sqrt(global_sum);
     // "x = coef * x"
     transorm(x.begin(), x.end(), x.begin(),
         bind1st(multiplies<complexd>(), (complexd) coef));
