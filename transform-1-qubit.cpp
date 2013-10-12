@@ -49,25 +49,6 @@ using std::copy;
 typedef complex<double> complexd;
 typedef vector<complexd>::size_type Index;
 
-// for n = 2**m returns m
-template <class Integer>
-int intlog2(const Integer n)
-{
-    int result = 0;
-    Integer t = n;
-    while (t >>= 1)
-      result++;
-    return result;
-}
-
-int string_to_int(const string& s)
-{
-    int n;
-    stringstream ss(s);
-    ss >> n;
-    return n;
-}
-
 int main(int argc, char** argv)
 {
     int rank;

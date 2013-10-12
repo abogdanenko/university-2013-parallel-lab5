@@ -1,3 +1,11 @@
+int string_to_int(const string& s)
+{
+    int n;
+    stringstream ss(s);
+    ss >> n;
+    return n;
+}
+
 Parser::ParseError::ParseError(string const& msg):
     runtime_error(msg)
 {
