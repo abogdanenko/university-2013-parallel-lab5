@@ -33,12 +33,15 @@ void LocalWorker::Resume()
                 suspend = false;
                 break;
             case STATE_RECEIVE_MY_SLICE:
-                ReceiveNextBuf();
-                if (received_all_bufs)
+                if (ReceiveNextBuf())
+                {
+                    suspend = true;
+                }
+                else
                 {
                     current_state = STATE_APPLY_OPERATOR;
+                    suspend = false;
                 }
-                suspend = true;
                 break;
             case STATE_APPLY_OPERATOR:
                 ApplyOperator();
@@ -53,15 +56,14 @@ void LocalWorker::Resume()
                 suspend = false;
                 break;
             case STATE_SEND_MY_SLICE:
-                SendNextBuf();
-                if (sent_all_bufs)
+                if (SendNextBuf())
                 {
-                    current_state = STATE_END;
-                    suspend = false;
+                    suspend = true;
                 }
                 else
                 {
-                    suspend = true;
+                    current_state = STATE_END;
+                    suspend = false;
                 }
                 break;
             default:

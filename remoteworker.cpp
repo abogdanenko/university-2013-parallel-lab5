@@ -10,17 +10,17 @@ void RemoteWorker::Run()
         }
         else
         {
-            while (!received_all_bufs)
+            while (ReceiveNextBuf())
             {
-                ReceiveNextBuf();
+
             }
         }
         ApplyOperator();
         if (write_vector_to_file)
         {
-            while (!sent_all_bufs)
+            while (SendNextBuf())
             {
-                SendNextBuf();
+
             }
         }
         Barrier();
