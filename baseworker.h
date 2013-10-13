@@ -14,20 +14,3 @@ class BaseWorker
     SendResults();
 };
 
-class RemoteWorker: public BaseWorker
-{
-    public:
-    static const int GO_AHEAD = 0;
-    Run();
-    WaitForGoAheadOrAbort();
-};
-
-class LocalWorker: public BaseWorker
-{
-    Init(n, k);
-    SendNextBuf();
-    YieldToMaster();
-    public:
-    Resume();
-};
-
