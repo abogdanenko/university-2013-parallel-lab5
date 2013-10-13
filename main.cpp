@@ -72,7 +72,7 @@ int main(int argc, char** argv)
         {
             cerr << e.what() << endl;
             Parser::PrintUsage();
-            master.AbortWorkers();
+            master.BroadcastAbort();
             exit_code = EXIT_FAILURE;
         }
     }

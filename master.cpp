@@ -130,13 +130,11 @@ void Master::Run()
     if (argc == 1)
     {
         Parser::PrintUsage();
-        AbortWorkers();
+        BroadcastAbort();
     }
     else
     {
-        // implicit barrier here to measure time consistently
-        SendBlockingGoAhead();
-        // All processes have started and are standing by
+        BroadcastGoAhead();
         timer.Start();
         DistributeInputData();
         /* Give control to local_worker so that he could receive input data and
@@ -150,8 +148,7 @@ void Master::Run()
         {
             VectorWriteToFile();
         }
-        // implicit barrier here to measure time consistently
-        WaitForRemoteWorkers();
+        MPI_Barrier();
         timer.Stop();
         if (T_filename)
         {

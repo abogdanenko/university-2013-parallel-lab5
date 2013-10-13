@@ -48,7 +48,7 @@ void RemoteWorker::Run()
         ReceiveInputData();
         ApplyOperator();
         SendResults();
-        SendCompletionNotification();
+        MPI_Barrier();
     }
 }
 
