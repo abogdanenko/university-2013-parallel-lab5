@@ -36,77 +36,126 @@ void BaseWorker::ApplyOperator()
     }
 }
 
-void RemoteWorker::ReceiveVector()
-{
-
-}
-
 void RemoteWorker::Run()
 {
-    WaitForGoAheadOrAbort();
-    while (current_state != STATE_END)
+    BroadCastReceive(command);
+    if (command == GO_AHEAD)
     {
-        current_state = Transition(current_state);
-        Transition();
+        ReceiveInputData();
+        if (random)
+        {
+            InitRandom();
+        }
+        else
+        {
+            while (!received_all_bufs)
+            {
+                ReceiveNextBuf();
+            }
+        }
+        ApplyOperator();
+        if (write_vector_to_file)
+        {
+            while (!sent_all_bufs)
+            {
+                SendNextBuf();
+            }
+        }
+        Barrier();
     }
-    Barrier();
+}
+
+LocalWorker::LocalWorker():
+    current_state(STATE_RECEIVE_INPUT_DATA)
+{
+
 }
 
 void LocalWorker::Run()
 {
-    while (current_state != STATE_END && !time_to_yield)
+    bool yield_to_master = false;
+
+    while (current_state != STATE_END && !yield_to_master)
     {
-        time_to_yield = false;
-        Transition();
+        switch (current_state)
+        {
+            case STATE_RECEIVE_INPUT_DATA:
+                ReceiveInputData();
+                if (random)
+                {
+                    InitRandom();
+                    current_state = STATE_APPLY_OPERATOR;
+                    yield_to_master = false;
+                }
+                else
+                {
+                    current_state = STATE_RECEIVE_MY_SLICE;
+                    yield_to_master = true;
+                }
+                break;
+            case STATE_INIT_RANDOM:
+                InitRandom();
+                current_state = STATE_APPLY_OPERATOR;
+                yield_to_master = false;
+                break;
+            case STATE_RECEIVE_MY_SLICE:
+                ReceiveNextBuf();
+                if (received_all_bufs)
+                {
+                    current_state = STATE_APPLY_OPERATOR;
+                }
+                yield_to_master = true;
+                break;
+            case STATE_APPLY_OPERATOR:
+                ApplyOperator();
+                if (write_vector_to_file)
+                {
+                    current_state = STATE_SEND_MY_SLICE;
+                }
+                else
+                {
+                    current_state = STATE_END;
+                }
+                yield_to_master = false;
+                break;
+            case STATE_SEND_MY_SLICE:
+                SendNextBuf();
+                if (sent_all_bufs)
+                {
+                    current_state = STATE_END;
+                    yield_to_master = false;
+                }
+                else
+                {
+                    yield_to_master = true;
+                }
+                break;
+            default:
+                throw runtime_exception("Bad LocalWorker state");
+                break;
+        }
     }
 }
 
-void Worker::Transition()
+void BaseWorker::ReceiveInputData()
 {
-    switch (current_state)
+    ReceiveMatrix();
+    ReceiveFlags();
+    ReceiveNumericalParams();
+}
+
+void BaseWorker::ReceiveBuf()
+{
+    i = bufs_received_count;
+    ReceiveBuf();
+    MPI_IReceive(buf);
+    MPI_Wait();
+    copy(buf.begin(), buf.end(), x.begin() + i * buf.size());
+    if (!split_slices_between_workers)
     {
-        case STATE_RECEIVE_INPUT_DATA:
-            ReceiveInputData();
-            if (random)
-            {
-                current_state = STATE_INIT_RANDOM;
-            }
-            else
-            {
-                current_state = STATE_RECEIVE_MY_SLICE;
-                YieldToMaster();
-            }
-            break;
-        case STATE_INIT_RANDOM:
-            InitRandom();
-            current_state = APPLY_OPERATOR;
-            break;
-        case STATE_RECEIVE_MY_SLICE:
-            ReceiveMySlice();
-            if (whole_vector_received)
-            {
-                current_state = STATE_APPLY_OPERATOR;
-            }
-            break;
-        case STATE_APPLY_OPERATOR:
-            ApplyOperator();
-            if (write_vector_to_file)
-            {
-                current_state = STATE_SEND_MY_SLICE;
-            }
-            else
-            {
-                current_state = STATE_END;
-            }
-            break;
-        case STATE_SEND_MY_SLICE:
-            SendMySlice();
-            if (all_slices_sent)
-            {
-                current_state = STATE_END;
-            }
-            break;
-        default:
-            break;
+        SplitBuf(buf, buf0, buf1);
+        copy(buf0.begin(), buf0.end(), x.begin() + i * buf0.size());    
+        copy(buf1.begin(), buf1.end(), x.begin() + x.size() / 2 + i * buf0.size());
     }
 }
+
