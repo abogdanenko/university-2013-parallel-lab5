@@ -36,6 +36,11 @@ void BaseWorker::ApplyOperator()
     }
 }
 
+void RemoteWorker::ReceiveVector()
+{
+
+}
+
 void RemoteWorker::Run()
 {
     if (WaitForGoAheadOrAbort() == GO_AHEAD)

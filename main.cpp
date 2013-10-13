@@ -61,10 +61,11 @@ int main(int argc, char** argv)
     {
         Parser parser(argc, argv);
         Master master();
+        LocalWorker worker();
         try
         {
             Parser::Args args = parser.Parse();
-            master.Init(args);
+            master.Init(args, &worker);
             master.Run();
         }
         catch (Parser::ParseError& e)

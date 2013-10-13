@@ -48,10 +48,12 @@ void Master::IterateSplit(UnaryOperation op)
 
 void Master::ReceiveBufFromPeerToOstream(const int peer)
 {
+    // give control to local_worker so that he could send data
     if (peer == 0)
     {
-        local_worker.SendNextBuf();
+        YieldToLocalWorker();
     }
+
     MPI_Irecv(buf, peer);
     MPI_Wait();
     copy(buf.begin(), buf.end(), out_it);
@@ -61,64 +63,58 @@ void Master::SendBufToPeerFromIstream(const int peer)
 {
     copy(in_it, in_it + buf.size(), buf.begin());
     MPI_Isend(buf, peer);
+
+    // give control to local_worker so that he could receive data
     if (peer == 0)
     {
-        local_worker.ReceiveNextBuf();
+        YieldToLocalWorker();
     }
+
     MPI_Wait();
 }
 
 void Master::VectorReadFromFile()
 {
-    if (x_filename)
-    {
-        // read x from file or stdin
-        ifstream fs;
-        istream& s = (string(x_filename) == "-") ? cin :
-            (fs.open(x_filename), fs);
-        in_it = istream_iterator<complexd>(s);
+    // read x from file or stdin
+    ifstream fs;
+    istream& s = (string(x_filename) == "-") ? cin :
+        (fs.open(x_filename), fs);
+    in_it = istream_iterator<complexd>(s);
 
-        if (split_slices_between_workers)
-        {
-            IterateSplit(SendBufToPeerFromIstream);
-        }
-        else
-        {
-            IterateNoSplit(SendBufToPeerFromIstream);
-        }
+    if (split_slices_between_workers)
+    {
+        IterateSplit(SendBufToPeerFromIstream);
+    }
+    else
+    {
+        IterateNoSplit(SendBufToPeerFromIstream);
     }
 }
 
 void Master::VectorWriteToFile()
 {
-    if (y_filename)
+    ofstream fs;
+    ostream& s = (string(y_filename) == "-") ? cout :
+        (fs.open(y_filename), fs);
+
+    out_it = ostream_iterator<complexd> (s, "\n");
+
+    if (split_slices_between_workers)
     {
-        ofstream fs;
-        ostream& s = (string(y_filename) == "-") ? cout :
-            (fs.open(y_filename), fs);
-
-        out_it = ostream_iterator<complexd> (s, "\n");
-
-        if (split_slices_between_workers)
-        {
-            IterateSplit(ReceiveBufFromPeerToOstream);
-        }
-        else
-        {
-            IterateNoSplit(ReceiveBufFromPeerToOstream);
-        }
+        IterateSplit(ReceiveBufFromPeerToOstream);
+    }
+    else
+    {
+        IterateNoSplit(ReceiveBufFromPeerToOstream);
     }
 }
 
 void Master::WriteComputationTime()
 {
-    if (T_filename)
-    {
-        ofstream fs;
-        ostream& s = (string(T_filename) == "-") ? cout :
-            (fs.open(T_filename), fs);
-        s << timer.GetDelta() << endl;
-    }
+    ofstream fs;
+    ostream& s = (string(T_filename) == "-") ? cout :
+        (fs.open(T_filename), fs);
+    s << timer.GetDelta() << endl;
 }
 
 void Master::DistributeInputData()
@@ -127,15 +123,6 @@ void Master::DistributeInputData()
     vector< vector<complexd> > U(
         vector< vector<complexd> >(2, vector<complexd>(2)))
     PrepareOperator(U);
-
-    if (x_filename)
-    {
-        VectorReadFromFile();
-    }
-    else
-    {
-        local_worker.InitRandom();
-    }
 }
 
 void Master::Run()
@@ -152,12 +139,24 @@ void Master::Run()
         // All processes have started and are standing by
         timer.Start();
         DistributeInputData();
-        ManageLocalWorker();
-        ReceiveAndWriteResults();
+        /* Give control to local_worker so that he could receive input data and
+           initialize his vector randomly if told to do so. */
+        YieldToLocalWorker();
+        if (x_filename)
+        {
+            VectorReadFromFile();
+        }
+        if (y_filename)
+        {
+            VectorWriteToFile();
+        }
         // implicit barrier here to measure time consistently
         WaitForRemoteWorkers();
         timer.Stop();
-        WriteComputationTime();
+        if (T_filename)
+        {
+            WriteComputationTime();
+        }
     }
 }
 

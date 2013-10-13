@@ -9,6 +9,9 @@ class BaseWorker
 
     public:
     ApplyOperator();
+    ReceiveInstructions();
+    ReceiveInputData();
+    SendResults();
 };
 
 class RemoteWorker: public BaseWorker
@@ -17,16 +20,14 @@ class RemoteWorker: public BaseWorker
     static const int GO_AHEAD = 0;
     Run();
     WaitForGoAheadOrAbort();
-    ReceiveInstructions();
-    ReceiveInputData();
-    SendResults();
 };
 
 class LocalWorker: public BaseWorker
 {
-    public:
     Init(n, k);
     SendNextBuf();
+    YieldToMaster();
+    public:
+    Resume();
 };
-
 
