@@ -43,12 +43,70 @@ void RemoteWorker::ReceiveVector()
 
 void RemoteWorker::Run()
 {
-    if (WaitForGoAheadOrAbort() == GO_AHEAD)
+    WaitForGoAheadOrAbort();
+    while (current_state != STATE_END)
     {
-        ReceiveInputData();
-        ApplyOperator();
-        SendResults();
-        MPI_Barrier();
+        current_state = Transition(current_state);
+        Transition();
+    }
+    Barrier();
+}
+
+void LocalWorker::Run()
+{
+    while (current_state != STATE_END && !time_to_yield)
+    {
+        time_to_yield = false;
+        Transition();
     }
 }
 
+void Worker::Transition()
+{
+    switch (current_state)
+    {
+        case STATE_RECEIVE_INPUT_DATA:
+            ReceiveInputData();
+            if (random)
+            {
+                current_state = STATE_INIT_RANDOM;
+            }
+            else
+            {
+                current_state = STATE_RECEIVE_MY_SLICE;
+                YieldToMaster();
+            }
+            break;
+        case STATE_INIT_RANDOM:
+            InitRandom();
+            current_state = APPLY_OPERATOR;
+            break;
+        case STATE_RECEIVE_MY_SLICE:
+            ReceiveMySlice();
+            if (whole_vector_received)
+            {
+                current_state = STATE_APPLY_OPERATOR;
+            }
+            break;
+        case STATE_APPLY_OPERATOR:
+            ApplyOperator();
+            if (write_vector_to_file)
+            {
+                current_state = STATE_SEND_MY_SLICE;
+            }
+            else
+            {
+                current_state = STATE_END;
+            }
+            break;
+        case STATE_SEND_MY_SLICE:
+            SendMySlice();
+            if (all_slices_sent)
+            {
+                current_state = STATE_END;
+            }
+            break;
+        default:
+            break;
+    }
+}
