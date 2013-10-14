@@ -1,35 +1,30 @@
-LocalWorker::LocalWorker():
-    current_state(STATE_RECEIVE_INPUT_DATA)
-{
-
-}
-
 void LocalWorker::Resume()
 {
+    static State state = STATE_RECEIVE_INPUT_DATA;
     // suspend execution, yield control to master
     bool suspend = false; 
 
-    while (current_state != STATE_END && !suspend)
+    while (state != STATE_END && !suspend)
     {
-        switch (current_state)
+        switch (state)
         {
             case STATE_RECEIVE_INPUT_DATA:
                 ReceiveInputData();
                 if (random)
                 {
                     InitRandom();
-                    current_state = STATE_APPLY_OPERATOR;
+                    state = STATE_APPLY_OPERATOR;
                     suspend = false;
                 }
                 else
                 {
-                    current_state = STATE_RECEIVE_MY_SLICE;
+                    state = STATE_RECEIVE_MY_SLICE;
                     suspend = true;
                 }
                 break;
             case STATE_INIT_RANDOM:
                 InitRandom();
-                current_state = STATE_APPLY_OPERATOR;
+                state = STATE_APPLY_OPERATOR;
                 suspend = false;
                 break;
             case STATE_RECEIVE_MY_SLICE:
@@ -39,7 +34,7 @@ void LocalWorker::Resume()
                 }
                 else
                 {
-                    current_state = STATE_APPLY_OPERATOR;
+                    state = STATE_APPLY_OPERATOR;
                     suspend = false;
                 }
                 break;
@@ -47,11 +42,11 @@ void LocalWorker::Resume()
                 ApplyOperator();
                 if (write_vector_to_file)
                 {
-                    current_state = STATE_SEND_MY_SLICE;
+                    state = STATE_SEND_MY_SLICE;
                 }
                 else
                 {
-                    current_state = STATE_END;
+                    state = STATE_END;
                 }
                 suspend = false;
                 break;
@@ -62,7 +57,7 @@ void LocalWorker::Resume()
                 }
                 else
                 {
-                    current_state = STATE_END;
+                    state = STATE_END;
                     suspend = false;
                 }
                 break;

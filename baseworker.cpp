@@ -1,6 +1,4 @@
 BaseWorker::BaseWorker():
-    bufs_received_count(0),
-    bufs_sent_count(0),
     U(vector< vector<complexd> >(2, vector<complexd>(2)))
 {
 }
@@ -27,6 +25,9 @@ void BaseWorker::InitRandom()
 
 void BaseWorker::ApplyOperator()
 {
+    /* todo: this is split case only
+    write common function apply(k, n) that will modify x in place;
+    take openmp version and modify it. */
     const Index N = x.size() / 2;
     for (Index i = 0; i < N; i++)
     {
@@ -47,51 +48,30 @@ void BaseWorker::ReceiveInputData()
 
 bool BaseWorker::ReceiveNextBuf()
 {
-    if (bufs_received_count == bufs_per_worker)
+    static vector<complexd>::iterator it = x.begin();
+    if (it == x.end())
     {
         return false;
     }
     MPI_IReceive(buf);
     MPI_Wait();
-    if (split_slices_between_workers)
-    {
-        copy(buf.begin(), buf.end(),
-            x.begin() + bufs_received_count * buf.size());
-    }
-    else
-    {
-        SplitBuf(buf, buf0, buf1);
-        copy(buf0.begin(), buf0.end(),
-            x.begin() + bufs_received_count * buf0.size());    
-        copy(buf1.begin(), buf1.end(),
-            x.begin() + x.size() / 2 + bufs_received_count * buf0.size());
-    }
-    bufs_received_count++;
+    copy(buf.begin(), buf.end(), it);
+    it += buf_size();
     return true;
 }
 
 bool BaseWorker::SendNextBuf()
 {
-    if (bufs_sent_count == bufs_per_worker)
+    static vector<complexd>::iterator it = x.begin();
+    if (it == x.end())
     {
         return false;
     }
-    if (split_slices_between_workers)
-    {
-        copy(x.begin() + bufs_received_count * buf.size(),
-            x.begin() + (bufs_received_count + 1) * buf.size(), buf.begin());
-    }
-    else
-    {
-        copy(x.begin() + bufs_received_count * buf0.size(),
-            x.begin() + (bufs_received_count + 1) * buf0.size(), buf0.begin());
-        copy(x.begin() + x.size() / 2 + bufs_received_count * buf0.size(),
-            x.begin() + x.size() / 2 + (bufs_received_count + 1) * buf0.size(), buf0.begin());
-        MergeBuf(buf, buf0, buf1);
-    }
+    const vector<complexd>::iterator next = it + buf.size()
+    copy(it, next, buf.begin());
+    it = next;
     MPI_ISend(buf);
     MPI_Wait();
-    bufs_sent_count++;
     return true;
 }
 
