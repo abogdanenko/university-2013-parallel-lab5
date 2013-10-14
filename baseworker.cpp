@@ -25,18 +25,8 @@ void BaseWorker::InitRandom()
 
 void BaseWorker::ApplyOperator()
 {
-    /* todo: this is split case only
-    write common function apply(k, n) that will modify x in place;
-    take openmp version and modify it. */
-    const Index N = x.size() / 2;
-    for (Index i = 0; i < N; i++)
-    {
-        const Index j = i + N;
-        const complexd a = x[i];
-        const complexd b = x[j];
-        x[i] = U[0][0] * a + U[0][1] * b;
-        x[j] = U[1][0] * a + U[1][1] * b;
-    }
+    const int k_local = max(k - n_glob, 0);
+    ::ApplyOperator(x, U, k_local);
 }
 
 void BaseWorker::ReceiveInputData()
