@@ -45,8 +45,7 @@ bool BaseWorker::ReceiveNextBuf()
     }
     MPI_IReceive(buf);
     MPI_Wait();
-    copy(buf.begin(), buf.end(), it);
-    it += buf_size();
+    it = copy(buf.begin(), buf.end(), it);
     return true;
 }
 
@@ -57,7 +56,7 @@ bool BaseWorker::SendNextBuf()
     {
         return false;
     }
-    const vector<complexd>::iterator next = it + buf.size()
+    const vector<complexd>::iterator next = it + buf.size();
     copy(it, next, buf.begin());
     it = next;
     MPI_ISend(buf);

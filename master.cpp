@@ -18,54 +18,80 @@ void Master::PrepareOperator()
     }
 }
 
-template <class UnaryOperation>
-void Master::IterateNoSplit(UnaryOperation op)
+template <class WorkerBufTransferOp>
+void Master::ForEachBuf(WorkerBufTransferOp op)
 {
-    for (int peer = 0; peer < np; peer++)
+    const int max_buf_size = 1024;
+    const Index worker_vector_size = n / worker_count;
+    const int buf_size = min(max_buf_size, worker_vector_size / 2);
+    const Index buf_count = worker_vector_size / buf_size;
+    const int n_loc = intlog2(worker_vector_size);
+    const int n_glob = n - n_loc;
+    const bool split(k < n_glob);
+
+    if (split)
     {
-        for (i = 0; i < bufs_per_peer_count; i++)
+        const Index slice_size = 1 << k;
+        const Index slice_count = 1 << (n - k);
+        const int workers_per_slice = worker_count / slice_count;
+
+        int worker = 0;
+        for (int slice = 0; slice < slices_count; slice++)
         {
-            op(peer);
+            for (int i_k = 0; i_k <= 1; i_k++)
+            {
+                for (int j = 0; j < workers_per_slice / 2; j++)
+                {
+                    for (int i = 0; i < buf_count / 2; i++)
+                    {
+                        op(worker);
+                    }
+                    worker++;
+                }
+                if (i_k == 0)
+                {
+                    worker -= workers_per_slice / 2;
+                }
+            }
         }
     }
-}
-
-template <class UnaryOperation>
-void Master::IterateSplit(UnaryOperation op)
-{
-    for (int slice = 0; slice < slices_count; slice++)
+    else
     {
-        // we get the same peer twice
-        for (int peer = FirstPeer(slice); peer < EndPeer(slice); peer++)
+        for (int worker = 0; worker < worker_count; worker++)
         {
-            for (int i = 0; i < bufs_per_peer / 2; j++)
+            for (i = 0; i < buf_count; i++)
             {
-                op(peer);
+                op(worker);
             }
         }
     }
 }
 
-void Master::ReceiveBufFromPeerToOstream(const int peer)
+void Master::ReceiveBufFromWorkerToOstream(const int worker)
 {
     // give control to local_worker so that he could send data
-    if (peer == 0)
+    if (worker == 0)
     {
         YieldToLocalWorker();
     }
 
-    MPI_Irecv(buf, peer);
+    MPI_Irecv(buf, worker);
     MPI_Wait();
-    copy(buf.begin(), buf.end(), out_it);
+    out_it = copy(buf.begin(), buf.end(), out_it);
 }
 
-void Master::SendBufToPeerFromIstream(const int peer)
+void Master::SendBufToWorkerFromIstream(const int worker)
 {
-    copy(in_it, in_it + buf.size(), buf.begin());
-    MPI_Isend(buf, peer);
+    // copy to buf from in_it
+    for (Buf::iterator it = buf.begin(); it != buf.end(); it++)
+    {
+        *it = *in_it;
+        in_it++;
+    }
+    MPI_Isend(buf, worker);
 
     // give control to local_worker so that he could receive data
-    if (peer == 0)
+    if (worker == 0)
     {
         YieldToLocalWorker();
     }
@@ -81,14 +107,7 @@ void Master::VectorReadFromFile()
         (fs.open(x_filename), fs);
     in_it = istream_iterator<complexd>(s);
 
-    if (split_slices_between_workers)
-    {
-        IterateSplit(SendBufToPeerFromIstream);
-    }
-    else
-    {
-        IterateNoSplit(SendBufToPeerFromIstream);
-    }
+    ForEachBuf(SendBufToWorkerFromIstream);
 }
 
 void Master::VectorWriteToFile()
@@ -99,14 +118,7 @@ void Master::VectorWriteToFile()
 
     out_it = ostream_iterator<complexd> (s, "\n");
 
-    if (split_slices_between_workers)
-    {
-        IterateSplit(ReceiveBufFromPeerToOstream);
-    }
-    else
-    {
-        IterateNoSplit(ReceiveBufFromPeerToOstream);
-    }
+    ForEachBuf(ReceiveBufFromWorkerToOstream);
 }
 
 void Master::WriteComputationTime()
@@ -155,5 +167,10 @@ void Master::Run()
             WriteComputationTime();
         }
     }
+}
+
+void Master::YieldToLocalWorker()
+{
+    local_worker->Resume();
 }
 
