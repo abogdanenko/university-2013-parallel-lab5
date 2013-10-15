@@ -1,13 +1,24 @@
 struct ComputationParams
 {
-    int qubit_count;
-    int target_qubit;
-    int worker_count; 
+    const int qubit_count;
+    const int target_qubit;
+    const int worker_count; 
     const int max_buf_size;
+
+    static const int MPIGetWorldSize()
+    {
+        int size;
+        MPI_Comm_size(MPI_COMM_WORLD, &size);        
+        return size;
+    }
+
     public:
 
-    ComputationParams():
-        max_buf_size(1024)
+    ComputationParams(const int qubit_count, const int target_qubit):
+        qubit_count(qubit_count),
+        target_qubit(target_qubit),
+        worker_count(MPIGetWorldSize()),
+        max_buf_size(1024),
     {
         
     }

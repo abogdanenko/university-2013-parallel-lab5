@@ -78,6 +78,7 @@ void Parser::PrintUsage()
 
 Parser::Args Parser::Parse()
 {
+    Args result;
     ostringstream oss;
     int c; // option character
     while ((c = getopt(argc, argv, ":U:x:n:k:t:y:T:")) != -1)
@@ -85,22 +86,22 @@ Parser::Args Parser::Parse()
         switch(c)
         {
             case 'U':
-                matrix_filename = optarg;
+                result.matrix_filename = optarg;
                 break;
             case 'x':
-                vector_input_filename = optarg;
+                result.vector_input_filename = optarg;
                 break;
             case 'n':
-                n = string_to_int(optarg);
+                result.qubit_count = string_to_int(optarg);
                 break;
             case 'k':
-                k = string_to_int(optarg);
+                result.target_qubit = string_to_int(optarg);
                 break;
             case 'y':
-                vector_output_filename = optarg;
+                result.vector_output_filename = optarg;
                 break;
             case 'T':
-                computation_time_filename = optarg;
+                result.computation_time_filename = optarg;
                 break;
             case ':':
                 oss << "Option -" << char(optopt) << " requires an argument.";
@@ -126,10 +127,10 @@ Parser::Args Parser::Parse()
         throw ParseError("Extra non-option arguments found");
     }
 
-    if (x_filename == NULL && n == -1)
+    if (n == -1)
     {
-        throw ParseError("State vector filename not specified and number of "
-            "qubits for random state not specified");
+        throw ParseError("Number of qubits not specified");
     }
+    return result;
 }
 

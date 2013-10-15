@@ -57,27 +57,42 @@ int main(int argc, char** argv)
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    if (rank == 0)
+    try
     {
-        try
+        Parser parser(argc, argv);
+        Parser::Args args = parser.Parse();
+        const int vector_size = 1l << args.QubitCount();
+        if (args.WorkerCount() * 2 > vector_size)
         {
-            Parser parser(argc, argv);
-            Parser::Args args = parser.Parse();
+            throw Master::IdleWorkersError();
+        }
+        if (rank == 0)
+        {
             Master master(args);
             master.Run();
         }
-        catch (Parser::ParseError& e)
+        else
+        {
+            RemoteWorker worker(args.QubitCount(), args.TargetQubit());
+            worker.Run();
+        }
+    }
+    catch (Parser::ParseError& e)
+    {
+        if (rank == 0)
         {
             cerr << e.what() << endl;
             Parser::PrintUsage();
-            master::BroadcastAbort();
-            exit_code = EXIT_FAILURE;
         }
+        exit_code = EXIT_FAILURE;
     }
-    else
+    catch (Master::IdleWorkersError()& e)
     {
-        RemoteWorker worker();
-        worker.Run();
+        if (rank == 0)
+        {
+            cerr << e.what() << endl;
+        }
+        exit_code = EXIT_FAILURE;
     }
     MPI_Finalize();
     return exit_code;
