@@ -1,5 +1,5 @@
-BaseWorker::BaseWorker(const int qubit_count, const int target_qubit):
-    U(vector< vector<complexd> >(2, vector<complexd>(2)))
+void BaseWorker::BaseWorker(const Parser::Args args):
+    ComputationBase(args)
 {
 
 }

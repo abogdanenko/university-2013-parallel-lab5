@@ -1,13 +1,7 @@
-void Master::Master(Parser::Args args):
-    args(args),
-    params(args.qubit_count, args.target_qubit, args.worker_count),
-    U( vector< vector<complexd> >(2, vector<complexd>(2)))
+void Master::Master(const Parser::Args args):
+    ComputationBase(args)
 {
-    // Assign identity matrix to U
-    U[0][0] = 1;
-    U[0][1] = 0;
-    U[1][0] = 0;
-    U[1][1] = 1;
+
 }
 
 void Master::MatrixReadFromFile()
@@ -17,6 +11,9 @@ void Master::MatrixReadFromFile()
     istream& s = (args.MatrixFileName() == "-") ? cin :
         (fs.open(args.MatrixFileName().c_str()), fs);
     s >> U[0][0] >> U[0][1] >> U[1][0] >> U[1][1];
+    /* Give control to local_worker so that he could receive input data and
+       initialize his vector randomly if told to do so. */
+    YieldToLocalWorker();
 }
 
 template <class WorkerBufTransferOp>
@@ -137,38 +134,25 @@ void Master::DistributeInputData()
 
 void Master::Run()
 {
-    if (argc == 1)
+    MPI_Barrier();
+    timer.Start();
+    if (args.MatrixReadFromFileFlag())
     {
-        Parser::PrintUsage();
-        BroadcastAbort();
+        MatrixReadFromFile();    
     }
-    else
+    if (args.VectorReadFromFileFlag())
     {
-        StopExtraWorkers()
-        BroadcastGoAhead();
-        timer.Start();
-        if (args.MatrixReadFromFileFlag())
-        {
-            MatrixReadFromFile();    
-        }
-        DistributeInputData();
-        /* Give control to local_worker so that he could receive input data and
-           initialize his vector randomly if told to do so. */
-        YieldToLocalWorker();
-        if (args.VectorReadFromFileFlag())
-        {
-            VectorReadFromFile();
-        }
-        if (args.VectorWriteToFileFlag())
-        {
-            VectorWriteToFile();
-        }
-        MPI_Barrier();
-        timer.Stop();
-        if (args.ComputationTimeWriteToFileFlag())
-        {
-            ComputationTimeWriteToFile();
-        }
+        VectorReadFromFile();
+    }
+    if (args.VectorWriteToFileFlag())
+    {
+        VectorWriteToFile();
+    }
+    MPI_Barrier();
+    timer.Stop();
+    if (args.ComputationTimeWriteToFileFlag())
+    {
+        ComputationTimeWriteToFile();
     }
 }
 

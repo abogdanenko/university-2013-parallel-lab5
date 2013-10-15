@@ -52,29 +52,41 @@ typedef vector<complexd>::size_type Index;
 int main(int argc, char** argv)
 {
     int rank;
+    int world_size;
     int exit_code = EXIT_SUCCESS;
 
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
     try
     {
-        Parser parser(argc, argv);
-        Parser::Args args = parser.Parse();
-        const int vector_size = 1l << args.QubitCount();
-        if (args.WorkerCount() * 2 > vector_size)
+        if (argc == 1)
         {
-            throw Master::IdleWorkersError();
-        }
-        if (rank == 0)
-        {
-            Master master(args);
-            master.Run();
+            if (rank == 0)
+            {
+                Parser::PrintUsage();
+            }
         }
         else
         {
-            RemoteWorker worker(args.QubitCount(), args.TargetQubit());
-            worker.Run();
+            Parser parser(argc, argv);
+            Parser::Args args = parser.Parse();
+            const int vector_size = 1l << args.QubitCount();
+            if (world_size * 2 > vector_size)
+            {
+                throw Master::IdleWorkersError();
+            }
+            if (rank == 0)
+            {
+                Master master(args);
+                master.Run();
+            }
+            else
+            {
+                RemoteWorker worker(args);
+                worker.Run();
+            }
         }
     }
     catch (Parser::ParseError& e)
