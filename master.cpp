@@ -21,14 +21,6 @@ void Master::PrepareOperator()
 template <class WorkerBufTransferOp>
 void Master::ForEachBuf(WorkerBufTransferOp op)
 {
-    const int max_buf_size = 1024;
-    const Index worker_vector_size = n / worker_count;
-    const int buf_size = min(max_buf_size, worker_vector_size / 2);
-    const Index buf_count = worker_vector_size / buf_size;
-    const int n_loc = intlog2(worker_vector_size);
-    const int n_glob = n - n_loc;
-    const bool split(k < n_glob);
-
     if (split)
     {
         const Index slice_size = 1 << k;

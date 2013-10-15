@@ -25,8 +25,7 @@ void BaseWorker::InitRandom()
 
 void BaseWorker::ApplyOperator()
 {
-    const int k_local = max(k - n_glob, 0);
-    ::ApplyOperator(x, U, k_local);
+    ::ApplyOperator(x, U, WorkerTargetQubit());
 }
 
 void BaseWorker::ReceiveInputData()
