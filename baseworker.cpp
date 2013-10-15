@@ -1,12 +1,13 @@
 BaseWorker::BaseWorker():
     U(vector< vector<complexd> >(2, vector<complexd>(2)))
 {
+
 }
 
 void BaseWorker::InitRandom()
 {
     srand(time(NULL));
-    x.resize(N);
+    x.resize(params.WorkerVectorSize());
     RandomComplexGenerator gen;
     generate(x.begin(), x.end(), gen);
 

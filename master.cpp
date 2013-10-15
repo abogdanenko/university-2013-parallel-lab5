@@ -20,43 +20,52 @@ void Master::MatrixReadFromFile()
 }
 
 template <class WorkerBufTransferOp>
-void Master::ForEachBuf(WorkerBufTransferOp op)
+void Master::ForEachBufNoSplit(WorkerBufTransferOp op)
 {
-    if (split)
+    for (int worker = 0; worker < params.WorkerCount(); worker++)
     {
-        const Index slice_size = 1 << k;
-        const Index slice_count = 1 << (n - k);
-        const int workers_per_slice = worker_count / slice_count;
-
-        int worker = 0;
-        for (int slice = 0; slice < slices_count; slice++)
+        for (i = 0; i < params.BufCount(); i++)
         {
-            for (int i_k = 0; i_k <= 1; i_k++)
+            op(worker);
+        }
+    }
+}
+
+template <class WorkerBufTransferOp>
+void Master::ForEachBufSplit(WorkerBufTransferOp op)
+{
+    int worker = 0;
+    for (int slice = 0; slice < params.SliceCount(); slice++)
+    {
+        for (int target_qubit_value = 0; target_qubit_value <= 1;
+            target_qubit_value++)
+        {
+            for (int j = 0; j < params.WorkersPerSlice() / 2; j++)
             {
-                for (int j = 0; j < workers_per_slice / 2; j++)
+                for (int i = 0; i < params.BufCount() / 2; i++)
                 {
-                    for (int i = 0; i < buf_count / 2; i++)
-                    {
-                        op(worker);
-                    }
-                    worker++;
+                    op(worker);
                 }
-                if (i_k == 0)
-                {
-                    worker -= workers_per_slice / 2;
-                }
+                worker++;
+            }
+            if (target_qubit_value == 0)
+            {
+                worker -= params.WorkersPerSlice() / 2;
             }
         }
     }
+}
+
+template <class WorkerBufTransferOp>
+void Master::ForEachBuf(WorkerBufTransferOp op)
+{
+    if (params.Split())
+    {
+        ForEachBufSplit(op);
+    }
     else
     {
-        for (int worker = 0; worker < worker_count; worker++)
-        {
-            for (i = 0; i < buf_count; i++)
-            {
-                op(worker);
-            }
-        }
+        ForEachBufNoSplit(op);
     }
 }
 
@@ -135,6 +144,7 @@ void Master::Run()
     }
     else
     {
+        StopExtraWorkers()
         BroadcastGoAhead();
         timer.Start();
         if (args.MatrixReadFromFileFlag())

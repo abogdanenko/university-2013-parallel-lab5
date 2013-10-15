@@ -44,16 +44,31 @@ struct ComputationParams
 
     int GlobalQubitCount() const
     {
-        return QubitCount() - WorkerQubitCount();
+        return qubit_count - WorkerQubitCount();
     }
 
     bool Split() const
     {
-        return TargetQubit() < GlobalQubitCount();
+        return target_qubit < GlobalQubitCount();
     }
 
     int WorkerTargetQubit() const
     {
-        return max(TargetQubit() - GlobalQubitCount(), 0);
+        return max(target_qubit - GlobalQubitCount(), 0);
+    }
+
+    Index SliceSize() const
+    {
+        return 1l << qubit_count - target_qubit;
+    }
+
+    Index SliceCount() const
+    {
+        return 1l << target_qubit;
+    }
+
+    int WorkersPerSlice() const
+    {
+        return worker_count / SliceCount();
     }
 };
