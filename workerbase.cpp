@@ -1,10 +1,10 @@
-void BaseWorker::BaseWorker(const Parser::Args args):
+WorkerBase::WorkerBase(const Parser::Args args):
     ComputationBase(args)
 {
 
 }
 
-void BaseWorker::InitRandom()
+void WorkerBase::InitRandom()
 {
     srand(time(NULL));
     x.resize(params.WorkerVectorSize());
@@ -24,19 +24,19 @@ void BaseWorker::InitRandom()
         bind1st(multiplies<complexd>(), (complexd) coef));
 }
 
-void BaseWorker::ApplyOperator()
+void WorkerBase::ApplyOperator()
 {
     ::ApplyOperator(x, U, WorkerTargetQubit());
 }
 
-void BaseWorker::ReceiveInputData()
+void WorkerBase::ReceiveInputData()
 {
     ReceiveMatrix();
     ReceiveFlags();
     ReceiveNumericalParams();
 }
 
-bool BaseWorker::ReceiveNextBuf()
+bool WorkerBase::ReceiveNextBuf()
 {
     static vector<complexd>::iterator it = x.begin();
     if (it == x.end())
@@ -49,7 +49,7 @@ bool BaseWorker::ReceiveNextBuf()
     return true;
 }
 
-bool BaseWorker::SendNextBuf()
+bool WorkerBase::SendNextBuf()
 {
     static vector<complexd>::iterator it = x.begin();
     if (it == x.end())

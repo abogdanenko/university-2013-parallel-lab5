@@ -1,4 +1,4 @@
-class RemoteWorker: public BaseWorker
+class RemoteWorker: public WorkerBase
 {
     public:
     static const int GO_AHEAD = 0;

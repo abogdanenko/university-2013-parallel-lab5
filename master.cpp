@@ -1,5 +1,11 @@
-void Master::Master(const Parser::Args args):
+Master::Master(const Parser::Args args):
     ComputationBase(args)
+{
+
+}
+
+Master::IdleWorkersError::IdleWorkersError()
+    runtime_error("Too many processes for given number of qubits.")
 {
 
 }

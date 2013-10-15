@@ -1,4 +1,4 @@
-class BaseWorker
+class WorkerBase
 {
     /* Slice of initial state vector, split into two halves. First half
        corresponds to k-th qubit state 0, second half corresponds to target

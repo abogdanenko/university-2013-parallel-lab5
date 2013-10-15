@@ -1,4 +1,4 @@
-class LocalWorker: public BaseWorker
+class LocalWorker: public WorkerBase
 {
     Init(n, k);
     SendNextBuf();
