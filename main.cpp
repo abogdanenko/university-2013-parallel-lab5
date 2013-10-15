@@ -59,20 +59,18 @@ int main(int argc, char** argv)
 
     if (rank == 0)
     {
-        Parser parser(argc, argv);
-        Master master();
-        LocalWorker worker();
         try
         {
+            Parser parser(argc, argv);
             Parser::Args args = parser.Parse();
-            master.Init(args, &worker);
+            Master master(args);
             master.Run();
         }
         catch (Parser::ParseError& e)
         {
             cerr << e.what() << endl;
             Parser::PrintUsage();
-            master.BroadcastAbort();
+            master::BroadcastAbort();
             exit_code = EXIT_FAILURE;
         }
     }

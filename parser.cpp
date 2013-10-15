@@ -15,12 +15,57 @@ Parser::ParseError::ParseError(string const& msg):
 Parser::Args::Args():
     n(-1), 
     k(1), 
-    x_filename(NULL),
-    y_filename(NULL),
-    U_filename(NULL),
-    T_filename(NULL)
+    vector_input_filename(NULL),
+    vector_output_filename(NULL),
+    matrix_filename(NULL),
+    computation_time_filename(NULL)
 {
 
+}
+
+string Parser::Args::MatrixFileName() const
+{
+    return matrix_filename;
+}
+
+string Parser::Args::VectorInputFileName() const
+{
+    return vector_input_filename;
+}
+
+string Parser::Args::VectorOutputFileName() const
+{
+    return vector_output_filename;
+}
+
+string Parser::Args::ComputationTimeFileName() const
+{
+    return computation_time_filename;
+}
+
+string Parser::Args::MatrixFileName() const
+{
+    return matrix_filename;
+}
+
+bool Parser::Args::MatrixReadFromFileFlag() const
+{
+    return matrix_filename;
+}
+
+bool Parser::Args::VectorReadFromFileFlag() const
+{
+    return vector_input_filename;
+}
+
+bool Parser::Args::VectorWriteToFileFlag() const
+{
+    return vector_output_filename;
+}
+
+bool Parser::Args::ComputationTimeWriteToFileFlag() const
+{
+    return computation_time_filename;
 }
 
 void Parser::PrintUsage()
@@ -40,10 +85,10 @@ Parser::Args Parser::Parse()
         switch(c)
         {
             case 'U':
-                U_filename = optarg;
+                matrix_filename = optarg;
                 break;
             case 'x':
-                x_filename = optarg;
+                vector_input_filename = optarg;
                 break;
             case 'n':
                 n = string_to_int(optarg);
@@ -52,10 +97,10 @@ Parser::Args Parser::Parse()
                 k = string_to_int(optarg);
                 break;
             case 'y':
-                y_filename = optarg;
+                vector_output_filename = optarg;
                 break;
             case 'T':
-                T_filename = optarg;
+                computation_time_filename = optarg;
                 break;
             case ':':
                 oss << "Option -" << char(optopt) << " requires an argument.";
@@ -87,5 +132,4 @@ Parser::Args Parser::Parse()
             "qubits for random state not specified");
     }
 }
-
 

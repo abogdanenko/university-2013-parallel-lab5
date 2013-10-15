@@ -1,21 +1,22 @@
-void Master::PrepareOperator()
+void Master::Master(Parser::Args args):
+    args(args),
+    params(args.qubit_count, args.target_qubit, args.worker_count),
+    U( vector< vector<complexd> >(2, vector<complexd>(2)))
 {
-    if (U_filename)
-    {
-        // read U from file or stdin
-        ifstream fs;
-        istream& s = (string(U_filename) == "-") ? cin :
-            (fs.open(U_filename), fs);
-        s >> U[0][0] >> U[0][1] >> U[1][0] >> U[1][1];
-    }
-    else
-    {
-        // Assign identity matrix to U
-        U[0][0] = 1;
-        U[0][1] = 0;
-        U[1][0] = 0;
-        U[1][1] = 1;
-    }
+    // Assign identity matrix to U
+    U[0][0] = 1;
+    U[0][1] = 0;
+    U[1][0] = 0;
+    U[1][1] = 1;
+}
+
+void Master::MatrixReadFromFile()
+{
+    // read U from file or stdin
+    ifstream fs;
+    istream& s = (args.MatrixFileName() == "-") ? cin :
+        (fs.open(args.MatrixFileName().c_str()), fs);
+    s >> U[0][0] >> U[0][1] >> U[1][0] >> U[1][1];
 }
 
 template <class WorkerBufTransferOp>
@@ -95,8 +96,8 @@ void Master::VectorReadFromFile()
 {
     // read x from file or stdin
     ifstream fs;
-    istream& s = (string(x_filename) == "-") ? cin :
-        (fs.open(x_filename), fs);
+    istream& s = (args.VectorInputFileName() == "-") ? cin :
+        (fs.open(args.VectorInputFileName().c_str()), fs);
     in_it = istream_iterator<complexd>(s);
 
     ForEachBuf(SendBufToWorkerFromIstream);
@@ -105,8 +106,8 @@ void Master::VectorReadFromFile()
 void Master::VectorWriteToFile()
 {
     ofstream fs;
-    ostream& s = (string(y_filename) == "-") ? cout :
-        (fs.open(y_filename), fs);
+    ostream& s = (args.VectorOutputFileName() == "-") ? cout :
+        (fs.open(args.VectorOutputFileName().c_str()), fs);
 
     out_it = ostream_iterator<complexd> (s, "\n");
 
@@ -116,17 +117,13 @@ void Master::VectorWriteToFile()
 void Master::WriteComputationTime()
 {
     ofstream fs;
-    ostream& s = (string(T_filename) == "-") ? cout :
-        (fs.open(T_filename), fs);
+    ostream& s = (args.ComputationTimeFileName() == "-") ? cout :
+        (fs.open(args.ComputationTimeFileName().c_str()), fs);
     s << timer.GetDelta() << endl;
 }
 
 void Master::DistributeInputData()
 {
-    // transform matrix
-    vector< vector<complexd> > U(
-        vector< vector<complexd> >(2, vector<complexd>(2)))
-    PrepareOperator(U);
 }
 
 void Master::Run()
@@ -140,29 +137,33 @@ void Master::Run()
     {
         BroadcastGoAhead();
         timer.Start();
+        if (args.MatrixReadFromFileFlag())
+        {
+            MatrixReadFromFile();    
+        }
         DistributeInputData();
         /* Give control to local_worker so that he could receive input data and
            initialize his vector randomly if told to do so. */
         YieldToLocalWorker();
-        if (x_filename)
+        if (args.VectorReadFromFileFlag())
         {
             VectorReadFromFile();
         }
-        if (y_filename)
+        if (args.VectorWriteToFileFlag())
         {
             VectorWriteToFile();
         }
         MPI_Barrier();
         timer.Stop();
-        if (T_filename)
+        if (args.ComputationTimeWriteToFileFlag())
         {
-            WriteComputationTime();
+            ComputationTimeWriteToFile();
         }
     }
 }
 
 void Master::YieldToLocalWorker()
 {
-    local_worker->Resume();
+    local_worker.Resume();
 }
 
