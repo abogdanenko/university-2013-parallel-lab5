@@ -1,3 +1,5 @@
+#include "applyoperator.h"
+
 // for n = 2**m returns m
 template <class Integer>
 int intlog2(const Integer n)

@@ -1,4 +1,6 @@
-void ComputationBase::ComputationBase(const Parser::Args& args):
+#include "computationbase.h"
+
+ComputationBase::ComputationBase(const Parser::Args& args):
     args(args),
     params(args.qubit_count, args.target_qubit),
     U( vector< vector<complexd> >(2, vector<complexd>(2)))

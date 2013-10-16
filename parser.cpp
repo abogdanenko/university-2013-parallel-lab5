@@ -1,3 +1,13 @@
+#include <iostream>
+#include <cctype>
+
+#include "parser.h"
+
+using std::cout;
+using std::endl;
+using std::stringstream;
+using std::ostringstream;
+
 int string_to_int(const string& s)
 {
     int n;
@@ -10,62 +20,6 @@ Parser::ParseError::ParseError(const string& msg):
     runtime_error(msg)
 {
 
-}
-
-Parser::Args::Args():
-    n(-1), 
-    k(1), 
-    vector_input_filename(NULL),
-    vector_output_filename(NULL),
-    matrix_filename(NULL),
-    computation_time_filename(NULL)
-{
-
-}
-
-string Parser::Args::MatrixFileName() const
-{
-    return matrix_filename;
-}
-
-string Parser::Args::VectorInputFileName() const
-{
-    return vector_input_filename;
-}
-
-string Parser::Args::VectorOutputFileName() const
-{
-    return vector_output_filename;
-}
-
-string Parser::Args::ComputationTimeFileName() const
-{
-    return computation_time_filename;
-}
-
-string Parser::Args::MatrixFileName() const
-{
-    return matrix_filename;
-}
-
-bool Parser::Args::MatrixReadFromFileFlag() const
-{
-    return matrix_filename;
-}
-
-bool Parser::Args::VectorReadFromFileFlag() const
-{
-    return vector_input_filename;
-}
-
-bool Parser::Args::VectorWriteToFileFlag() const
-{
-    return vector_output_filename;
-}
-
-bool Parser::Args::ComputationTimeWriteToFileFlag() const
-{
-    return computation_time_filename;
 }
 
 void Parser::PrintUsage()

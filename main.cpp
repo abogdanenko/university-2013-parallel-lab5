@@ -14,40 +14,15 @@
 
 */
 
-#include <fstream>
-#include <complex>
-#include <iterator>
-#include <vector>
-#include <unistd.h>
-#include <ctype.h>
-#include <iomanip>
-#include <iostream>
-#include <time.h>
-#include <stdlib.h>
-#include <stdexcept>
-#include <algorithm>
+#include <mpi.h>
 
-using std::ostream;
-using std::istream;
-using std::ifstream;
-using std::ofstream;
-using std::istream_iterator;
-using std::ostream_iterator;
-using std::complex;
-using std::string;
-using std::vector;
-using std::stringstream;
-using std::ostringstream;
-using std::hex;
-using std::cout;
-using std::cin;
+#include "computationbase.h"
+#include "parser.h"
+#include "remoteworker.h"
+#include "master.h"
+
 using std::cerr;
 using std::endl;
-using std::runtime_error;
-using std::copy;
-
-typedef complex<double> complexd;
-typedef vector<complexd>::size_type Index;
 
 int main(int argc, char** argv)
 {
