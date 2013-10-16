@@ -13,6 +13,7 @@ class ComputationBase
     vector< vector<complexd> > U;
     public:
     static const int master_rank = 0;
+    static const int tag = 0;
     ComputationBase(const Args& args);
 };
 

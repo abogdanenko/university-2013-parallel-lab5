@@ -24,7 +24,7 @@ class ComputationParams
     bool Split() const;
     int WorkerTargetQubit() const;
     Index SliceSize() const;
-    Index SliceCount() const;
+    int SliceCount() const;
     int WorkersPerSlice() const;
 };
 

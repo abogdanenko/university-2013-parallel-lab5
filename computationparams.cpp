@@ -69,10 +69,10 @@ int ComputationParams::WorkerTargetQubit() const
 
 Index ComputationParams::SliceSize() const
 {
-    return 1l << qubit_count - target_qubit;
+    return 1l << (qubit_count - target_qubit);
 }
 
-Index ComputationParams::SliceCount() const
+int ComputationParams::SliceCount() const
 {
     return 1l << target_qubit;
 }

@@ -53,10 +53,10 @@ void Master::MatrixReadFromFile()
 
     MPI_Request request = MPI_REQUEST_NULL;
 
-    MPI_Isend(&buf[0], 4, MPI_DOUBLE_COMPLEX, 0, MPI_ANY_TAG, MPI_COMM_SELF,
+    MPI_Isend(&buf[0], 4, MPI_DOUBLE_COMPLEX, master_rank, tag, MPI_COMM_SELF,
         &request);
     YieldToLocalWorker();
-    MPI_Bcast(&buf[0], 4, MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&buf[0], 4, MPI_DOUBLE_COMPLEX, master_rank, MPI_COMM_WORLD);
 }
 
 void Master::ForEachBufNoSplit(WorkerBufTransferOp op)
@@ -137,7 +137,7 @@ void Master::SendBufToWorkerFromIstream(const int worker)
     MPI_Status status;
     MPI_Request request = MPI_REQUEST_NULL;
 
-    MPI_Isend(&buf[0], buf.size(), MPI_DOUBLE_COMPLEX, worker, MPI_ANY_TAG,
+    MPI_Isend(&buf[0], buf.size(), MPI_DOUBLE_COMPLEX, worker, tag,
         MPI_COMM_WORLD, &request);
     MPI_Wait(&request, &status);
 

@@ -34,8 +34,8 @@ Parser::Parser(const int argc, char** const argv):
 
 void Parser::PrintUsage()
 {
-    cout << "Usage: transform-1-qubit [[-U operator_file] "
-        "{-x state_vector_file | -n random_state_qubits_count} "
+    cout << "Usage: transform-1-qubit-mpi [-n qubit_count "
+        "[-U operator_file] [-x state_vector_file] "
         "[-k target_qubit] [-y state_vector_output_file] "
         "[-T computation_time_output_file]]" << endl;
 }

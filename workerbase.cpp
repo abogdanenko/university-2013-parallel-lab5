@@ -85,7 +85,7 @@ bool WorkerBase::SendNextBuf()
     MPI_Request request = MPI_REQUEST_NULL;
 
     MPI_Isend(&buf[0], buf.size(), MPI_DOUBLE_COMPLEX, master_rank,
-        MPI_ANY_TAG, MPI_COMM_WORLD, &request);
+        tag, MPI_COMM_WORLD, &request);
 
     return true;
 }

@@ -12,7 +12,7 @@ void ApplyOperator(vector<complexd>& psi,
     for (Index i = 0; i < N; i++)
     {
         // bit of i corresponding to target qubit
-        if (i & mask == 0)
+        if ((i & mask) == 0)
         {
             const Index i0 = i & ~ mask; // clear selected bit
             const Index i1 = i | mask; // set selected bit
