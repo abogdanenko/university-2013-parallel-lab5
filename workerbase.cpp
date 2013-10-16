@@ -10,30 +10,30 @@ void WorkerBase::InitRandom()
     x.resize(params.WorkerVectorSize());
     RandomComplexGenerator gen;
     generate(x.begin(), x.end(), gen);
+    NormalizeGlobal();
+}
 
-    // normalize
+void WorkerBase::NormalizeGlobal()
+{
     long double local_sum = 0.0;
     for (vector<complexd>::const_iterator it = x.begin(); it != x.end(); it++)
     {
         local_sum += norm(*it);
     }
-    MPI_Reduce_all(local_sum, global_sum);
-    const long double coef = 1.0 / sqrt(global_sum);
-    // "x = coef * x"
+
+    long double global_sum;
+    MPI_Allreduce(&local_sum, &global_sum, 1, MPI_LONG_DOUBLE, MPI_SUM,
+        MPI_COMM_WORLD);
+
+    const complexd coef = 1.0 / sqrt(global_sum);
+    // multiply each element by coef
     transorm(x.begin(), x.end(), x.begin(),
-        bind1st(multiplies<complexd>(), (complexd) coef));
+        bind1st(multiplies<complexd>(), coef));
 }
 
 void WorkerBase::ApplyOperator()
 {
     ::ApplyOperator(x, U, WorkerTargetQubit());
-}
-
-void WorkerBase::ReceiveInputData()
-{
-    ReceiveMatrix();
-    ReceiveFlags();
-    ReceiveNumericalParams();
 }
 
 bool WorkerBase::ReceiveNextBuf()

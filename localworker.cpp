@@ -1,6 +1,23 @@
+void LocalWorker::ReceiveMatrix()
+{
+    vector<complexd> buf(4);
+
+    MPI_Status status;
+    MPI_Request request = MPI_REQUEST_NULL;
+
+    MPI_Irecv(&buf[0], 4, MPI_DOUBLE_COMPLEX, 0, MPI_ANY_TAG, MPI_COMM_SELF,
+        &request);
+    MPI_Wait(&request, &status);
+
+    U[0][0] = buf[0];
+    U[0][1] = buf[1];
+    U[1][0] = buf[2];
+    U[1][1] = buf[3];
+}
+
 void LocalWorker::Resume()
 {
-    static State state = STATE_RECEIVE_INPUT_DATA;
+    static State state = STATE_BEGIN;
     // suspend execution, yield control to master
     bool suspend = false; 
 
@@ -8,26 +25,41 @@ void LocalWorker::Resume()
     {
         switch (state)
         {
-            case STATE_RECEIVE_INPUT_DATA:
-                ReceiveInputData();
-                if (random)
+            case STATE_BEGIN:
+                if (args.MatrixReadFromFileFlag())
                 {
-                    InitRandom();
-                    state = STATE_APPLY_OPERATOR;
-                    suspend = false;
+                    state = STATE_RECEIVE_MATRIX;
                 }
                 else
                 {
-                    state = STATE_RECEIVE_MY_SLICE;
+                    if (args.VectorReadFromFileFlag())
+                    {
+                        state = STATE_RECEIVE_VECTOR;
+                        suspend = true;
+                    }
+                    else
+                    {
+                        state = STATE_INIT_RANDOM;
+                    }
+                }
+                break;
+            case STATE_RECEIVE_MATRIX:
+                ReceiveMatrix();
+                if (args.VectorReadFromFileFlag())
+                {
+                    state = STATE_RECEIVE_VECTOR;
                     suspend = true;
+                }
+                else
+                {
+                    state = STATE_INIT_RANDOM;
                 }
                 break;
             case STATE_INIT_RANDOM:
                 InitRandom();
                 state = STATE_APPLY_OPERATOR;
-                suspend = false;
                 break;
-            case STATE_RECEIVE_MY_SLICE:
+            case STATE_RECEIVE_VECTOR:
                 if (ReceiveNextBuf())
                 {
                     suspend = true;
@@ -35,22 +67,20 @@ void LocalWorker::Resume()
                 else
                 {
                     state = STATE_APPLY_OPERATOR;
-                    suspend = false;
                 }
                 break;
             case STATE_APPLY_OPERATOR:
                 ApplyOperator();
-                if (write_vector_to_file)
+                if (args.VectorWriteToFileFlag())
                 {
-                    state = STATE_SEND_MY_SLICE;
+                    state = STATE_SEND_VECTOR;
                 }
                 else
                 {
                     state = STATE_END;
                 }
-                suspend = false;
                 break;
-            case STATE_SEND_MY_SLICE:
+            case STATE_SEND_VECTOR:
                 if (SendNextBuf())
                 {
                     suspend = true;
@@ -58,7 +88,6 @@ void LocalWorker::Resume()
                 else
                 {
                     state = STATE_END;
-                    suspend = false;
                 }
                 break;
             default:

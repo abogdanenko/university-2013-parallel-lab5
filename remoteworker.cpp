@@ -1,29 +1,40 @@
+void RemoteWorker::ReceiveMatrix()
+{
+    vector<complexd> buf(4);
+
+    MPI_Bcast(&buf[0], 4, MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
+
+    U[0][0] = buf[0];
+    U[0][1] = buf[1];
+    U[1][0] = buf[2];
+    U[1][1] = buf[3];
+}
+
 void RemoteWorker::Run()
 {
-    BroadCastReceive(command);
-    if (command == GO_AHEAD)
+    if (args.MatrixReadFromFileFlag())
     {
-        ReceiveInputData();
-        if (random)
-        {
-            InitRandom();
-        }
-        else
-        {
-            while (ReceiveNextBuf())
-            {
-
-            }
-        }
-        ApplyOperator();
-        if (write_vector_to_file)
-        {
-            while (SendNextBuf())
-            {
-
-            }
-        }
-        Barrier();
+        ReceiveMatrix();
     }
+    if (args.VectorReadFromFileFlag())
+    {
+        while (ReceiveNextBuf())
+        {
+
+        }
+    }
+    else
+    {
+        InitRandom();
+    }
+    ApplyOperator();
+    if (args.VectorWriteToFileFlag())
+    {
+        while (SendNextBuf())
+        {
+
+        }
+    }
+    MPI_Barrier(MPI_COMM_WORLD);
 }
 

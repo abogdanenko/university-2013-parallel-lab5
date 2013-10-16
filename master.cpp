@@ -10,16 +10,40 @@ Master::IdleWorkersError::IdleWorkersError()
 
 }
 
+/*
+    Give control to local_worker so that he could
+    do some computation or data transfer.
+*/
+void Master::YieldToLocalWorker()
+{
+    local_worker.Resume();
+}
+
 void Master::MatrixReadFromFile()
 {
-    // read U from file or stdin
+    // read matrix from file or stdin
     ifstream fs;
     istream& s = (args.MatrixFileName() == "-") ? cin :
         (fs.open(args.MatrixFileName().c_str()), fs);
-    s >> U[0][0] >> U[0][1] >> U[1][0] >> U[1][1];
-    /* Give control to local_worker so that he could receive input data and
-       initialize his vector randomly if told to do so. */
+    
+    vector<complexd> buf(4);
+
+    buf[0] << s;
+    buf[1] << s;
+    buf[2] << s;
+    buf[3] << s;
+
+    U[0][0] = buf[0];
+    U[0][1] = buf[1];
+    U[1][0] = buf[2];
+    U[1][1] = buf[3];
+
+    MPI_Request request = MPI_REQUEST_NULL;
+
+    MPI_Isend(&buf[0], 4, MPI_DOUBLE_COMPLEX, 0, MPI_ANY_TAG, MPI_COMM_SELF,
+        &request);
     YieldToLocalWorker();
+    MPI_Bcast(&buf[0], 4, MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
 }
 
 template <class WorkerBufTransferOp>
@@ -27,7 +51,7 @@ void Master::ForEachBufNoSplit(WorkerBufTransferOp op)
 {
     for (int worker = 0; worker < params.WorkerCount(); worker++)
     {
-        for (i = 0; i < params.BufCount(); i++)
+        for (int i = 0; i < params.BufCount(); i++)
         {
             op(worker);
         }
@@ -74,39 +98,49 @@ void Master::ForEachBuf(WorkerBufTransferOp op)
 
 void Master::ReceiveBufFromWorkerToOstream(const int worker)
 {
+    vector<complexd> buf(params.BufSize());
     // give control to local_worker so that he could send data
     if (worker == 0)
     {
         YieldToLocalWorker();
     }
 
-    MPI_Irecv(buf, worker);
-    MPI_Wait();
+    MPI_Status status;
+    MPI_Request request = MPI_REQUEST_NULL;
+
+    MPI_Irecv(&buf[0], buf.size(), MPI_DOUBLE_COMPLEX, worker, MPI_ANY_TAG,
+        MPI_COMM_WORLD, &request);
+    MPI_Wait(&request, &status);
     out_it = copy(buf.begin(), buf.end(), out_it);
 }
 
 void Master::SendBufToWorkerFromIstream(const int worker)
 {
+    vector<complexd> buf(params.BufSize());
     // copy to buf from in_it
-    for (Buf::iterator it = buf.begin(); it != buf.end(); it++)
+    for (vector<complexd>::iterator it = buf.begin(); it != buf.end(); it++)
     {
         *it = *in_it;
         in_it++;
     }
-    MPI_Isend(buf, worker);
+
+    MPI_Status status;
+    MPI_Request request = MPI_REQUEST_NULL;
+
+    MPI_Isend(&buf[0], buf.size(), MPI_DOUBLE_COMPLEX, worker, MPI_ANY_TAG,
+        MPI_COMM_WORLD, &request);
+    MPI_Wait(&request, &status);
 
     // give control to local_worker so that he could receive data
     if (worker == 0)
     {
         YieldToLocalWorker();
     }
-
-    MPI_Wait();
 }
 
 void Master::VectorReadFromFile()
 {
-    // read x from file or stdin
+    // read state vector from file or stdin
     ifstream fs;
     istream& s = (args.VectorInputFileName() == "-") ? cin :
         (fs.open(args.VectorInputFileName().c_str()), fs);
@@ -134,13 +168,9 @@ void Master::WriteComputationTime()
     s << timer.GetDelta() << endl;
 }
 
-void Master::DistributeInputData()
-{
-}
-
 void Master::Run()
 {
-    MPI_Barrier();
+    MPI_Barrier(MPI_COMM_WORLD);
     timer.Start();
     if (args.MatrixReadFromFileFlag())
     {
@@ -154,16 +184,11 @@ void Master::Run()
     {
         VectorWriteToFile();
     }
-    MPI_Barrier();
+    MPI_Barrier(MPI_COMM_WORLD);
     timer.Stop();
     if (args.ComputationTimeWriteToFileFlag())
     {
         ComputationTimeWriteToFile();
     }
-}
-
-void Master::YieldToLocalWorker()
-{
-    local_worker.Resume();
 }
 
