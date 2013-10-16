@@ -1,3 +1,6 @@
+#ifndef LOCALWORKER_H
+#define LOCALWORKER_H
+
 #include "workerbase.h"
 
 class LocalWorker: public WorkerBase
@@ -17,3 +20,4 @@ class LocalWorker: public WorkerBase
     void Resume();
 };
 
+#endif

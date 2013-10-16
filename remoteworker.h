@@ -1,3 +1,6 @@
+#ifndef REMOTEWORKER_H
+#define REMOTEWORKER_H
+
 #include "workerbase.h"
 
 class RemoteWorker: public WorkerBase
@@ -7,3 +10,4 @@ class RemoteWorker: public WorkerBase
     void Run();
 };
 
+#endif

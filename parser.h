@@ -1,3 +1,6 @@
+#ifndef PARSER_H
+#define PARSER_H
+
 #include <stdexcept>
 #include <string>
 
@@ -24,3 +27,4 @@ class Parser
     static void PrintUsage();
 };
 
+#endif

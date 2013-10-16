@@ -1,3 +1,6 @@
+#ifndef COMPUTATIONPARAMS_H
+#define COMPUTATIONPARAMS_H
+
 class ComputationParams
 {
     const int qubit_count;
@@ -22,3 +25,5 @@ class ComputationParams
     Index SliceCount() const;
     int WorkersPerSlice() const;
 };
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef TIMER_H
+#define TIMER_H
+
 class Timer
 {
     double start; 
@@ -9,3 +12,4 @@ class Timer
     double GetDelta() const;
 };
 
+#endif

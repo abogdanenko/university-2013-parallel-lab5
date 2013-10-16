@@ -1,3 +1,6 @@
+#ifndef RANDOMCOMPLEXGENERATOR_H
+#define RANDOMCOMPLEXGENERATOR_H
+
 #include "typedefs.h" // complexd
 
 class RandomComplexGenerator()
@@ -10,3 +13,4 @@ class RandomComplexGenerator()
     static complexd operator()();
 };
 
+#endif

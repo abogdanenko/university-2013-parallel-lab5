@@ -1,3 +1,6 @@
+#ifndef ARGS_H
+#define ARGS_H
+
 #include <string>
 
 using std::string;
@@ -27,3 +30,4 @@ class Args
     bool ComputationTimeWriteToFileFlag() const;
 };
 
+#endif

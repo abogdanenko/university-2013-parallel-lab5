@@ -1,3 +1,6 @@
+#ifndef MASTER_H
+#define MASTER_H
+
 #include <stdexcept> // runtime_error
 
 #include "localworker.h"
@@ -40,3 +43,4 @@ class Master: public ComputationBase
     void Run();
 };
 
+#endif

@@ -1,3 +1,6 @@
+#ifndef COMPUTATIONBASE_H
+#define COMPUTATIONBASE_H
+
 #include "parser.h"
 #include "computationparams.h"
 #include "typedefs.h"
@@ -11,3 +14,5 @@ class ComputationBase
     static const int master_rank = 0;
     ComputationBase(const Parser::Args& args);
 };
+
+#endif
