@@ -1,5 +1,10 @@
-Master::Master(const Parser::Args args):
-    ComputationBase(args)
+#include <mpi.h>
+
+#include "master.h"
+
+Master::Master(const Args args):
+    ComputationBase(args),
+    local_worker(args)
 {
 
 }
@@ -10,10 +15,6 @@ Master::IdleWorkersError::IdleWorkersError()
 
 }
 
-/*
-    Give control to local_worker so that he could
-    do some computation or data transfer.
-*/
 void Master::YieldToLocalWorker()
 {
     local_worker.Resume();

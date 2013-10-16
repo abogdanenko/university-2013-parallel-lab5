@@ -1,16 +1,19 @@
-class WorkerBase
+#include "computationbase.h"
+
+class WorkerBase: public ComputationBase
 {
     /* Slice of initial state vector, split into two halves. First half
        corresponds to k-th qubit state 0, second half corresponds to target
        qubit state 1. The vector is modified in-place, so result is also stored
        here  */
-    vector<complexd> x; 
-    vector< vector<complexd> > U; // transform matrix
+    vector<complexd> psi; 
 
     public:
-    ApplyOperator();
-    ReceiveInstructions();
-    ReceiveInputData();
-    SendResults();
+    WorkerBase(const Args& args);
+    void InitRandom();
+    void NormalizeGlobal();
+    void ApplyOperator();
+    bool ReceiveNextBuf();
+    bool SendNextBuf();
 };
 

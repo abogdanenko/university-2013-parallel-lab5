@@ -1,3 +1,5 @@
+#include "typedefs.h" // complexd
+
 class RandomComplexGenerator()
 {
     unsigned m_w;

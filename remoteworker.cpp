@@ -1,3 +1,7 @@
+#include <mpi.h>
+
+#include "remoteworker.h"
+
 void RemoteWorker::ReceiveMatrix()
 {
     vector<complexd> buf(4);

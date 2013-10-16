@@ -1,8 +1,9 @@
+#include "workerbase.h"
+
 class RemoteWorker: public WorkerBase
 {
     public:
-    static const int GO_AHEAD = 0;
-    Run();
-    WaitForGoAheadOrAbort();
+    void ReceiveMatrix();
+    void Run();
 };
 

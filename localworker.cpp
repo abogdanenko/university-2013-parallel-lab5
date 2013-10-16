@@ -1,3 +1,5 @@
+#include <mpi.h>
+
 void LocalWorker::ReceiveMatrix()
 {
     vector<complexd> buf(4);

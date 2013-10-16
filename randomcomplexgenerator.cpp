@@ -1,3 +1,8 @@
+#include <stdlib.h> // srand, rand
+#include <time.h> // time
+
+#include "randomcomplexgenerator.h"
+
 /*
     Pseudo-random number generator
 
@@ -13,10 +18,11 @@ double RandomComplexGenerator::random01d()
     return double (r) / 0xffffffff;
 }
 
-RandomComplexGenerator::RandomComplexGenerator():
-    next_seed1(rand()),
-    next_seed2(rand())
+RandomComplexGenerator::RandomComplexGenerator()
 {
+    srand(time(NULL));
+    next_seed1 = rand();
+    next_seed2 = rand();
 }
 
 complexd RandomComplexGenerator::operator()()
@@ -25,5 +31,4 @@ complexd RandomComplexGenerator::operator()()
     double im = random01d() - 0.5;
     return complexd(re, im);
 }
-
 

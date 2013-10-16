@@ -1,3 +1,9 @@
+#include <algorithm> // generate, copy
+#include <mpi.h>
+
+#include "computationbase.h"
+#include "randomcomplexgenerator.h"
+
 WorkerBase::WorkerBase(const Parser::Args args):
     ComputationBase(args)
 {
@@ -6,7 +12,6 @@ WorkerBase::WorkerBase(const Parser::Args args):
 
 void WorkerBase::InitRandom()
 {
-    srand(time(NULL));
     psi.resize(params.WorkerVectorSize());
     RandomComplexGenerator gen;
     generate(psi.begin(), psi.end(), gen);

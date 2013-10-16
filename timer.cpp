@@ -1,3 +1,7 @@
+#include <mpi.h>
+
+#include "timer.h"
+
 void Timer::TimerStart()
 {
     start = MPI_Wtime();
