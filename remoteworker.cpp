@@ -2,6 +2,12 @@
 
 #include "remoteworker.h"
 
+RemoteWorker::RemoteWorker(const Args& args):
+    WorkerBase(args)
+{
+
+}
+
 void RemoteWorker::ReceiveMatrix()
 {
     vector<complexd> buf(4);

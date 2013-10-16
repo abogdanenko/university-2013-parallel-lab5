@@ -7,8 +7,8 @@ class Timer
     double end; 
 
     public:
-    void TimerStart();
-    void TimerStop();
+    void Start();
+    void Stop();
     double GetDelta() const;
 };
 

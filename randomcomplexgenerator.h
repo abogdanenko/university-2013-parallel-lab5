@@ -3,14 +3,14 @@
 
 #include "typedefs.h" // complexd
 
-class RandomComplexGenerator()
+class RandomComplexGenerator
 {
     unsigned m_w;
     unsigned m_z;
-    inline double random01d()
+    inline double random01d();
     public:
     RandomComplexGenerator();
-    static complexd operator()();
+    complexd operator()();
 };
 
 #endif

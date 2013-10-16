@@ -1,8 +1,8 @@
 #include "computationbase.h"
 
-ComputationBase::ComputationBase(const Parser::Args& args):
+ComputationBase::ComputationBase(const Args& args):
     args(args),
-    params(args.qubit_count, args.target_qubit),
+    params(args.QubitCount(), args.TargetQubit()),
     U( vector< vector<complexd> >(2, vector<complexd>(2)))
 {
     // Assign identity matrix to U

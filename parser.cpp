@@ -1,10 +1,13 @@
 #include <iostream>
+#include <sstream> // stringstream, ostringstream
 #include <cctype>
+#include <unistd.h> // getopt, optind, optarg
 
 #include "parser.h"
 
 using std::cout;
 using std::endl;
+using std::hex;
 using std::stringstream;
 using std::ostringstream;
 
@@ -22,6 +25,13 @@ Parser::ParseError::ParseError(const string& msg):
 
 }
 
+Parser::Parser(const int argc, char** const argv):
+    argc(argc),
+    argv(argv)
+{
+
+}
+
 void Parser::PrintUsage()
 {
     cout << "Usage: transform-1-qubit [[-U operator_file] "
@@ -30,7 +40,7 @@ void Parser::PrintUsage()
         "[-T computation_time_output_file]]" << endl;
 }
 
-Parser::Args Parser::Parse()
+Args Parser::Parse()
 {
     Args result;
     ostringstream oss;
@@ -81,7 +91,7 @@ Parser::Args Parser::Parse()
         throw ParseError("Extra non-option arguments found");
     }
 
-    if (n == -1)
+    if (result.qubit_count == -1)
     {
         throw ParseError("Number of qubits not specified");
     }

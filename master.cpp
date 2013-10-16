@@ -1,15 +1,27 @@
 #include <mpi.h>
+#include <fstream>
 
 #include "master.h"
 
-Master::Master(const Args args):
+using std::ifstream;
+using std::ofstream;
+using std::istream;
+using std::ostream;
+using std::istream_iterator;
+using std::ostream_iterator;
+
+using std::cin;
+using std::cout;
+using std::endl;
+
+Master::Master(const Args& args):
     ComputationBase(args),
     local_worker(args)
 {
 
 }
 
-Master::IdleWorkersError::IdleWorkersError()
+Master::IdleWorkersError::IdleWorkersError():
     runtime_error("Too many processes for given number of qubits.")
 {
 
@@ -29,10 +41,10 @@ void Master::MatrixReadFromFile()
     
     vector<complexd> buf(4);
 
-    buf[0] << s;
-    buf[1] << s;
-    buf[2] << s;
-    buf[3] << s;
+    s >> buf[0];
+    s >> buf[1];
+    s >> buf[2];
+    s >> buf[3];
 
     U[0][0] = buf[0];
     U[0][1] = buf[1];
@@ -47,19 +59,17 @@ void Master::MatrixReadFromFile()
     MPI_Bcast(&buf[0], 4, MPI_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
 }
 
-template <class WorkerBufTransferOp>
 void Master::ForEachBufNoSplit(WorkerBufTransferOp op)
 {
     for (int worker = 0; worker < params.WorkerCount(); worker++)
     {
         for (int i = 0; i < params.BufCount(); i++)
         {
-            op(worker);
+            (this->*op)(worker);
         }
     }
 }
 
-template <class WorkerBufTransferOp>
 void Master::ForEachBufSplit(WorkerBufTransferOp op)
 {
     int worker = 0;
@@ -72,7 +82,7 @@ void Master::ForEachBufSplit(WorkerBufTransferOp op)
             {
                 for (int i = 0; i < params.BufCount() / 2; i++)
                 {
-                    op(worker);
+                    (this->*op)(worker);
                 }
                 worker++;
             }
@@ -84,7 +94,6 @@ void Master::ForEachBufSplit(WorkerBufTransferOp op)
     }
 }
 
-template <class WorkerBufTransferOp>
 void Master::ForEachBuf(WorkerBufTransferOp op)
 {
     if (params.Split())
@@ -112,7 +121,7 @@ void Master::ReceiveBufFromWorkerToOstream(const int worker)
     MPI_Irecv(&buf[0], buf.size(), MPI_DOUBLE_COMPLEX, worker, MPI_ANY_TAG,
         MPI_COMM_WORLD, &request);
     MPI_Wait(&request, &status);
-    out_it = copy(buf.begin(), buf.end(), out_it);
+    *out_it = copy(buf.begin(), buf.end(), *out_it);
 }
 
 void Master::SendBufToWorkerFromIstream(const int worker)
@@ -121,8 +130,8 @@ void Master::SendBufToWorkerFromIstream(const int worker)
     // copy to buf from in_it
     for (vector<complexd>::iterator it = buf.begin(); it != buf.end(); it++)
     {
-        *it = *in_it;
-        in_it++;
+        *it = **in_it;
+        (*in_it)++;
     }
 
     MPI_Status status;
@@ -145,9 +154,10 @@ void Master::VectorReadFromFile()
     ifstream fs;
     istream& s = (args.VectorInputFileName() == "-") ? cin :
         (fs.open(args.VectorInputFileName().c_str()), fs);
-    in_it = istream_iterator<complexd>(s);
+    in_it = new istream_iterator<complexd>(s);
 
-    ForEachBuf(SendBufToWorkerFromIstream);
+    ForEachBuf(&Master::SendBufToWorkerFromIstream);
+    delete in_it;
 }
 
 void Master::VectorWriteToFile()
@@ -156,12 +166,13 @@ void Master::VectorWriteToFile()
     ostream& s = (args.VectorOutputFileName() == "-") ? cout :
         (fs.open(args.VectorOutputFileName().c_str()), fs);
 
-    out_it = ostream_iterator<complexd> (s, "\n");
+    out_it = new ostream_iterator<complexd>(s, "\n");
 
-    ForEachBuf(ReceiveBufFromWorkerToOstream);
+    ForEachBuf(&Master::ReceiveBufFromWorkerToOstream);
+    delete out_it;
 }
 
-void Master::WriteComputationTime()
+void Master::ComputationTimeWriteToFile()
 {
     ofstream fs;
     ostream& s = (args.ComputationTimeFileName() == "-") ? cout :

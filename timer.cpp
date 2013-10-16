@@ -2,19 +2,19 @@
 
 #include "timer.h"
 
-void Timer::TimerStart()
+void Timer::Start()
 {
     start = MPI_Wtime();
 }
 
-void Timer::TimerStop()
+void Timer::Stop()
 {
     end = MPI_Wtime();
 }
 
-void Timer::GetDelta()
+double Timer::GetDelta() const
 {
-    return end_time - start_time;
+    return end - start;
 }
 
 

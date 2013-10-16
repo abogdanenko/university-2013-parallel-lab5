@@ -15,6 +15,7 @@
 */
 
 #include <mpi.h>
+#include <cstdlib> // EXIT_FAILURE, EXIT_SUCCESS
 
 #include "computationbase.h"
 #include "parser.h"
@@ -46,7 +47,7 @@ int main(int argc, char** argv)
         else
         {
             Parser parser(argc, argv);
-            Parser::Args args = parser.Parse();
+            Args args = parser.Parse();
             const int vector_size = 1l << args.QubitCount();
             if (world_size * 2 > vector_size)
             {
@@ -73,7 +74,7 @@ int main(int argc, char** argv)
         }
         exit_code = EXIT_FAILURE;
     }
-    catch (Master::IdleWorkersError()& e)
+    catch (Master::IdleWorkersError& e)
     {
         if (rank == ComputationBase::master_rank)
         {

@@ -7,12 +7,13 @@
 
 class ComputationBase
 {
-    Parser::Args args;
+    protected:
+    Args args;
     ComputationParams params;
     vector< vector<complexd> > U;
     public:
     static const int master_rank = 0;
-    ComputationBase(const Parser::Args& args);
+    ComputationBase(const Args& args);
 };
 
 #endif

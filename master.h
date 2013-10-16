@@ -2,16 +2,24 @@
 #define MASTER_H
 
 #include <stdexcept> // runtime_error
+#include <iterator>
 
 #include "localworker.h"
 #include "timer.h"
+
+using std::istream_iterator;
+using std::ostream_iterator;
+
+class Master;
+typedef void (Master::* WorkerBufTransferOp)(int);
 
 class Master: public ComputationBase
 {
     LocalWorker local_worker;
     Timer timer; // measure computation time
 
-    Master(const Args args);
+    istream_iterator<complexd>* in_it;
+    ostream_iterator<complexd>* out_it;
 
     /*
         Give control to local_worker so that he could
@@ -20,21 +28,17 @@ class Master: public ComputationBase
     void YieldToLocalWorker();
     void MatrixReadFromFile();
 
-    template <class WorkerBufTransferOp>
     void ForEachBufNoSplit(WorkerBufTransferOp op);
-
-    template <class WorkerBufTransferOp>
     void ForEachBufSplit(WorkerBufTransferOp op);
-
-    template <class WorkerBufTransferOp>
     void ForEachBuf(WorkerBufTransferOp op);
 
     void ReceiveBufFromWorkerToOstream(const int worker);
     void SendBufToWorkerFromIstream(const int worker);
     void VectorReadFromFile();
     void VectorWriteToFile();
-    void WriteComputationTime();
+    void ComputationTimeWriteToFile();
     public:
+    Master(const Args& args);
     class IdleWorkersError: public runtime_error
     {
         public:

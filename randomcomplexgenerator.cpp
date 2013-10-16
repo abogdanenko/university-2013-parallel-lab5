@@ -21,8 +21,8 @@ double RandomComplexGenerator::random01d()
 RandomComplexGenerator::RandomComplexGenerator()
 {
     srand(time(NULL));
-    next_seed1 = rand();
-    next_seed2 = rand();
+    m_z = rand();
+    m_w = rand();
 }
 
 complexd RandomComplexGenerator::operator()()

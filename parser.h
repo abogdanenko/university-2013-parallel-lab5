@@ -6,7 +6,7 @@
 
 #include "args.h"
 
-usind std::string;
+using std::string;
 using std::runtime_error;
 
 class Parser

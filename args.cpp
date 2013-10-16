@@ -1,8 +1,8 @@
 #include "args.h"
 
 Args::Args():
-    n(-1), 
-    k(1), 
+    qubit_count(-1), 
+    target_qubit(1), 
     vector_input_filename(NULL),
     vector_output_filename(NULL),
     matrix_filename(NULL),
@@ -10,6 +10,17 @@ Args::Args():
 {
 
 }
+
+int Args::QubitCount() const
+{
+    return qubit_count;
+}
+
+int Args::TargetQubit() const
+{
+    return target_qubit;
+}
+
 
 string Args::MatrixFileName() const
 {
@@ -29,11 +40,6 @@ string Args::VectorOutputFileName() const
 string Args::ComputationTimeFileName() const
 {
     return computation_time_filename;
-}
-
-string Args::MatrixFileName() const
-{
-    return matrix_filename;
 }
 
 bool Args::MatrixReadFromFileFlag() const

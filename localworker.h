@@ -16,6 +16,7 @@ class LocalWorker: public WorkerBase
         STATE_END
     };
     public:
+    LocalWorker(const Args& args);
     void ReceiveMatrix();
     void Resume();
 };

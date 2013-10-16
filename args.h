@@ -19,11 +19,13 @@ class Args
     
     public:
 
+    Args();
+    int QubitCount() const;
+    int TargetQubit() const;
     string MatrixFileName() const;
     string VectorInputFileName() const;
     string VectorOutputFileName() const;
     string ComputationTimeFileName() const;
-    string MatrixFileName() const;
     bool MatrixReadFromFileFlag() const;
     bool VectorReadFromFileFlag() const;
     bool VectorWriteToFileFlag() const;

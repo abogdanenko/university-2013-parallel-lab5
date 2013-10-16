@@ -1,10 +1,16 @@
 #include <algorithm> // generate, copy
+#include <functional> // multiplies
 #include <mpi.h>
 
-#include "computationbase.h"
+#include "workerbase.h"
 #include "randomcomplexgenerator.h"
+#include "applyoperator.h"
 
-WorkerBase::WorkerBase(const Parser::Args args):
+using std::multiplies;
+using std::transform;
+using std::copy;
+
+WorkerBase::WorkerBase(const Args& args):
     ComputationBase(args)
 {
 
@@ -32,13 +38,13 @@ void WorkerBase::NormalizeGlobal()
 
     const complexd coef = 1.0 / sqrt(global_sum);
     // multiply each element by coef
-    transorm(psi.begin(), psi.end(), psi.begin(),
+    transform(psi.begin(), psi.end(), psi.begin(),
         bind1st(multiplies<complexd>(), coef));
 }
 
 void WorkerBase::ApplyOperator()
 {
-    ::ApplyOperator(psi, U, WorkerTargetQubit());
+    ::ApplyOperator(psi, U, params.WorkerTargetQubit());
 }
 
 bool WorkerBase::ReceiveNextBuf()
@@ -69,6 +75,7 @@ bool WorkerBase::SendNextBuf()
         return false;
     }
 
+    vector<complexd> buf(params.BufSize());
     for (vector<complexd>::iterator it = buf.begin(); it != buf.end(); it++)
     {
         *it = *psi_it;

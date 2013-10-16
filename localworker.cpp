@@ -1,5 +1,13 @@
 #include <mpi.h>
 
+#include "localworker.h"
+
+LocalWorker::LocalWorker(const Args& args):
+    WorkerBase(args)
+{
+
+}
+
 void LocalWorker::ReceiveMatrix()
 {
     vector<complexd> buf(4);
@@ -93,7 +101,7 @@ void LocalWorker::Resume()
                 }
                 break;
             default:
-                throw runtime_exception("Bad LocalWorker state");
+                throw runtime_error("Bad LocalWorker state");
                 break;
         }
     }

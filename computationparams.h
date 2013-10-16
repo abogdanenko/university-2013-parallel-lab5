@@ -1,6 +1,8 @@
 #ifndef COMPUTATIONPARAMS_H
 #define COMPUTATIONPARAMS_H
 
+#include "typedefs.h"
+
 class ComputationParams
 {
     const int qubit_count;
@@ -8,7 +10,7 @@ class ComputationParams
     const int worker_count; 
     const int max_buf_size;
 
-    static int MPIGetWorldSize() const;
+    static int MPIGetWorldSize();
 
     public:
     ComputationParams(const int qubit_count, const int target_qubit);
