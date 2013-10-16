@@ -7,16 +7,16 @@ WorkerBase::WorkerBase(const Parser::Args args):
 void WorkerBase::InitRandom()
 {
     srand(time(NULL));
-    x.resize(params.WorkerVectorSize());
+    psi.resize(params.WorkerVectorSize());
     RandomComplexGenerator gen;
-    generate(x.begin(), x.end(), gen);
+    generate(psi.begin(), psi.end(), gen);
     NormalizeGlobal();
 }
 
 void WorkerBase::NormalizeGlobal()
 {
     long double local_sum = 0.0;
-    for (vector<complexd>::const_iterator it = x.begin(); it != x.end(); it++)
+    for (vector<complexd>::const_iterator it = psi.begin(); it != psi.end(); it++)
     {
         local_sum += norm(*it);
     }
@@ -27,40 +27,54 @@ void WorkerBase::NormalizeGlobal()
 
     const complexd coef = 1.0 / sqrt(global_sum);
     // multiply each element by coef
-    transorm(x.begin(), x.end(), x.begin(),
+    transorm(psi.begin(), psi.end(), psi.begin(),
         bind1st(multiplies<complexd>(), coef));
 }
 
 void WorkerBase::ApplyOperator()
 {
-    ::ApplyOperator(x, U, WorkerTargetQubit());
+    ::ApplyOperator(psi, U, WorkerTargetQubit());
 }
 
 bool WorkerBase::ReceiveNextBuf()
 {
-    static vector<complexd>::iterator it = x.begin();
-    if (it == x.end())
+    static vector<complexd>::iterator psi_it = psi.begin();
+    if (psi_it == psi.end())
     {
         return false;
     }
-    MPI_IReceive(buf);
-    MPI_Wait();
-    it = copy(buf.begin(), buf.end(), it);
+    vector<complexd> buf(params.BufSize());
+
+    MPI_Request request = MPI_REQUEST_NULL;
+
+    MPI_Irecv(&buf[0], buf.size(), MPI_DOUBLE_COMPLEX, master_rank,
+        MPI_ANY_TAG, MPI_COMM_WORLD, &request);
+
+    MPI_Status status;
+    MPI_Wait(&request, &status);
+    psi_it = copy(buf.begin(), buf.end(), psi_it);
     return true;
 }
 
 bool WorkerBase::SendNextBuf()
 {
-    static vector<complexd>::iterator it = x.begin();
-    if (it == x.end())
+    static vector<complexd>::iterator psi_it = psi.begin();
+    if (psi_it == psi.end())
     {
         return false;
     }
-    const vector<complexd>::iterator next = it + buf.size();
-    copy(it, next, buf.begin());
-    it = next;
-    MPI_ISend(buf);
-    MPI_Wait();
+
+    for (vector<complexd>::iterator it = buf.begin(); it != buf.end(); it++)
+    {
+        *it = *psi_it;
+        psi_it++;
+    }
+
+    MPI_Request request = MPI_REQUEST_NULL;
+
+    MPI_Isend(&buf[0], buf.size(), MPI_DOUBLE_COMPLEX, master_rank,
+        MPI_ANY_TAG, MPI_COMM_WORLD, &request);
+
     return true;
 }
 

@@ -63,7 +63,7 @@ int main(int argc, char** argv)
     {
         if (argc == 1)
         {
-            if (rank == 0)
+            if (rank == ComputationBase::master_rank)
             {
                 Parser::PrintUsage();
             }
@@ -77,7 +77,7 @@ int main(int argc, char** argv)
             {
                 throw Master::IdleWorkersError();
             }
-            if (rank == 0)
+            if (rank == ComputationBase::master_rank)
             {
                 Master master(args);
                 master.Run();
@@ -91,7 +91,7 @@ int main(int argc, char** argv)
     }
     catch (Parser::ParseError& e)
     {
-        if (rank == 0)
+        if (rank == ComputationBase::master_rank)
         {
             cerr << e.what() << endl;
             Parser::PrintUsage();
@@ -100,7 +100,7 @@ int main(int argc, char** argv)
     }
     catch (Master::IdleWorkersError()& e)
     {
-        if (rank == 0)
+        if (rank == ComputationBase::master_rank)
         {
             cerr << e.what() << endl;
         }

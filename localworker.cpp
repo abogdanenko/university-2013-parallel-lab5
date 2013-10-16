@@ -5,8 +5,8 @@ void LocalWorker::ReceiveMatrix()
     MPI_Status status;
     MPI_Request request = MPI_REQUEST_NULL;
 
-    MPI_Irecv(&buf[0], 4, MPI_DOUBLE_COMPLEX, 0, MPI_ANY_TAG, MPI_COMM_SELF,
-        &request);
+    MPI_Irecv(&buf[0], 4, MPI_DOUBLE_COMPLEX, master_rank, MPI_ANY_TAG,
+        MPI_COMM_SELF, &request);
     MPI_Wait(&request, &status);
 
     U[0][0] = buf[0];

@@ -6,7 +6,7 @@ int string_to_int(const string& s)
     return n;
 }
 
-Parser::ParseError::ParseError(string const& msg):
+Parser::ParseError::ParseError(const string& msg):
     runtime_error(msg)
 {
 
