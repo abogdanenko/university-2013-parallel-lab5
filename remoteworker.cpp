@@ -12,7 +12,7 @@ void RemoteWorker::ReceiveMatrix()
 {
     vector<complexd> buf(4);
 
-    MPI_Bcast(&buf[0], 4, MPI_DOUBLE_COMPLEX, master_rank, MPI_COMM_WORLD);
+    MPI_Bcast(&buf[0], 4 * 2, MPI_DOUBLE, master_rank, MPI_COMM_WORLD);
 
     U[0][0] = buf[0];
     U[0][1] = buf[1];
@@ -22,6 +22,7 @@ void RemoteWorker::ReceiveMatrix()
 
 void RemoteWorker::Run()
 {
+    MPI_Barrier(MPI_COMM_WORLD);
     if (args.MatrixReadFromFileFlag())
     {
         ReceiveMatrix();
