@@ -84,6 +84,7 @@ void LocalWorker::Resume()
                 if (args.VectorWriteToFileFlag())
                 {
                     state = STATE_SEND_VECTOR;
+                    suspend = true;
                 }
                 else
                 {

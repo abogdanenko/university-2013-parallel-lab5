@@ -192,9 +192,11 @@ void Master::Run()
     {
         VectorReadFromFile();
     }
+    YieldToLocalWorker(); // transition to STATE_APPLY_OPERATOR
     if (args.VectorWriteToFileFlag())
     {
         VectorWriteToFile();
+        YieldToLocalWorker(); // transition to STATE_END
     }
     MPI_Barrier(MPI_COMM_WORLD);
     timer.Stop();
