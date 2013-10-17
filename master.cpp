@@ -27,11 +27,6 @@ Master::IdleWorkersError::IdleWorkersError():
 
 }
 
-void Master::YieldToLocalWorker()
-{
-    local_worker.Resume();
-}
-
 void Master::MatrixReadFromFile()
 {
     // read matrix from file or stdin
@@ -51,11 +46,9 @@ void Master::MatrixReadFromFile()
     U[1][0] = buf[2];
     U[1][1] = buf[3];
 
-    MPI_Request request = MPI_REQUEST_NULL;
 
-    MPI_Isend(&buf[0], 4, MPI_DOUBLE_COMPLEX, master_rank, tag, MPI_COMM_SELF,
-        &request);
-    YieldToLocalWorker();
+    local_worker.U = U;
+
     MPI_Bcast(&buf[0], 4, MPI_DOUBLE_COMPLEX, master_rank, MPI_COMM_WORLD);
 }
 
@@ -108,18 +101,16 @@ void Master::ForEachBuf(WorkerBufTransferOp op)
 
 void Master::ReceiveBufFromWorkerToOstream(const int worker)
 {
-    vector<complexd> buf(params.BufSize());
-    // give control to local_worker so that he could send data
     if (worker == 0)
     {
-        YieldToLocalWorker();
+        local_worker.SendNextBuf();
     }
 
-    MPI_Status status;
+    vector<complexd> buf(params.BufSize());
     MPI_Request request = MPI_REQUEST_NULL;
-
     MPI_Irecv(&buf[0], buf.size(), MPI_DOUBLE_COMPLEX, worker, MPI_ANY_TAG,
         MPI_COMM_WORLD, &request);
+    MPI_Status status;
     MPI_Wait(&request, &status);
     *out_it = copy(buf.begin(), buf.end(), *out_it);
 }
@@ -134,18 +125,17 @@ void Master::SendBufToWorkerFromIstream(const int worker)
         (*in_it)++;
     }
 
-    MPI_Status status;
     MPI_Request request = MPI_REQUEST_NULL;
-
     MPI_Isend(&buf[0], buf.size(), MPI_DOUBLE_COMPLEX, worker, tag,
         MPI_COMM_WORLD, &request);
-    MPI_Wait(&request, &status);
 
-    // give control to local_worker so that he could receive data
     if (worker == 0)
     {
-        YieldToLocalWorker();
+        local_worker.ReceiveNextBuf();
     }
+
+    MPI_Status status;
+    MPI_Wait(&request, &status);
 }
 
 void Master::VectorReadFromFile()
@@ -192,11 +182,14 @@ void Master::Run()
     {
         VectorReadFromFile();
     }
-    YieldToLocalWorker(); // transition to STATE_APPLY_OPERATOR
+    else
+    {
+        local_worker.InitRandom();
+    }
+    local_worker.ApplyOperator();
     if (args.VectorWriteToFileFlag())
     {
         VectorWriteToFile();
-        YieldToLocalWorker(); // transition to STATE_END
     }
     MPI_Barrier(MPI_COMM_WORLD);
     timer.Stop();
