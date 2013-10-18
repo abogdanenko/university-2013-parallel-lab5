@@ -48,7 +48,8 @@ void Master::MatrixReadFromFile()
 
     local_worker.U = U;
 
-    MPI_Bcast(&buf[0], 4 * 2, MPI_DOUBLE, master_rank, MPI_COMM_WORLD);
+    MPI_Bcast(&buf[0], buf.size() * sizeof(complexd), MPI_BYTE, master_rank,
+        MPI_COMM_WORLD);
 }
 
 void Master::ForEachBufNoSplit(WorkerBufTransferOp op)
@@ -107,8 +108,8 @@ void Master::ReceiveBufFromWorkerToOstream(const int worker)
 
     vector<complexd> buf(params.BufSize());
     MPI_Request request = MPI_REQUEST_NULL;
-    MPI_Irecv(&buf[0], buf.size() * 2, MPI_DOUBLE, worker, MPI_ANY_TAG,
-        MPI_COMM_WORLD, &request);
+    MPI_Irecv(&buf[0], buf.size() * sizeof(complexd), MPI_BYTE, worker,
+        MPI_ANY_TAG, MPI_COMM_WORLD, &request);
     MPI_Status status;
     MPI_Wait(&request, &status);
     *out_it = copy(buf.begin(), buf.end(), *out_it);
@@ -125,7 +126,7 @@ void Master::SendBufToWorkerFromIstream(const int worker)
     }
 
     MPI_Request request = MPI_REQUEST_NULL;
-    MPI_Isend(&buf[0], buf.size() * 2, MPI_DOUBLE, worker, tag,
+    MPI_Isend(&buf[0], buf.size() * sizeof(complexd), MPI_BYTE, worker, tag,
         MPI_COMM_WORLD, &request);
 
     if (worker == 0)

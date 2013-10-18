@@ -12,7 +12,8 @@ void RemoteWorker::ReceiveMatrix()
 {
     vector<complexd> buf(4);
 
-    MPI_Bcast(&buf[0], 4 * 2, MPI_DOUBLE, master_rank, MPI_COMM_WORLD);
+    MPI_Bcast(&buf[0], buf.size() * sizeof(complexd), MPI_BYTE, master_rank,
+        MPI_COMM_WORLD);
 
     U[0][0] = buf[0];
     U[0][1] = buf[1];
