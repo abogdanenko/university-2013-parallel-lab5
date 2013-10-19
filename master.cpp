@@ -107,11 +107,10 @@ void Master::ReceiveBufFromWorkerToOstream(const int worker)
     }
 
     vector<complexd> buf(params.BufSize());
-    MPI_Request request = MPI_REQUEST_NULL;
+    MPI_Request request;
     MPI_Irecv(&buf[0], buf.size() * sizeof(complexd), MPI_BYTE, worker,
         MPI_ANY_TAG, MPI_COMM_WORLD, &request);
-    MPI_Status status;
-    MPI_Wait(&request, &status);
+    MPI_Wait(&request, MPI_STATUS_IGNORE);
     *out_it = copy(buf.begin(), buf.end(), *out_it);
 }
 
@@ -125,7 +124,7 @@ void Master::SendBufToWorkerFromIstream(const int worker)
         (*in_it)++;
     }
 
-    MPI_Request request = MPI_REQUEST_NULL;
+    MPI_Request request;
     MPI_Isend(&buf[0], buf.size() * sizeof(complexd), MPI_BYTE, worker, tag,
         MPI_COMM_WORLD, &request);
 
@@ -134,8 +133,7 @@ void Master::SendBufToWorkerFromIstream(const int worker)
         local_worker.ReceiveNextBuf();
     }
 
-    MPI_Status status;
-    MPI_Wait(&request, &status);
+    MPI_Wait(&request, MPI_STATUS_IGNORE);
 }
 
 void Master::VectorReadFromFile()

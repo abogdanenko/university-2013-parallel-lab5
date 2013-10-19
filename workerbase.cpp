@@ -53,10 +53,9 @@ bool WorkerBase::ReceiveNextBuf()
     {
         return false;
     }
-    MPI_Request request = MPI_REQUEST_NULL;
 
-    MPI_Irecv(&*it, params.BufSize() * sizeof(complexd), MPI_BYTE, master_rank,
-        MPI_ANY_TAG, MPI_COMM_WORLD, &request);
+    MPI_Recv(&*it, params.BufSize() * sizeof(complexd), MPI_BYTE, master_rank,
+        MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
     it += params.BufSize();
     return true;
@@ -70,7 +69,7 @@ bool WorkerBase::SendNextBuf()
         return false;
     }
 
-    MPI_Request request = MPI_REQUEST_NULL;
+    MPI_Request request;
 
     MPI_Isend(&*it, params.BufSize() * sizeof(complexd), MPI_BYTE, master_rank,
         tag, MPI_COMM_WORLD, &request);
