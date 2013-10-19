@@ -18,7 +18,9 @@ Master::Master(const Args& args):
     ComputationBase(args),
     local_worker(args)
 {
-
+    #ifdef DEBUG
+    params.PrintAll();
+    #endif
 }
 
 Master::IdleWorkersError::IdleWorkersError():

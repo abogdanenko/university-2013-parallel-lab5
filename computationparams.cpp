@@ -1,10 +1,19 @@
 #include <mpi.h>
 
+#ifdef DEBUG
+#include <iostream>
+#endif
+
 #include "computationparams.h"
 #include "routines.h"
 
 using std::min;
 using std::max;
+
+#ifdef DEBUG
+using std::cout;
+using std::endl;
+#endif
 
 int ComputationParams::MPIGetWorldSize()
 {
@@ -72,17 +81,35 @@ int ComputationParams::WorkerTargetQubit() const
     }
 }
 
-Index ComputationParams::SliceSize() const
-{
-    return 1l << (qubit_count - target_qubit);
-}
-
 int ComputationParams::SliceCount() const
 {
-    return 1l << target_qubit;
+    return 1l << target_qubit - 1;
 }
 
 int ComputationParams::WorkersPerSlice() const
 {
     return worker_count / SliceCount();
 }
+
+#ifdef DEBUG
+void ComputationParams::PrintAll() const
+{
+    cout << "qubit_count = " << qubit_count << endl;
+    cout << "target_qubit = " << target_qubit << endl;
+    cout << "worker_count = " << worker_count << endl;
+    cout << "max_buf_size = " << max_buf_size << endl;
+    cout << "MostSignificantLocalQubit() = " << MostSignificantLocalQubit() << endl;
+    cout << "WorkerCount() = " << WorkerCount() << endl;
+    cout << "VectorSize() = " << VectorSize() << endl;
+    cout << "WorkerVectorSize() = " << WorkerVectorSize() << endl;
+    cout << "BufSize() = " << BufSize() << endl;
+    cout << "BufCount() = " << BufCount() << endl;
+    cout << "Split() = " << Split() << endl;
+    cout << "WorkerTargetQubit() = " << WorkerTargetQubit() << endl;
+    if (Split())
+    {
+        cout << "SliceCount() = " << SliceCount() << endl;
+        cout << "WorkersPerSlice() = " << WorkersPerSlice() << endl;
+    }
+}
+#endif
