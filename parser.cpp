@@ -37,7 +37,7 @@ void Parser::PrintUsage()
     cout << "Usage: transform-1-qubit-mpi [-n qubit_count "
         "[-U operator_file] [-x state_vector_file] "
         "[-k target_qubit] [-y state_vector_output_file] "
-        "[-T computation_time_output_file]]" << endl;
+        "[-t computation_time_output_file]]" << endl;
 }
 
 Args Parser::Parse()
@@ -45,7 +45,7 @@ Args Parser::Parse()
     Args result;
     ostringstream oss;
     int c; // option character
-    while ((c = getopt(argc, argv, ":U:x:n:k:t:y:T:")) != -1)
+    while ((c = getopt(argc, argv, ":U:x:n:k:t:y:t:")) != -1)
     {
         switch(c)
         {
@@ -64,7 +64,7 @@ Args Parser::Parse()
             case 'y':
                 result.vector_output_filename = optarg;
                 break;
-            case 'T':
+            case 't':
                 result.computation_time_filename = optarg;
                 break;
             case ':':
