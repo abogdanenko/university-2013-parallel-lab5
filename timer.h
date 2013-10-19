@@ -3,8 +3,8 @@
 
 class Timer
 {
-    double start; 
-    double end; 
+    double start;
+    double end;
 
     public:
     void Start();

@@ -13,7 +13,7 @@ using std::max;
 int ComputationParams::MPIGetWorldSize()
 {
     int size;
-    MPI_Comm_size(MPI_COMM_WORLD, &size);        
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
     return size;
 }
 
@@ -24,12 +24,12 @@ ComputationParams::ComputationParams(const int qubit_count,
     worker_count(MPIGetWorldSize()),
     max_buf_size(1024)
 {
-    
+
 }
 
 int ComputationParams::WorkerCount() const
 {
-    return worker_count; 
+    return worker_count;
 }
 
 Index ComputationParams::VectorSize() const
@@ -39,7 +39,7 @@ Index ComputationParams::VectorSize() const
 
 Index ComputationParams::WorkerVectorSize() const
 {
-    return VectorSize() / worker_count; 
+    return VectorSize() / worker_count;
 }
 
 int ComputationParams::BufSize() const
@@ -54,7 +54,7 @@ int ComputationParams::BufCount() const
 
 int ComputationParams::MostSignificantLocalQubit() const
 {
-    const int worker_qubit_count = intlog2(WorkerVectorSize()); 
+    const int worker_qubit_count = intlog2(WorkerVectorSize());
     const int global_qubit_count = qubit_count - worker_qubit_count;
     return global_qubit_count + 1;
 }

@@ -1,8 +1,8 @@
 #include "args.h"
 
 Args::Args():
-    qubit_count(-1), 
-    target_qubit(1), 
+    qubit_count(-1),
+    target_qubit(1),
     vector_input_filename(NULL),
     vector_output_filename(NULL),
     matrix_filename(NULL),

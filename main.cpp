@@ -1,4 +1,4 @@
-/* 
+/*
     Name: transform-1-qubit
     Author: Alexey Bogdanenko
     Contact: alex01@vpsbox.ru

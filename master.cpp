@@ -48,7 +48,7 @@ void Master::MatrixReadFromFile()
     ifstream fs;
     istream& s = (args.MatrixFileName() == "-") ? cin :
         (fs.open(args.MatrixFileName().c_str()), fs);
-    
+
     vector<complexd> buf(4);
 
     s >> buf[0];
@@ -233,7 +233,7 @@ void Master::Run()
     timer.Start();
     if (args.MatrixReadFromFileFlag())
     {
-        MatrixReadFromFile();    
+        MatrixReadFromFile();
     }
     if (args.VectorReadFromFileFlag())
     {

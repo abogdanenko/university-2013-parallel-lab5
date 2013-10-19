@@ -7,7 +7,7 @@ class ComputationParams
 {
     const int qubit_count;
     const int target_qubit;
-    const int worker_count; 
+    const int worker_count;
     const int max_buf_size;
 
     static int MPIGetWorldSize();

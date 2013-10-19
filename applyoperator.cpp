@@ -29,7 +29,7 @@ void ApplyOperator(vector<complexd>& psi,
     const Index N = psi.size();
     const int n = intlog2(N);
     const Index mask = 1L << (n - k);
-    
+
     #ifdef DEBUG
     cout << IDENT(4) << "ApplyOperator()..." << endl;
     cout << IDENT(4) << "psi:" << endl;
