@@ -1,24 +1,37 @@
 CC=mpiCC
 CFLAGS=-c -Wall -Wextra -pedantic -Wno-long-long
-BUILDDIR=build
+DEBUGDIR=debug
+RELEASEDIR=release
 HFILES=*.h
 CPPFILES=$(wildcard *.cpp)
 OBASENAMES=$(CPPFILES:.cpp=.o)
-OFILES=$(addprefix $(BUILDDIR)/,$(OBASENAMES))
+DEBUGOFILES=$(addprefix $(DEBUGDIR)/,$(OBASENAMES))
+RELEASEOFILES=$(addprefix $(RELEASEDIR)/,$(OBASENAMES))
 
 .PHONY: all
-all: $(BUILDDIR)/transform-1-qubit-mpi
+all: debug release
 
 .PHONY: debug
-debug: $(BUILDDIR)/transform-1-qubit-mpi
+debug: $(DEBUGDIR)/transform-1-qubit-mpi
 debug: CFLAGS += -DDEBUG -g
 
-$(BUILDDIR)/transform-1-qubit-mpi: $(OFILES)
-	$(CC) -o $@ $(OFILES)
+$(DEBUGDIR)/transform-1-qubit-mpi: $(DEBUGOFILES)
+	$(CC) -o $@ $(DEBUGDIR)/*.o
 
-$(BUILDDIR)/%.o: %.cpp *.h
+$(DEBUGDIR)/%.o: %.cpp *.h
+	test -d $(DEBUGDIR) || mkdir $(DEBUGDIR)
+	$(CC) -o $@ $(CFLAGS) $<
+
+.PHONY: release
+release: $(RELEASEDIR)/transform-1-qubit-mpi
+
+$(RELEASEDIR)/transform-1-qubit-mpi: $(RELEASEOFILES)
+	$(CC) -o $@ $(RELEASEDIR)/*.o
+
+$(RELEASEDIR)/%.o: %.cpp *.h
+	test -d $(RELEASEDIR) || mkdir $(RELEASEDIR)
 	$(CC) -o $@ $(CFLAGS) $<
 
 .PHONY: clean
 clean:
-	rm -rf $(BUILDDIR)/*.o $(BUILDDIR)/transform-1-qubit-mpi 
+	rm -rf $(DEBUGDIR)/ $(RELEASEDIR)/
