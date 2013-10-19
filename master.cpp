@@ -73,7 +73,7 @@ void Master::ForEachBufSplit(WorkerBufTransferOp op)
         for (int target_qubit_value = 0; target_qubit_value <= 1;
             target_qubit_value++)
         {
-            for (int j = 0; j < params.WorkersPerSlice() / 2; j++)
+            for (int j = 0; j < params.WorkersPerSlice(); j++)
             {
                 for (int i = 0; i < params.BufCount() / 2; i++)
                 {
@@ -83,7 +83,7 @@ void Master::ForEachBufSplit(WorkerBufTransferOp op)
             }
             if (target_qubit_value == 0)
             {
-                worker -= params.WorkersPerSlice() / 2;
+                worker -= params.WorkersPerSlice();
             }
         }
     }
