@@ -11,6 +11,7 @@ class ComputationParams
     const int max_buf_size;
 
     static int MPIGetWorldSize();
+    int MostSignificantLocalQubit() const;
 
     public:
     ComputationParams(const int qubit_count, const int target_qubit);
@@ -19,8 +20,6 @@ class ComputationParams
     Index WorkerVectorSize() const;
     int BufSize() const;
     int BufCount() const;
-    int WorkerQubitCount() const;
-    int GlobalQubitCount() const;
     bool Split() const;
     int WorkerTargetQubit() const;
     Index SliceSize() const;

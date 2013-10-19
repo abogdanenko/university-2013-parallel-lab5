@@ -47,24 +47,29 @@ int ComputationParams::BufCount() const
     return WorkerVectorSize() / BufSize();
 }
 
-int ComputationParams::WorkerQubitCount() const
+int ComputationParams::MostSignificantLocalQubit() const
 {
-    return intlog2(WorkerVectorSize());
-}
-
-int ComputationParams::GlobalQubitCount() const
-{
-    return qubit_count - WorkerQubitCount();
+    const int worker_qubit_count = intlog2(WorkerVectorSize()); 
+    const int global_qubit_count = qubit_count - worker_qubit_count ;
+    return global_qubit_count + 1;
 }
 
 bool ComputationParams::Split() const
 {
-    return target_qubit < GlobalQubitCount();
+    // global qubits are going to be modified
+    return target_qubit < MostSignificantLocalQubit();
 }
 
 int ComputationParams::WorkerTargetQubit() const
 {
-    return max(target_qubit - GlobalQubitCount(), 0);
+    if (Split())
+    {
+        return 1;
+    }
+    else
+    {
+        return 1 + target_qubit - MostSignificantLocalQubit();
+    }
 }
 
 Index ComputationParams::SliceSize() const
