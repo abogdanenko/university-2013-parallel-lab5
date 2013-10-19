@@ -2,29 +2,22 @@
 #include "routines.h"
 
 #ifdef DEBUG
-#include <iostream>
-#include <iterator>
-#include <algorithm>
-#endif
-
-#ifdef DEBUG
-using std::cout;
-using std::endl;
-using std::copy;
-using std::ostream_iterator;
+#include "debug.h"
 #endif
 
 #ifdef DEBUG
 void PrintVector(const vector<complexd>& psi)
 {
-    ostream_iterator<complexd> out_it (cout, "\n");
-    copy(psi.begin(), psi.end(), out_it);
+    for (vector<complexd>::const_iterator it = psi.begin(); it != psi.end(); it++)
+    {
+        cout << IDENT(5) << *it << endl;
+    }
 }
 
 void PrintMatrix(const vector< vector<complexd> >& U)
 {
-    cout << U[0][0] << "    " << U[0][1] << endl;
-    cout << U[1][0] << "    " << U[1][1] << endl;
+    cout << IDENT(5) << U[0][0] << " " << U[0][1] << endl;
+    cout << IDENT(5) << U[1][0] << " " << U[1][1] << endl;
 }
 #endif
 
@@ -37,11 +30,13 @@ void ApplyOperator(vector<complexd>& psi,
     const Index mask = 1L << (n - k);
     
     #ifdef DEBUG
-    cout << "before transform psi:" << endl;
+    cout << IDENT(4) << "ApplyOperator()..." << endl;
+    cout << IDENT(4) << "psi:" << endl;
     PrintVector(psi);
-    cout << "Matrix U:" << endl;
+    cout << IDENT(4) << "Matrix U:" << endl;
     PrintMatrix(U);
-    cout << "k = " << k << endl;
+    cout << IDENT(4) << "k = " << k << endl;
+    cout << IDENT(4) << "Applying operator..." << endl;
     #endif
 
     for (Index i = 0; i < N; i++)
@@ -60,8 +55,10 @@ void ApplyOperator(vector<complexd>& psi,
         }
     }
     #ifdef DEBUG
-    cout << "after transform psi:" << endl;
+    cout << IDENT(4) << "Applying operator DONE" << endl;
+    cout << IDENT(4) << "psi:" << endl;
     PrintVector(psi);
+    cout << IDENT(4) << "ApplyOperator() return" << endl;
     #endif
 }
 

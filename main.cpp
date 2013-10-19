@@ -48,7 +48,7 @@ int main(int argc, char** argv)
         {
             Parser parser(argc, argv);
             Args args = parser.Parse();
-            const int vector_size = 1l << args.QubitCount();
+            const int vector_size = 1L << args.QubitCount();
             if (world_size * 2 > vector_size)
             {
                 throw Master::IdleWorkersError();

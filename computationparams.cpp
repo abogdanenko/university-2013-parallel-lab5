@@ -1,7 +1,7 @@
 #include <mpi.h>
 
 #ifdef DEBUG
-#include <iostream>
+#include "debug.h"
 #endif
 
 #include "computationparams.h"
@@ -9,11 +9,6 @@
 
 using std::min;
 using std::max;
-
-#ifdef DEBUG
-using std::cout;
-using std::endl;
-#endif
 
 int ComputationParams::MPIGetWorldSize()
 {
@@ -83,7 +78,7 @@ int ComputationParams::WorkerTargetQubit() const
 
 int ComputationParams::SliceCount() const
 {
-    return 1l << target_qubit - 1;
+    return 1L << (target_qubit - 1);
 }
 
 int ComputationParams::WorkersPerSlice() const
@@ -94,22 +89,22 @@ int ComputationParams::WorkersPerSlice() const
 #ifdef DEBUG
 void ComputationParams::PrintAll() const
 {
-    cout << "qubit_count = " << qubit_count << endl;
-    cout << "target_qubit = " << target_qubit << endl;
-    cout << "worker_count = " << worker_count << endl;
-    cout << "max_buf_size = " << max_buf_size << endl;
-    cout << "MostSignificantLocalQubit() = " << MostSignificantLocalQubit() << endl;
-    cout << "WorkerCount() = " << WorkerCount() << endl;
-    cout << "VectorSize() = " << VectorSize() << endl;
-    cout << "WorkerVectorSize() = " << WorkerVectorSize() << endl;
-    cout << "BufSize() = " << BufSize() << endl;
-    cout << "BufCount() = " << BufCount() << endl;
-    cout << "Split() = " << Split() << endl;
-    cout << "WorkerTargetQubit() = " << WorkerTargetQubit() << endl;
+    cout << IDENT(1) << "qubit_count = " << qubit_count << endl;
+    cout << IDENT(1) << "target_qubit = " << target_qubit << endl;
+    cout << IDENT(1) << "worker_count = " << worker_count << endl;
+    cout << IDENT(1) << "max_buf_size = " << max_buf_size << endl;
+    cout << IDENT(1) << "MostSignificantLocalQubit() = " << MostSignificantLocalQubit() << endl;
+    cout << IDENT(1) << "WorkerCount() = " << WorkerCount() << endl;
+    cout << IDENT(1) << "VectorSize() = " << VectorSize() << endl;
+    cout << IDENT(1) << "WorkerVectorSize() = " << WorkerVectorSize() << endl;
+    cout << IDENT(1) << "BufSize() = " << BufSize() << endl;
+    cout << IDENT(1) << "BufCount() = " << BufCount() << endl;
+    cout << IDENT(1) << "Split() = " << Split() << endl;
+    cout << IDENT(1) << "WorkerTargetQubit() = " << WorkerTargetQubit() << endl;
     if (Split())
     {
-        cout << "SliceCount() = " << SliceCount() << endl;
-        cout << "WorkersPerSlice() = " << WorkersPerSlice() << endl;
+        cout << IDENT(1) << "SliceCount() = " << SliceCount() << endl;
+        cout << IDENT(1) << "WorkersPerSlice() = " << WorkersPerSlice() << endl;
     }
 }
 #endif

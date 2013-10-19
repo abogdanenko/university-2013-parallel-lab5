@@ -2,6 +2,10 @@
 #include <functional> // multiplies
 #include <mpi.h>
 
+#ifdef DEBUG
+#include "debug.h"
+#endif
+
 #include "workerbase.h"
 #include "randomcomplexgenerator.h"
 #include "applyoperator.h"
@@ -18,9 +22,15 @@ WorkerBase::WorkerBase(const Args& args):
 
 void WorkerBase::InitRandom()
 {
+    #ifdef DEBUG
+    cout << IDENT(3) << "WorkerBase::InitRandom()..." << endl;
+    #endif
     RandomComplexGenerator gen;
     generate(psi.begin(), psi.end(), gen);
     NormalizeGlobal();
+    #ifdef DEBUG
+    cout << IDENT(3) << "WorkerBase::InitRandom() return" << endl;
+    #endif
 }
 
 void WorkerBase::NormalizeGlobal()
@@ -43,14 +53,30 @@ void WorkerBase::NormalizeGlobal()
 
 void WorkerBase::ApplyOperator()
 {
+    #ifdef DEBUG
+    cout << IDENT(3) << "WorkerBase::ApplyOperator()..." << endl;
+    #endif
+
     ::ApplyOperator(psi, U, params.WorkerTargetQubit());
+
+    #ifdef DEBUG
+    cout << IDENT(3) << "WorkerBase::ApplyOperator() return" << endl;
+    #endif
 }
 
 bool WorkerBase::ReceiveNextBuf()
 {
+    #ifdef DEBUG
+    cout << IDENT(3) << "WorkerBase::ReceiveNextBuf()..." << endl;
+    #endif
+
     static vector<complexd>::iterator it = psi.begin();
     if (it == psi.end())
     {
+        #ifdef DEBUG
+        cout << IDENT(3) << "WorkerBase::ReceiveNextBuf() return false" << endl;
+        #endif
+
         return false;
     }
 
@@ -58,14 +84,27 @@ bool WorkerBase::ReceiveNextBuf()
         MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
     it += params.BufSize();
+
+    #ifdef DEBUG
+        cout << IDENT(3) << "WorkerBase::ReceiveNextBuf() return true" << endl;
+    #endif
+
     return true;
 }
 
 bool WorkerBase::SendNextBuf()
 {
+    #ifdef DEBUG
+    cout << IDENT(3) << "WorkerBase::SendNextBuf()... " << endl;
+    #endif
+
     static vector<complexd>::iterator it = psi.begin();
     if (it == psi.end())
     {
+        #ifdef DEBUG
+        cout << IDENT(3) << "WorkerBase::SendNextBuf() return false" << endl;
+        #endif
+
         return false;
     }
 
@@ -75,6 +114,11 @@ bool WorkerBase::SendNextBuf()
         tag, MPI_COMM_WORLD, &request);
 
     it += params.BufSize();
+
+    #ifdef DEBUG
+        cout << IDENT(3) << "WorkerBase::SendNextBuf() return true" << endl;
+    #endif
+
     return true;
 }
 

@@ -3,6 +3,10 @@
 
 #include "master.h"
 
+#ifdef DEBUG
+#include "debug.h"
+#endif
+
 using std::ifstream;
 using std::ofstream;
 using std::istream;
@@ -19,7 +23,13 @@ Master::Master(const Args& args):
     local_worker(args)
 {
     #ifdef DEBUG
+    cout << "Master::Master()..." << endl;
+    #endif
+    #ifdef DEBUG
     params.PrintAll();
+    #endif
+    #ifdef DEBUG
+    cout << "Master::Master() return" << endl;
     #endif
 }
 
@@ -31,6 +41,9 @@ Master::IdleWorkersError::IdleWorkersError():
 
 void Master::MatrixReadFromFile()
 {
+    #ifdef DEBUG
+    cout << IDENT(1) << "Master::MatrixReadFromFile()..." << endl;
+    #endif
     // read matrix from file or stdin
     ifstream fs;
     istream& s = (args.MatrixFileName() == "-") ? cin :
@@ -52,6 +65,9 @@ void Master::MatrixReadFromFile()
 
     MPI_Bcast(&buf[0], buf.size() * sizeof(complexd), MPI_BYTE, master_rank,
         MPI_COMM_WORLD);
+    #ifdef DEBUG
+    cout << IDENT(1) << "Master::MatrixReadFromFile() return" << endl;
+    #endif
 }
 
 void Master::ForEachBufNoSplit(WorkerBufTransferOp op)
@@ -60,7 +76,13 @@ void Master::ForEachBufNoSplit(WorkerBufTransferOp op)
     {
         for (int i = 0; i < params.BufCount(); i++)
         {
+            #ifdef DEBUG
+            cout << IDENT(2) << "Transfer with worker " << worker << "..." << endl;
+            #endif
             (this->*op)(worker);
+            #ifdef DEBUG
+            cout << IDENT(2) << "Transfer with worker " << worker << " DONE" << endl;
+            #endif
         }
     }
 }
@@ -77,7 +99,13 @@ void Master::ForEachBufSplit(WorkerBufTransferOp op)
             {
                 for (int i = 0; i < params.BufCount() / 2; i++)
                 {
+                    #ifdef DEBUG
+                    cout << IDENT(2) << "Transfer with worker " << worker << "..." << endl;
+                    #endif
                     (this->*op)(worker);
+                    #ifdef DEBUG
+                    cout << IDENT(2) << "Transfer with worker " << worker << " DONE" << endl;
+                    #endif
                 }
                 worker++;
             }
@@ -112,12 +140,18 @@ void Master::ReceiveBufFromWorkerToOstream(const int worker)
     MPI_Request request;
     MPI_Irecv(&buf[0], buf.size() * sizeof(complexd), MPI_BYTE, worker,
         MPI_ANY_TAG, MPI_COMM_WORLD, &request);
+
     MPI_Wait(&request, MPI_STATUS_IGNORE);
+
     *out_it = copy(buf.begin(), buf.end(), *out_it);
 }
 
 void Master::SendBufToWorkerFromIstream(const int worker)
 {
+    #ifdef DEBUG
+    cout << IDENT(3) << "Master::SendBufToWorkerFromIstream()..." << endl;
+    #endif
+
     vector<complexd> buf(params.BufSize());
     // copy to buf from in_it
     for (vector<complexd>::iterator it = buf.begin(); it != buf.end(); it++)
@@ -136,10 +170,17 @@ void Master::SendBufToWorkerFromIstream(const int worker)
     }
 
     MPI_Wait(&request, MPI_STATUS_IGNORE);
+
+    #ifdef DEBUG
+    cout << IDENT(3) << "Master::SendBufToWorkerFromIstream() return" << endl;
+    #endif
 }
 
 void Master::VectorReadFromFile()
 {
+    #ifdef DEBUG
+    cout << IDENT(1) << "Master::VectorReadFromFile()..." << endl;
+    #endif
     // read state vector from file or stdin
     ifstream fs;
     istream& s = (args.VectorInputFileName() == "-") ? cin :
@@ -148,10 +189,16 @@ void Master::VectorReadFromFile()
 
     ForEachBuf(&Master::SendBufToWorkerFromIstream);
     delete in_it;
+    #ifdef DEBUG
+    cout << IDENT(1) << "Master::VectorReadFromFile() return" << endl;
+    #endif
 }
 
 void Master::VectorWriteToFile()
 {
+    #ifdef DEBUG
+    cout << IDENT(1) << "Master::VectorWriteToFile()..." << endl;
+    #endif
     ofstream fs;
     ostream& s = (args.VectorOutputFileName() == "-") ? cout :
         (fs.open(args.VectorOutputFileName().c_str()), fs);
@@ -160,6 +207,9 @@ void Master::VectorWriteToFile()
 
     ForEachBuf(&Master::ReceiveBufFromWorkerToOstream);
     delete out_it;
+    #ifdef DEBUG
+    cout << IDENT(1) << "Master::VectorWriteToFile() return" << endl;
+    #endif
 }
 
 void Master::ComputationTimeWriteToFile()
@@ -172,6 +222,9 @@ void Master::ComputationTimeWriteToFile()
 
 void Master::Run()
 {
+    #ifdef DEBUG
+    cout << "Master::Run()..." << endl;
+    #endif
     MPI_Barrier(MPI_COMM_WORLD);
     timer.Start();
     if (args.MatrixReadFromFileFlag())
@@ -197,5 +250,8 @@ void Master::Run()
     {
         ComputationTimeWriteToFile();
     }
+    #ifdef DEBUG
+    cout << "Master::Run() return" << endl;
+    #endif
 }
 
