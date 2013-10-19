@@ -8,7 +8,8 @@
 #ifdef DEBUG
 void PrintVector(const vector<complexd>& psi)
 {
-    for (vector<complexd>::const_iterator it = psi.begin(); it != psi.end(); it++)
+    for (vector<complexd>::const_iterator it = psi.begin(); it != psi.end();
+        it++)
     {
         cout << IDENT(5) << *it << endl;
     }

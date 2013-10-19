@@ -77,11 +77,13 @@ void Master::ForEachBufNoSplit(WorkerBufTransferOp op)
         for (int i = 0; i < params.BufCount(); i++)
         {
             #ifdef DEBUG
-            cout << IDENT(2) << "Transfer with worker " << worker << "..." << endl;
+            cout << IDENT(2) << "Transfer with worker " << worker << "..."
+                << endl;
             #endif
             (this->*op)(worker);
             #ifdef DEBUG
-            cout << IDENT(2) << "Transfer with worker " << worker << " DONE" << endl;
+            cout << IDENT(2) << "Transfer with worker " << worker << " DONE"
+                << endl;
             #endif
         }
     }
@@ -100,11 +102,13 @@ void Master::ForEachBufSplit(WorkerBufTransferOp op)
                 for (int i = 0; i < params.BufCount() / 2; i++)
                 {
                     #ifdef DEBUG
-                    cout << IDENT(2) << "Transfer with worker " << worker << "..." << endl;
+                    cout << IDENT(2) << "Transfer with worker " << worker
+                        << "..." << endl;
                     #endif
                     (this->*op)(worker);
                     #ifdef DEBUG
-                    cout << IDENT(2) << "Transfer with worker " << worker << " DONE" << endl;
+                    cout << IDENT(2) << "Transfer with worker " << worker
+                        << " DONE" << endl;
                     #endif
                 }
                 worker++;

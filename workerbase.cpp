@@ -36,7 +36,8 @@ void WorkerBase::InitRandom()
 void WorkerBase::NormalizeGlobal()
 {
     long double local_sum = 0.0;
-    for (vector<complexd>::const_iterator it = psi.begin(); it != psi.end(); it++)
+    for (vector<complexd>::const_iterator it = psi.begin(); it != psi.end();
+        it++)
     {
         local_sum += norm(*it);
     }
@@ -74,7 +75,8 @@ bool WorkerBase::ReceiveNextBuf()
     if (it == psi.end())
     {
         #ifdef DEBUG
-        cout << IDENT(3) << "WorkerBase::ReceiveNextBuf() return false" << endl;
+        cout << IDENT(3) << "WorkerBase::ReceiveNextBuf() return false"
+            << endl;
         #endif
 
         return false;
