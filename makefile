@@ -13,14 +13,14 @@ all: debug release
 
 .PHONY: debug
 debug: create_dir_debug
-debug: $(DEBUGDIR)/transform-1-qubit-mpi
+debug: $(DEBUGDIR)/fidelity-mpi
 debug: CFLAGS += -DDEBUG -g
 
 .PHONY: create_dir_debug 
 create_dir_debug: 
 	test -d $(DEBUGDIR) || mkdir $(DEBUGDIR)
 
-$(DEBUGDIR)/transform-1-qubit-mpi: $(DEBUGOFILES)
+$(DEBUGDIR)/fidelity-mpi: $(DEBUGOFILES)
 	$(CC) -o $@ $(DEBUGDIR)/*.o
 
 $(DEBUGDIR)/%.o: %.cpp *.h
@@ -28,13 +28,13 @@ $(DEBUGDIR)/%.o: %.cpp *.h
 
 .PHONY: release
 release: create_dir_release
-release: $(RELEASEDIR)/transform-1-qubit-mpi
+release: $(RELEASEDIR)/fidelity-mpi
 
 .PHONY: create_dir_release
 create_dir_release:
 	test -d $(RELEASEDIR) || mkdir $(RELEASEDIR)
 
-$(RELEASEDIR)/transform-1-qubit-mpi: $(RELEASEOFILES)
+$(RELEASEDIR)/fidelity-mpi: $(RELEASEOFILES)
 	$(CC) -o $@ $(RELEASEDIR)/*.o
 
 $(RELEASEDIR)/%.o: %.cpp *.h
