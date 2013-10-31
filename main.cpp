@@ -1,16 +1,25 @@
 /*
-    Name: transform-1-qubit
+    Name: fidelity-mpi
     Author: Alexey Bogdanenko
     Contact: alex01@vpsbox.ru
-    Date: Oct 2013
-    Description: This program performs a unitary transform on one qubit of
-        n-qubit system. Only pure states are considered so system state is
-        represented by a vector 2**n complex numbers long.
+    Date: Nov 2013
+    Description: This program performs hadamard transform on each qubit of
+        n-qubit system, then adds noise to the transform matrix and performs
+        the transform again. The transform with noise is performed a number of
+        times. The number of iterations is specified by the user.
+
+        Only pure states are considered so system state is represented by a
+        vector 2**n complex numbers long.
+
+        On each iteration, fidelity is computed as scalar product between
+        the results obtained using transform with and without noise.
 
         See Parser::PrintUsage function for invocation information.
 
-        This is program uses MPI to speed up computation and allow for larger
-        input.
+        This is program uses MPI to speed up each iteration and allow for
+        larger vectors.
+
+        The iterations are not performed in parallel.
 
 */
 
