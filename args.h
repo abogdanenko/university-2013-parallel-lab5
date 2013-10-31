@@ -10,25 +10,21 @@ class Args
     friend class Parser;
 
     int qubit_count;
-    int target_qubit;
+    int iteration_count;
+    double epsilon;
     // NULL means 'not specified by user', "-" means 'write to stdout'
-    char* vector_input_filename;
-    char* vector_output_filename;
-    char* matrix_filename;
+    char* fidelity_filename;
     char* computation_time_filename;
 
     public:
 
     Args();
     int QubitCount() const;
-    int TargetQubit() const;
-    string MatrixFileName() const;
-    string VectorInputFileName() const;
-    string VectorOutputFileName() const;
+    int IterationCount() const;
+    double Epsilon() const;
+    string FidelityFileName() const;
     string ComputationTimeFileName() const;
-    bool MatrixReadFromFileFlag() const;
-    bool VectorReadFromFileFlag() const;
-    bool VectorWriteToFileFlag() const;
+    bool FidelityWriteToFileFlag() const;
     bool ComputationTimeWriteToFileFlag() const;
 };
 

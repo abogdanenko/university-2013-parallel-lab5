@@ -2,10 +2,9 @@
 
 Args::Args():
     qubit_count(-1),
-    target_qubit(1),
-    vector_input_filename(NULL),
-    vector_output_filename(NULL),
-    matrix_filename(NULL),
+    iteration_count(-1),
+    epsilon(-1.0)
+    fidelity_filename(NULL),
     computation_time_filename(NULL)
 {
 
@@ -16,25 +15,14 @@ int Args::QubitCount() const
     return qubit_count;
 }
 
-int Args::TargetQubit() const
+int Args::IterationCount() const
 {
-    return target_qubit;
+    return iteration_count;
 }
 
-
-string Args::MatrixFileName() const
+string Args::FidelityFileName() const
 {
-    return matrix_filename;
-}
-
-string Args::VectorInputFileName() const
-{
-    return vector_input_filename;
-}
-
-string Args::VectorOutputFileName() const
-{
-    return vector_output_filename;
+    return fidelity_filename;
 }
 
 string Args::ComputationTimeFileName() const
@@ -42,19 +30,9 @@ string Args::ComputationTimeFileName() const
     return computation_time_filename;
 }
 
-bool Args::MatrixReadFromFileFlag() const
+bool Args::FidelityWriteToFileFlag() const
 {
-    return matrix_filename;
-}
-
-bool Args::VectorReadFromFileFlag() const
-{
-    return vector_input_filename;
-}
-
-bool Args::VectorWriteToFileFlag() const
-{
-    return vector_output_filename;
+    return fidelity_filename;
 }
 
 bool Args::ComputationTimeWriteToFileFlag() const
