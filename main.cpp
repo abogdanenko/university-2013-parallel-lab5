@@ -11,8 +11,12 @@
         Only pure states are considered so system state is represented by a
         vector 2**n complex numbers long.
 
-        On each iteration, fidelity is computed as scalar product between
-        the results obtained using transform with and without noise.
+        First, result vector is computed by applying (noiseless) transform
+        to initial vector. Then, on each iteration, a different result vector
+        is computed by applying noisy transform to initial vector.
+
+        On each iteration scalar product is taken of these two result vectors.
+        Fidelity is computed as square of absolute value of the scalar product.
 
         See Parser::PrintUsage function for invocation information.
 
