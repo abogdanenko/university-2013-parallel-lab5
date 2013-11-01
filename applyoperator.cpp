@@ -8,8 +8,7 @@
 #ifdef DEBUG
 void PrintVector(const Vector& psi)
 {
-    for (Vector::const_iterator it = psi.begin(); it != psi.end();
-        it++)
+    for (auto it = psi.begin(); it != psi.end(); it++)
     {
         cout << IDENT(5) << *it << endl;
     }

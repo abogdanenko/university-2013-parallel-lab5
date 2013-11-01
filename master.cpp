@@ -158,7 +158,7 @@ void Master::SendBufToWorkerFromIstream(const int worker)
 
     Vector buf(params.BufSize());
     // copy to buf from in_it
-    for (Vector::iterator it = buf.begin(); it != buf.end(); it++)
+    for (auto it = buf.begin(); it != buf.end(); it++)
     {
         *it = **in_it;
         (*in_it)++;
