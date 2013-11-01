@@ -37,28 +37,18 @@ void RemoteWorker::Run()
     cout << "RemoteWorker::Run()..." << endl;
     #endif
     MPI_Barrier(MPI_COMM_WORLD);
-    if (args.MatrixReadFromFileFlag())
+    InitVector();
+    ApplyOperator();
+    SaveVector();
+    for (int  i = 0; i < params.IterationCount(); i++)
     {
         ReceiveMatrix();
-    }
-    if (args.VectorReadFromFileFlag())
-    {
-        while (ReceiveNextBuf())
-        {
-
-        }
-    }
-    else
-    {
-        InitRandom();
-    }
-    ApplyOperator();
-    if (args.VectorWriteToFileFlag())
-    {
-        while (SendNextBuf())
-        {
-
-        }
+        InitVector();
+        ApplyOperator();
+        auto sp = ScalarProduct();
+        vector<double> pair = {sp.real(), sp.imag()};
+        MPI_Reduce(MPI_IN_PLACE, &pair.front(), 2, MPI_DOUBLE, MPI_SUM,
+            master_rank, MPI_COMM_WORLD);
     }
     MPI_Barrier(MPI_COMM_WORLD);
     #ifdef DEBUG

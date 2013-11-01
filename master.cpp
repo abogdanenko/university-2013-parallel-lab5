@@ -28,6 +28,7 @@ Master::Master(const Args& args):
     #ifdef DEBUG
     params.PrintAll();
     #endif
+    fidelity.resize(params.IterationCount());
     #ifdef DEBUG
     cout << "Master::Master() return" << endl;
     #endif
@@ -231,22 +232,25 @@ void Master::Run()
     #endif
     MPI_Barrier(MPI_COMM_WORLD);
     timer.Start();
-    if (args.MatrixReadFromFileFlag())
-    {
-        MatrixReadFromFile();
-    }
-    if (args.VectorReadFromFileFlag())
-    {
-        VectorReadFromFile();
-    }
-    else
-    {
-        local_worker.InitRandom();
-    }
+
+    local_worker.InitVector();
     local_worker.ApplyOperator();
-    if (args.VectorWriteToFileFlag())
+    local_worker.SaveVector();
+    for (auto it = fidelity.begin(); it != fidelity.end(); it++)
     {
-        VectorWriteToFile();
+        InitMatrix();
+        BroadcastMatrix();
+        local_worker.InitVector();
+        local_worker.ApplyOperator();
+        auto s = local_worker.ScalarProduct();
+        vector<double> sum = {s.real(), s.imag()};
+        MPI_Reduce(MPI_IN_PLACE, &sum.front(), 2, MPI_DOUBLE, MPI_SUM,
+            master_rank, MPI_COMM_WORLD);
+        *it = (complexd (sum[0], sum[1])).norm();
+    }
+    if (args.FidelityWriteToFileFlag())
+    {
+        FidelityWriteToFile();
     }
     MPI_Barrier(MPI_COMM_WORLD);
     timer.Stop();
