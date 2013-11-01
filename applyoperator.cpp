@@ -6,25 +6,23 @@
 #endif
 
 #ifdef DEBUG
-void PrintVector(const vector<complexd>& psi)
+void PrintVector(const Vector& psi)
 {
-    for (vector<complexd>::const_iterator it = psi.begin(); it != psi.end();
+    for (Vector::const_iterator it = psi.begin(); it != psi.end();
         it++)
     {
         cout << IDENT(5) << *it << endl;
     }
 }
 
-void PrintMatrix(const vector< vector<complexd> >& U)
+void PrintMatrix(const Matrix& U)
 {
     cout << IDENT(5) << U[0][0] << " " << U[0][1] << endl;
     cout << IDENT(5) << U[1][0] << " " << U[1][1] << endl;
 }
 #endif
 
-void ApplyOperator(vector<complexd>& psi,
-    const vector< vector<complexd> >& U,
-    const int k)
+void ApplyOperator(Vector& psi, const Matrix& U, const int k)
 {
     const Index N = psi.size();
     const int n = intlog2(N);

@@ -11,7 +11,7 @@ class WorkerBase: public ComputationBase
        corresponds to k-th qubit state 0, second half corresponds to target
        qubit state 1. The vector is modified in-place, so result is also stored
        here  */
-    vector<complexd> psi;
+    Vector psi;
 
     public:
     WorkerBase(const Args& args);

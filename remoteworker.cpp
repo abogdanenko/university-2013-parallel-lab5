@@ -17,7 +17,7 @@ void RemoteWorker::ReceiveMatrix()
     #ifdef DEBUG
     cout << IDENT(1) << "RemoteWorker::ReceiveMatrix()..." << endl;
     #endif
-    vector<complexd> buf(4);
+    Vector buf(4);
 
     MPI_Bcast(&buf[0], buf.size() * sizeof(complexd), MPI_BYTE, master_rank,
         MPI_COMM_WORLD);

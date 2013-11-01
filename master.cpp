@@ -49,7 +49,7 @@ void Master::MatrixReadFromFile()
     istream& s = (args.MatrixFileName() == "-") ? cin :
         (fs.open(args.MatrixFileName().c_str()), fs);
 
-    vector<complexd> buf(4);
+    Vector buf(4);
 
     s >> buf[0];
     s >> buf[1];
@@ -140,7 +140,7 @@ void Master::ReceiveBufFromWorkerToOstream(const int worker)
         local_worker.SendNextBuf();
     }
 
-    vector<complexd> buf(params.BufSize());
+    Vector buf(params.BufSize());
     MPI_Request request;
     MPI_Irecv(&buf[0], buf.size() * sizeof(complexd), MPI_BYTE, worker,
         MPI_ANY_TAG, MPI_COMM_WORLD, &request);
@@ -156,9 +156,9 @@ void Master::SendBufToWorkerFromIstream(const int worker)
     cout << IDENT(3) << "Master::SendBufToWorkerFromIstream()..." << endl;
     #endif
 
-    vector<complexd> buf(params.BufSize());
+    Vector buf(params.BufSize());
     // copy to buf from in_it
-    for (vector<complexd>::iterator it = buf.begin(); it != buf.end(); it++)
+    for (Vector::iterator it = buf.begin(); it != buf.end(); it++)
     {
         *it = **in_it;
         (*in_it)++;

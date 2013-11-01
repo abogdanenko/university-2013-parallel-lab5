@@ -3,10 +3,6 @@
 
 #include "typedefs.h"
 
-using std::vector;
-
-void ApplyOperator(vector<complexd>& psi,
-    const vector< vector<complexd> >& U,
-    const int k);
+void ApplyOperator(Vector& psi, const Matrix& U, const int k);
 
 #endif
