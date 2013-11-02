@@ -1,5 +1,6 @@
 #include <mpi.h>
 #include <fstream>
+#include <iterator>
 
 #include "master.h"
 
@@ -65,6 +66,15 @@ void Master::ComputationTimeWriteToFile()
     ostream& s = (args.ComputationTimeFileName() == "-") ? cout :
         (fs.open(args.ComputationTimeFileName().c_str()), fs);
     s << timer.GetDelta() << endl;
+}
+
+void Master::FidelityWriteToFile()
+{
+    ofstream fs;
+    ostream& s = (args.FidelityFileName() == "-") ? cout :
+        (fs.open(args.FidelityFileName().c_str()), fs);
+    ostream_iterator<complexd> out_it (s, "\n");
+    copy(fidelity.begin(), fidelity.end(), out_it);
 }
 
 void Master::Run()

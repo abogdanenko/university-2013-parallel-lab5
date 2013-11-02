@@ -15,7 +15,9 @@ class Master: ComputationBase
     Timer timer; // measure computation time
 
     void BroadcastMatrix();
+    void FidelityWriteToFile();
     void ComputationTimeWriteToFile();
+    Vector fidelity;
     public:
     Master(const Args& args);
     class IdleWorkersError: public runtime_error
