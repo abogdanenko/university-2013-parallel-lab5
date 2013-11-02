@@ -21,7 +21,7 @@ class Master: public ComputationBase
     istream_iterator<complexd>* in_it;
     ostream_iterator<complexd>* out_it;
 
-    void MatrixReadFromFile();
+    void BroadcastMatrix();
 
     void ForEachBufNoSplit(WorkerBufTransferOp op);
     void ForEachBufSplit(WorkerBufTransferOp op);

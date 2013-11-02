@@ -40,34 +40,25 @@ Master::IdleWorkersError::IdleWorkersError():
 
 }
 
-void Master::MatrixReadFromFile()
+void Master::BroadcastMatrix()
 {
     #ifdef DEBUG
-    cout << IDENT(1) << "Master::MatrixReadFromFile()..." << endl;
+    cout << IDENT(1) << "Master::BroadcastMatrix()..." << endl;
     #endif
-    // read matrix from file or stdin
-    ifstream fs;
-    istream& s = (args.MatrixFileName() == "-") ? cin :
-        (fs.open(args.MatrixFileName().c_str()), fs);
 
-    Vector buf(4);
-
-    s >> buf[0];
-    s >> buf[1];
-    s >> buf[2];
-    s >> buf[3];
-
-    U[0][0] = buf[0];
-    U[0][1] = buf[1];
-    U[1][0] = buf[2];
-    U[1][1] = buf[3];
+    Vector buf = {
+        U[0][0],
+        U[0][1],
+        U[1][0],
+        U[1][1]
+    };
 
     local_worker.U = U;
 
     MPI_Bcast(&buf[0], buf.size() * sizeof(complexd), MPI_BYTE, master_rank,
         MPI_COMM_WORLD);
     #ifdef DEBUG
-    cout << IDENT(1) << "Master::MatrixReadFromFile() return" << endl;
+    cout << IDENT(1) << "Master::BroadcastMatrix() return" << endl;
     #endif
 }
 
