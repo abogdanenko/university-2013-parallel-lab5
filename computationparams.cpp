@@ -17,14 +17,17 @@ int ComputationParams::MPIGetWorldSize()
     return size;
 }
 
-ComputationParams::ComputationParams(const int qubit_count,
-    const int target_qubit):
+ComputationParams::ComputationParams(const int qubit_count):
     qubit_count(qubit_count),
-    target_qubit(target_qubit),
     worker_count(MPIGetWorldSize()),
     max_buf_size(1024)
 {
 
+}
+
+void ComputationParams::SetTargetQubit(const int target_qubit)
+{
+    this->target_qubit = target_qubit;
 }
 
 int ComputationParams::WorkerCount() const

@@ -33,7 +33,7 @@ void ApplyOperator(Vector& psi, const Matrix& U, const int k)
     PrintVector(psi);
     cout << IDENT(4) << "Matrix U:" << endl;
     PrintMatrix(U);
-    cout << IDENT(4) << "k = " << k << endl;
+    cout << IDENT(4) << "target_qubit = " << k << endl;
     cout << IDENT(4) << "Applying operator..." << endl;
     #endif
 

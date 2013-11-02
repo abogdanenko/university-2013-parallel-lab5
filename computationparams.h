@@ -6,7 +6,7 @@
 class ComputationParams
 {
     const int qubit_count;
-    const int target_qubit;
+    int target_qubit;
     const int worker_count;
     const int max_buf_size;
 
@@ -15,7 +15,8 @@ class ComputationParams
     Index VectorSize() const;
 
     public:
-    ComputationParams(const int qubit_count, const int target_qubit);
+    ComputationParams(const int qubit_count);
+    void SetTargetQubit(const int target_qubit);
     int WorkerCount() const;
     Index WorkerVectorSize() const;
     int WorkerTargetQubit() const;
