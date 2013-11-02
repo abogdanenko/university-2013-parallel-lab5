@@ -6,18 +6,18 @@
 class WorkerBase: public ComputationBase
 {
     friend class Master;
+    void NormalizeGlobal();
     protected:
-    /* Slice of initial state vector, split into two halves. First half
-       corresponds to k-th qubit state 0, second half corresponds to target
-       qubit state 1. The vector is modified in-place, so result is also stored
-       here  */
     Vector psi;
+    Vector psi_noiseless;
 
     public:
     WorkerBase(const Args& args);
-    void InitRandom();
-    void NormalizeGlobal();
+    ReceiveMatrix();
+    void InitVector();
+    complexd ScalarProduct();
     void ApplyOperator();
+    void SaveNoiselessVector();
     bool ReceiveNextBuf();
     bool SendNextBuf();
 };
