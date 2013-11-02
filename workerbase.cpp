@@ -150,3 +150,7 @@ bool WorkerBase::SendNextBuf()
     return true;
 }
 
+void WorkerBase::SaveNoiselessVector()
+{
+    psi_noiseless = psi;
+}
