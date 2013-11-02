@@ -154,3 +154,32 @@ void WorkerBase::SaveNoiselessVector()
 {
     psi_noiseless = psi;
 }
+
+void WorkerBase::SwapWithPartner()
+{
+    #ifdef DEBUG
+    cout << IDENT(3) << "WorkerBase::SwapWithPartner()... " << endl;
+    #endif
+
+    const auto middle = psi.begin() + params.WorkerVectorSize() / 2;
+    const auto begin = params.TargetQubitValue() ? psi.begin() : middle;
+    const auto end = params.TargetQubitValue() ? middle : psi.end();
+
+    for (auto it = begin; it != end; it += params.BufSize())
+    {
+        MPI_Sendrecv_replace(
+            &*it,
+            params.BufSize() * sizeof(complexd),
+            MPI_BYTE,
+            params.PartnerRank(),
+            tag,
+            params.PartnerRank(),
+            MPI_ANY_TAG,
+            MPI_COMM_WORLD,
+            MPI_STATUS_IGNORE);
+    }
+
+    #ifdef DEBUG
+        cout << IDENT(3) << "WorkerBase::SwapWithPartner() return" << endl;
+    #endif
+}
