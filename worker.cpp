@@ -6,7 +6,7 @@
 #include "debug.h"
 #endif
 
-#include "workerbase.h"
+#include "worker.h"
 #include "randomcomplexgenerator.h"
 #include "applyoperator.h"
 
@@ -14,26 +14,26 @@ using std::multiplies;
 using std::transform;
 using std::copy;
 
-WorkerBase::WorkerBase(const Args& args):
+Worker::Worker(const Args& args):
     ComputationBase(args)
 {
     psi.resize(params.WorkerVectorSize());
 }
 
-void WorkerBase::InitRandom()
+void Worker::InitRandom()
 {
     #ifdef DEBUG
-    cout << IDENT(3) << "WorkerBase::InitRandom()..." << endl;
+    cout << IDENT(3) << "Worker::InitRandom()..." << endl;
     #endif
     RandomComplexGenerator gen;
     generate(psi.begin(), psi.end(), gen);
     NormalizeGlobal();
     #ifdef DEBUG
-    cout << IDENT(3) << "WorkerBase::InitRandom() return" << endl;
+    cout << IDENT(3) << "Worker::InitRandom() return" << endl;
     #endif
 }
 
-void WorkerBase::NormalizeGlobal()
+void Worker::NormalizeGlobal()
 {
     long double local_sum = 0.0;
     for (auto it = psi.begin(); it != psi.end(); it++)
@@ -51,30 +51,30 @@ void WorkerBase::NormalizeGlobal()
         bind1st(multiplies<complexd>(), coef));
 }
 
-void WorkerBase::ApplyOperator()
+void Worker::ApplyOperator()
 {
     #ifdef DEBUG
-    cout << IDENT(3) << "WorkerBase::ApplyOperator()..." << endl;
+    cout << IDENT(3) << "Worker::ApplyOperator()..." << endl;
     #endif
 
     ::ApplyOperator(psi, U, params.WorkerTargetQubit());
 
     #ifdef DEBUG
-    cout << IDENT(3) << "WorkerBase::ApplyOperator() return" << endl;
+    cout << IDENT(3) << "Worker::ApplyOperator() return" << endl;
     #endif
 }
 
-bool WorkerBase::ReceiveNextBuf()
+bool Worker::ReceiveNextBuf()
 {
     #ifdef DEBUG
-    cout << IDENT(3) << "WorkerBase::ReceiveNextBuf()..." << endl;
+    cout << IDENT(3) << "Worker::ReceiveNextBuf()..." << endl;
     #endif
 
     static auto it = psi.begin();
     if (it == psi.end())
     {
         #ifdef DEBUG
-        cout << IDENT(3) << "WorkerBase::ReceiveNextBuf() return false"
+        cout << IDENT(3) << "Worker::ReceiveNextBuf() return false"
             << endl;
         #endif
 
@@ -87,23 +87,23 @@ bool WorkerBase::ReceiveNextBuf()
     it += params.BufSize();
 
     #ifdef DEBUG
-        cout << IDENT(3) << "WorkerBase::ReceiveNextBuf() return true" << endl;
+        cout << IDENT(3) << "Worker::ReceiveNextBuf() return true" << endl;
     #endif
 
     return true;
 }
 
-bool WorkerBase::SendNextBuf()
+bool Worker::SendNextBuf()
 {
     #ifdef DEBUG
-    cout << IDENT(3) << "WorkerBase::SendNextBuf()... " << endl;
+    cout << IDENT(3) << "Worker::SendNextBuf()... " << endl;
     #endif
 
     static auto it = psi.begin();
     if (it == psi.end())
     {
         #ifdef DEBUG
-        cout << IDENT(3) << "WorkerBase::SendNextBuf() return false" << endl;
+        cout << IDENT(3) << "Worker::SendNextBuf() return false" << endl;
         #endif
 
         return false;
@@ -117,7 +117,7 @@ bool WorkerBase::SendNextBuf()
     it += params.BufSize();
 
     #ifdef DEBUG
-        cout << IDENT(3) << "WorkerBase::SendNextBuf() return true" << endl;
+        cout << IDENT(3) << "Worker::SendNextBuf() return true" << endl;
     #endif
 
     return true;

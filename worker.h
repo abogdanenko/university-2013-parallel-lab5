@@ -1,9 +1,9 @@
-#ifndef WORKERBASE_H
-#define WORKERBASE_H
+#ifndef WORKER_H
+#define WORKER_H
 
 #include "computationbase.h"
 
-class WorkerBase: public ComputationBase
+class Worker: public ComputationBase
 {
     friend class Master;
     void NormalizeGlobal();
@@ -12,7 +12,7 @@ class WorkerBase: public ComputationBase
     Vector psi_noiseless;
 
     public:
-    WorkerBase(const Args& args);
+    Worker(const Args& args);
     ReceiveMatrix();
     void InitVector();
     complexd ScalarProduct();

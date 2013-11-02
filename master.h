@@ -4,7 +4,7 @@
 #include <stdexcept> // runtime_error
 #include <iterator>
 
-#include "workerbase.h"
+#include "worker.h"
 #include "timer.h"
 
 using std::istream_iterator;
@@ -15,7 +15,7 @@ typedef void (Master::* WorkerBufTransferOp)(int);
 
 class Master: public ComputationBase
 {
-    WorkerBase local_worker;
+    Worker local_worker;
     Timer timer; // measure computation time
 
     istream_iterator<complexd>* in_it;

@@ -1,9 +1,9 @@
 #ifndef REMOTEWORKER_H
 #define REMOTEWORKER_H
 
-#include "workerbase.h"
+#include "worker.h"
 
-class RemoteWorker: public WorkerBase
+class RemoteWorker: public Worker
 {
     public:
     RemoteWorker(const Args& args);
