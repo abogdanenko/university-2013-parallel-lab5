@@ -40,7 +40,7 @@ void RemoteWorker::Run()
     InitVector();
     ApplyOperatorToEachQubit();
     SaveNoiselessVector();
-    for (int  i = 0; i < params.IterationCount(); i++)
+    for (int  i = 0; i < args.IterationCount(); i++)
     {
         ReceiveMatrix();
         InitVector();

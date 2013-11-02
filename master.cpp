@@ -26,7 +26,7 @@ Master::Master(const Args& args):
     #ifdef DEBUG
     params.PrintAll();
     #endif
-    fidelity.resize(params.IterationCount());
+    fidelity.resize(args.IterationCount());
     #ifdef DEBUG
     cout << "Master::Master() return" << endl;
     #endif
