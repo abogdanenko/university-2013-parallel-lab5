@@ -7,7 +7,7 @@
 #include "remoteworker.h"
 
 RemoteWorker::RemoteWorker(const Args& args):
-    Worker(args)
+    WorkerBase(args)
 {
 
 }

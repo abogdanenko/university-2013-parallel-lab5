@@ -14,26 +14,26 @@ using std::multiplies;
 using std::transform;
 using std::copy;
 
-Worker::Worker(const Args& args):
+WorkerBase::WorkerBase(const Args& args):
     ComputationBase(args)
 {
     psi.resize(params.WorkerVectorSize());
 }
 
-void Worker::InitVector()
+void WorkerBase::InitVector()
 {
     #ifdef DEBUG
-    cout << IDENT(3) << "Worker::InitVector()..." << endl;
+    cout << IDENT(3) << "WorkerBase::InitVector()..." << endl;
     #endif
     RandomComplexGenerator gen;
     generate(psi.begin(), psi.end(), gen);
     NormalizeGlobal();
     #ifdef DEBUG
-    cout << IDENT(3) << "Worker::InitVector() return" << endl;
+    cout << IDENT(3) << "WorkerBase::InitVector() return" << endl;
     #endif
 }
 
-void Worker::NormalizeGlobal()
+void WorkerBase::NormalizeGlobal()
 {
     long double local_sum = 0.0;
     for (auto it = psi.begin(); it != psi.end(); it++)
@@ -51,10 +51,10 @@ void Worker::NormalizeGlobal()
         bind1st(multiplies<complexd>(), coef));
 }
 
-void Worker::ApplyOperator()
+void WorkerBase::ApplyOperator()
 {
     #ifdef DEBUG
-    cout << IDENT(4) << "Worker::ApplyOperator()..." << endl;
+    cout << IDENT(4) << "WorkerBase::ApplyOperator()..." << endl;
     #endif
 
     if (params.SwapWithPartner())
@@ -69,14 +69,14 @@ void Worker::ApplyOperator()
     }
 
     #ifdef DEBUG
-    cout << IDENT(4) << "Worker::ApplyOperator()... return" << endl;
+    cout << IDENT(4) << "WorkerBase::ApplyOperator()... return" << endl;
     #endif
 }
 
-void Worker::ApplyOperatorToEachQubit()
+void WorkerBase::ApplyOperatorToEachQubit()
 {
     #ifdef DEBUG
-    cout << IDENT(3) << "Worker::ApplyOperatorToEachQubit()..." << endl;
+    cout << IDENT(3) << "WorkerBase::ApplyOperatorToEachQubit()..." << endl;
     #endif
 
     for (int target_qubit = 1; target_qubit <= params.QubitCount();
@@ -87,21 +87,21 @@ void Worker::ApplyOperatorToEachQubit()
     }
 
     #ifdef DEBUG
-    cout << IDENT(3) << "Worker::ApplyOperatorToEachQubit() return" << endl;
+    cout << IDENT(3) << "WorkerBase::ApplyOperatorToEachQubit() return" << endl;
     #endif
 }
 
-bool Worker::ReceiveNextBuf()
+bool WorkerBase::ReceiveNextBuf()
 {
     #ifdef DEBUG
-    cout << IDENT(3) << "Worker::ReceiveNextBuf()..." << endl;
+    cout << IDENT(3) << "WorkerBase::ReceiveNextBuf()..." << endl;
     #endif
 
     static auto it = psi.begin();
     if (it == psi.end())
     {
         #ifdef DEBUG
-        cout << IDENT(3) << "Worker::ReceiveNextBuf() return false"
+        cout << IDENT(3) << "WorkerBase::ReceiveNextBuf() return false"
             << endl;
         #endif
 
@@ -114,23 +114,23 @@ bool Worker::ReceiveNextBuf()
     it += params.BufSize();
 
     #ifdef DEBUG
-        cout << IDENT(3) << "Worker::ReceiveNextBuf() return true" << endl;
+        cout << IDENT(3) << "WorkerBase::ReceiveNextBuf() return true" << endl;
     #endif
 
     return true;
 }
 
-bool Worker::SendNextBuf()
+bool WorkerBase::SendNextBuf()
 {
     #ifdef DEBUG
-    cout << IDENT(3) << "Worker::SendNextBuf()... " << endl;
+    cout << IDENT(3) << "WorkerBase::SendNextBuf()... " << endl;
     #endif
 
     static auto it = psi.begin();
     if (it == psi.end())
     {
         #ifdef DEBUG
-        cout << IDENT(3) << "Worker::SendNextBuf() return false" << endl;
+        cout << IDENT(3) << "WorkerBase::SendNextBuf() return false" << endl;
         #endif
 
         return false;
@@ -144,7 +144,7 @@ bool Worker::SendNextBuf()
     it += params.BufSize();
 
     #ifdef DEBUG
-        cout << IDENT(3) << "Worker::SendNextBuf() return true" << endl;
+        cout << IDENT(3) << "WorkerBase::SendNextBuf() return true" << endl;
     #endif
 
     return true;
