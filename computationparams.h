@@ -5,28 +5,39 @@
 
 class ComputationParams
 {
-    const int qubit_count;
-    int target_qubit;
-    const int worker_count;
     const int max_buf_size;
+    // these params don't change during execution
+    int qubit_count;
+    int global_qubit_count;
+    int most_significant_local_qubit;
 
-    static int MPIGetWorldSize();
-    int MostSignificantLocalQubit() const;
-    Index VectorSize() const;
+    Index worker_vector_size;
+    int buf_size;
+
+    // these params change every time target_qubit changes
+    int target_qubit;
+    int worker_target_qubit;
+    bool target_qubit_is_global;
+
+    // these params are defined only when target qubit is global
+    int target_qubit_value;
+    int partner_rank;
 
     public:
     ComputationParams(const int qubit_count);
     void SetTargetQubit(const int target_qubit);
-    int WorkerCount() const;
+
+    // these params don't change during execution
     Index WorkerVectorSize() const;
-    int WorkerTargetQubit() const;
-
     int BufSize() const;
-    int BufCount() const;
 
-    int SliceCount() const;
-    int WorkersPerSlice() const;
+    // these params change every time target_qubit changes
+    int WorkerTargetQubit() const;
     bool TargetQubitIsGlobal() const;
+
+    // these params are defined only when target qubit is global
+    int TargetQubitValue() const;
+    int PartnerRank() const;
 
     #ifdef DEBUG
     void PrintAll() const;
