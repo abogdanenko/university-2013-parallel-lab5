@@ -57,7 +57,7 @@ void WorkerBase::ApplyOperator()
     cout << IDENT(4) << "WorkerBase::ApplyOperator()..." << endl;
     #endif
 
-    if (params.SwapWithPartner())
+    if (params.TargetQubitIsGlobal())
     {
         SwapWithPartner();
         ::ApplyOperator(psi, U, params.WorkerTargetQubit());

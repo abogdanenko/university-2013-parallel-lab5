@@ -62,15 +62,14 @@ int ComputationParams::MostSignificantLocalQubit() const
     return global_qubit_count + 1;
 }
 
-bool ComputationParams::Split() const
+bool ComputationParams::TargetQubitIsGlobal() const
 {
-    // global qubits are going to be modified
     return target_qubit < MostSignificantLocalQubit();
 }
 
 int ComputationParams::WorkerTargetQubit() const
 {
-    if (Split())
+    if (TargetQubitIsGlobal())
     {
         return 1;
     }
@@ -104,10 +103,10 @@ void ComputationParams::PrintAll() const
     cout << IDENT(1) << "WorkerVectorSize() = " << WorkerVectorSize() << endl;
     cout << IDENT(1) << "BufSize() = " << BufSize() << endl;
     cout << IDENT(1) << "BufCount() = " << BufCount() << endl;
-    cout << IDENT(1) << "Split() = " << Split() << endl;
+    cout << IDENT(1) << "TargetQubitIsGlobal() = " << TargetQubitIsGlobal() << endl;
     cout << IDENT(1) << "WorkerTargetQubit() = " << WorkerTargetQubit()
         << endl;
-    if (Split())
+    if (TargetQubitIsGlobal())
     {
         cout << IDENT(1) << "SliceCount() = " << SliceCount() << endl;
         cout << IDENT(1) << "WorkersPerSlice() = " << WorkersPerSlice()

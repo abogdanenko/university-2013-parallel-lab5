@@ -24,9 +24,9 @@ class ComputationParams
     int BufSize() const;
     int BufCount() const;
 
-    bool Split() const;
     int SliceCount() const;
     int WorkersPerSlice() const;
+    bool TargetQubitIsGlobal() const;
 
     #ifdef DEBUG
     void PrintAll() const;
