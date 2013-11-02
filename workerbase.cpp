@@ -91,65 +91,6 @@ void WorkerBase::ApplyOperatorToEachQubit()
     #endif
 }
 
-bool WorkerBase::ReceiveNextBuf()
-{
-    #ifdef DEBUG
-    cout << IDENT(3) << "WorkerBase::ReceiveNextBuf()..." << endl;
-    #endif
-
-    static auto it = psi.begin();
-    if (it == psi.end())
-    {
-        #ifdef DEBUG
-        cout << IDENT(3) << "WorkerBase::ReceiveNextBuf() return false"
-            << endl;
-        #endif
-
-        return false;
-    }
-
-    MPI_Recv(&*it, params.BufSize() * sizeof(complexd), MPI_BYTE, master_rank,
-        MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-    it += params.BufSize();
-
-    #ifdef DEBUG
-        cout << IDENT(3) << "WorkerBase::ReceiveNextBuf() return true" << endl;
-    #endif
-
-    return true;
-}
-
-bool WorkerBase::SendNextBuf()
-{
-    #ifdef DEBUG
-    cout << IDENT(3) << "WorkerBase::SendNextBuf()... " << endl;
-    #endif
-
-    static auto it = psi.begin();
-    if (it == psi.end())
-    {
-        #ifdef DEBUG
-        cout << IDENT(3) << "WorkerBase::SendNextBuf() return false" << endl;
-        #endif
-
-        return false;
-    }
-
-    MPI_Request request;
-
-    MPI_Isend(&*it, params.BufSize() * sizeof(complexd), MPI_BYTE, master_rank,
-        tag, MPI_COMM_WORLD, &request);
-
-    it += params.BufSize();
-
-    #ifdef DEBUG
-        cout << IDENT(3) << "WorkerBase::SendNextBuf() return true" << endl;
-    #endif
-
-    return true;
-}
-
 void WorkerBase::SaveNoiselessVector()
 {
     psi_noiseless = psi;
