@@ -10,7 +10,8 @@ class ComputationBase
     protected:
     Args args;
     ComputationParams params;
-    vector< vector<complexd> > U;
+    Matrix U;
+    static Matrix& HadamardMatrix() const;
     public:
     static const int master_rank = 0;
     static const int tag = 0;
