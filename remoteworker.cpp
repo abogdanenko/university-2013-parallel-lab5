@@ -38,13 +38,13 @@ void RemoteWorker::Run()
     #endif
     MPI_Barrier(MPI_COMM_WORLD);
     InitVector();
-    ApplyOperator();
+    ApplyOperatorToEachQubit();
     SaveNoiselessVector();
     for (int  i = 0; i < params.IterationCount(); i++)
     {
         ReceiveMatrix();
         InitVector();
-        ApplyOperator();
+        ApplyOperatorToEachQubit();
         auto sp = ScalarProduct();
         vector<double> pair = {sp.real(), sp.imag()};
         MPI_Reduce(MPI_IN_PLACE, &pair.front(), 2, MPI_DOUBLE, MPI_SUM,

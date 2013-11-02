@@ -17,6 +17,7 @@ class Worker: public ComputationBase
     void InitVector();
     complexd ScalarProduct();
     void ApplyOperator();
+    void ApplyOperatorToEachQubit();
     void SaveNoiselessVector();
     bool ReceiveNextBuf();
     bool SendNextBuf();

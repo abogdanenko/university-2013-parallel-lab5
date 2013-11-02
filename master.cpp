@@ -225,14 +225,14 @@ void Master::Run()
     timer.Start();
 
     local_worker.InitVector();
-    local_worker.ApplyOperator();
+    local_worker.ApplyOperatorToEachQubit();
     local_worker.SaveNoiselessVector();
     for (auto it = fidelity.begin(); it != fidelity.end(); it++)
     {
         InitMatrix();
         BroadcastMatrix();
         local_worker.InitVector();
-        local_worker.ApplyOperator();
+        local_worker.ApplyOperatorToEachQubit();
         auto s = local_worker.ScalarProduct();
         vector<double> sum = {s.real(), s.imag()};
         MPI_Reduce(MPI_IN_PLACE, &sum.front(), 2, MPI_DOUBLE, MPI_SUM,

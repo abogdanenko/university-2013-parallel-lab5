@@ -20,16 +20,16 @@ Worker::Worker(const Args& args):
     psi.resize(params.WorkerVectorSize());
 }
 
-void Worker::InitRandom()
+void Worker::InitVector()
 {
     #ifdef DEBUG
-    cout << IDENT(3) << "Worker::InitRandom()..." << endl;
+    cout << IDENT(3) << "Worker::InitVector()..." << endl;
     #endif
     RandomComplexGenerator gen;
     generate(psi.begin(), psi.end(), gen);
     NormalizeGlobal();
     #ifdef DEBUG
-    cout << IDENT(3) << "Worker::InitRandom() return" << endl;
+    cout << IDENT(3) << "Worker::InitVector() return" << endl;
     #endif
 }
 
@@ -54,13 +54,40 @@ void Worker::NormalizeGlobal()
 void Worker::ApplyOperator()
 {
     #ifdef DEBUG
-    cout << IDENT(3) << "Worker::ApplyOperator()..." << endl;
+    cout << IDENT(4) << "Worker::ApplyOperator()..." << endl;
     #endif
 
-    ::ApplyOperator(psi, U, params.WorkerTargetQubit());
+    if (params.SwapWithPartner())
+    {
+        SwapWithPartner();
+        ::ApplyOperator(psi, U, params.WorkerTargetQubit());
+        SwapWithPartner();
+    }
+    else
+    {
+        ::ApplyOperator(psi, U, params.WorkerTargetQubit());
+    }
 
     #ifdef DEBUG
-    cout << IDENT(3) << "Worker::ApplyOperator() return" << endl;
+    cout << IDENT(4) << "Worker::ApplyOperator()... return" << endl;
+    #endif
+}
+
+void Worker::ApplyOperatorToEachQubit()
+{
+    #ifdef DEBUG
+    cout << IDENT(3) << "Worker::ApplyOperatorToEachQubit()..." << endl;
+    #endif
+
+    for (int target_qubit = 1; target_qubit <= params.QubitCount();
+        target_qubit++)
+    {
+        params.SetTargetQubit(target_qubit);
+        ApplyOperator();
+    }
+
+    #ifdef DEBUG
+    cout << IDENT(3) << "Worker::ApplyOperatorToEachQubit() return" << endl;
     #endif
 }
 
