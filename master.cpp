@@ -235,7 +235,7 @@ void Master::Run()
 
     local_worker.InitVector();
     local_worker.ApplyOperator();
-    local_worker.SaveVector();
+    local_worker.SaveNoiselessVector();
     for (auto it = fidelity.begin(); it != fidelity.end(); it++)
     {
         InitMatrix();

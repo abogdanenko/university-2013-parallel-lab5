@@ -39,7 +39,7 @@ void RemoteWorker::Run()
     MPI_Barrier(MPI_COMM_WORLD);
     InitVector();
     ApplyOperator();
-    SaveVector();
+    SaveNoiselessVector();
     for (int  i = 0; i < params.IterationCount(); i++)
     {
         ReceiveMatrix();
