@@ -3,6 +3,8 @@
 
 #include <sstream> // stringstream
 
+#include "typedefs.h"
+
 using std::stringstream;
 
 // for n = 2**m returns m
@@ -24,5 +26,7 @@ Number string_to_number(const string& s)
     ss >> n;
     return n;
 }
+
+Matrix& MatrixMultiply(const Matrix& A, const Matrix& B);
 
 #endif
