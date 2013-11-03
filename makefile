@@ -1,3 +1,5 @@
+# usage: make [release | debug [EXTRADEBUGFLAGS='-DNORANDOM']]
+
 CC=mpiCC
 CFLAGS=-c -std=c++0x -Wall -Wextra -pedantic -Wno-long-long -Werror
 EXTRADEBUGFLAGS= # should be overriden by command line arguments to make
