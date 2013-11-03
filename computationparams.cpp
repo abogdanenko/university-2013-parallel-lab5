@@ -10,9 +10,9 @@
 using std::min;
 
 ComputationParams::ComputationParams(const int qubit_count):
+    max_buf_size(1024),
     qubit_count(qubit_count),
-    target_qubit(-1),
-    max_buf_size(1024)
+    target_qubit(-1)
 {
     int worker_count;
     MPI_Comm_size(MPI_COMM_WORLD, &worker_count);

@@ -5,7 +5,7 @@ using std::conj;
 complexd ScalarProduct(const Vector& a, const Vector& b)
 {
     complexd sum (0.0, 0.0);
-    for (int i = 0; i < a.size(); i++)
+    for (Index i = 0; i < a.size(); i++)
     {
         sum += conj(a[i]) * b[i];
     }
