@@ -101,6 +101,9 @@ void WorkerBase::ApplyOperatorToEachQubit()
         target_qubit++)
     {
         params.SetTargetQubit(target_qubit);
+        #ifdef DEBUG
+        params.PrintAll();
+        #endif
         ApplyOperator();
     }
 
