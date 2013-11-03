@@ -17,4 +17,7 @@ using std::cout;
 using std::endl;
 #endif
 
+#ifdef WAITFORGDB
+void WaitForGdb();
+#endif
 #endif

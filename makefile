@@ -1,4 +1,4 @@
-# usage: make [release | debug [EXTRADEBUGFLAGS='-DNORANDOM']]
+# usage: make [release | debug [EXTRADEBUGFLAGS='-DNORANDOM -DWAITFORGDB']]
 
 CC=mpiCC
 CFLAGS=-c -std=c++0x -Wall -Wextra -pedantic -Wno-long-long -Werror

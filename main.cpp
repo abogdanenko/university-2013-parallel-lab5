@@ -30,6 +30,10 @@
 #include <mpi.h>
 #include <cstdlib> // EXIT_FAILURE, EXIT_SUCCESS
 
+#ifdef WAITFORGDB
+#include "debug.h"
+#endif
+
 #include "computationbase.h"
 #include "parser.h"
 #include "remoteworker.h"
@@ -40,6 +44,9 @@ using std::endl;
 
 int main(int argc, char** argv)
 {
+    #ifdef WAITFORGDB
+    WaitForGdb();
+    #endif
     int rank;
     int world_size;
     int exit_code = EXIT_SUCCESS;
