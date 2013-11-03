@@ -12,7 +12,7 @@ class WorkerBase: protected ComputationBase
     Vector psi_noiseless;
     protected:
     WorkerBase(const Args& args);
-    complexd ScalarProduct();
+    complexd ScalarProduct() const;
     void InitVector();
     void ApplyOperatorToEachQubit();
     void SaveNoiselessVector();

@@ -28,6 +28,7 @@ Number string_to_number(const string& s)
     return n;
 }
 
+complexd ScalarProduct(const Vector& a, const Vector& b);
 Matrix MatrixMultiply(const Matrix& A, const Matrix& B);
 
 #endif

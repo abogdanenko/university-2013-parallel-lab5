@@ -14,6 +14,7 @@
 
 #include "workerbase.h"
 #include "applyoperator.h"
+#include "routines.h"
 
 using std::multiplies;
 using std::transform;
@@ -23,6 +24,11 @@ WorkerBase::WorkerBase(const Args& args):
     ComputationBase(args)
 {
     psi.resize(params.WorkerVectorSize());
+}
+
+complexd WorkerBase::ScalarProduct() const
+{
+    return ::ScalarProduct(psi, psi_noiseless);
 }
 
 void WorkerBase::InitVector()
