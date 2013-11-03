@@ -18,16 +18,12 @@ using std::endl;
 
 Master::Master(const Args& args):
     ComputationBase(args),
-    local_worker(args)
+    local_worker(args),
+    fidelity(args.IterationCount())
 {
     #ifdef DEBUG
     cout << "Master::Master()..." << endl;
-    #endif
-    #ifdef DEBUG
     params.PrintAll();
-    #endif
-    fidelity.resize(args.IterationCount());
-    #ifdef DEBUG
     cout << "Master::Master() return" << endl;
     #endif
 }
@@ -55,6 +51,7 @@ void Master::BroadcastMatrix()
 
     MPI_Bcast(&buf[0], buf.size() * sizeof(complexd), MPI_BYTE, master_rank,
         MPI_COMM_WORLD);
+
     #ifdef DEBUG
     cout << IDENT(1) << "Master::BroadcastMatrix() return" << endl;
     #endif
@@ -82,6 +79,7 @@ void Master::Run()
     #ifdef DEBUG
     cout << "Master::Run()..." << endl;
     #endif
+
     MPI_Barrier(MPI_COMM_WORLD);
     timer.Start();
 
@@ -110,6 +108,7 @@ void Master::Run()
     {
         ComputationTimeWriteToFile();
     }
+
     #ifdef DEBUG
     cout << "Master::Run() return" << endl;
     #endif
