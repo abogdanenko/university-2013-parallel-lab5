@@ -42,7 +42,7 @@ void ComputationParams::SetTargetQubit(const int target_qubit)
     }
     else
     {
-        worker_target_qubit = target_qubit - most_significant_local_qubit;
+        worker_target_qubit = 1 + target_qubit - most_significant_local_qubit;
     }
 }
 
