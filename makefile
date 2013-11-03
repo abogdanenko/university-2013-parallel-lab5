@@ -1,5 +1,6 @@
 CC=mpiCC
 CFLAGS=-c -Wall -Wextra -pedantic -Wno-long-long
+EXTRADEBUGFLAGS="" # should be overriden by command line arguments to make
 DEBUGDIR=debug
 RELEASEDIR=release
 HFILES=*.h
@@ -14,10 +15,10 @@ all: debug release
 .PHONY: debug
 debug: create_dir_debug
 debug: $(DEBUGDIR)/fidelity-mpi
-debug: CFLAGS += -DDEBUG -g
+debug: CFLAGS += -g -DDEBUG $(EXTRADEBUGFLAGS)
 
-.PHONY: create_dir_debug 
-create_dir_debug: 
+.PHONY: create_dir_debug
+create_dir_debug:
 	test -d $(DEBUGDIR) || mkdir $(DEBUGDIR)
 
 $(DEBUGDIR)/fidelity-mpi: $(DEBUGOFILES)

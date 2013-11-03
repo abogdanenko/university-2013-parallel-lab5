@@ -6,8 +6,13 @@
 #include "debug.h"
 #endif
 
-#include "worker.h"
+#ifdef NORANDOM
+#include "basisvector1generator.h"
+#else
 #include "randomcomplexgenerator.h"
+#endif
+
+#include "worker.h"
 #include "applyoperator.h"
 
 using std::multiplies;
@@ -25,9 +30,16 @@ void WorkerBase::InitVector()
     #ifdef DEBUG
     cout << IDENT(3) << "WorkerBase::InitVector()..." << endl;
     #endif
+
+    #ifdef NORANDOM
+    BasisVector1Generator gen;
+    #else
     RandomComplexGenerator gen;
+    #endif
+
     generate(psi.begin(), psi.end(), gen);
     NormalizeGlobal();
+
     #ifdef DEBUG
     cout << IDENT(3) << "WorkerBase::InitVector() return" << endl;
     #endif
