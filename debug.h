@@ -8,7 +8,7 @@
 #ifdef DEBUG
 #define IDENT_WIDTH 4
 #define IDENT_CHAR ' '
-#define IDENT(level) string(level * IDENT_WIDTH, IDENT_CHAR)
+#define IDENT(level) string((level) * IDENT_WIDTH, IDENT_CHAR)
 #endif
 
 #ifdef DEBUG
