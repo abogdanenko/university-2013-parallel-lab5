@@ -1,6 +1,5 @@
 #include <mpi.h>
 #include <fstream>
-#include <iterator>
 
 #include "master.h"
 #include "routines.h"
@@ -12,7 +11,6 @@
 
 using std::ofstream;
 using std::ostream;
-using std::ostream_iterator;
 
 using std::cin;
 using std::cout;
@@ -94,13 +92,15 @@ void Master::ComputationTimeWriteToFile()
     s << timer.GetDelta() << endl;
 }
 
-void Master::FidelityWriteToFile()
+void Master::OneMinusFidelityWriteToFile()
 {
     ofstream fs;
     ostream& s = (args.FidelityFileName() == "-") ? cout :
         (fs.open(args.FidelityFileName().c_str()), fs);
-    ostream_iterator<complexd> out_it (s, "\n");
-    copy(fidelity.begin(), fidelity.end(), out_it);
+    for (auto it = fidelity.begin(); it != fidelity.end(); it++)
+    {
+        s << 1.0 - *it << endl;
+    }
 }
 
 void Master::Run()
@@ -129,7 +129,7 @@ void Master::Run()
     }
     if (args.FidelityWriteToFileFlag())
     {
-        FidelityWriteToFile();
+        OneMinusFidelityWriteToFile();
     }
     MPI_Barrier(MPI_COMM_WORLD);
     timer.Stop();
