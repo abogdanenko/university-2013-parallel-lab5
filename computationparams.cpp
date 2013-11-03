@@ -79,7 +79,7 @@ int ComputationParams::PartnerRank() const
 #ifdef DEBUG
 void ComputationParams::PrintAll() const
 {
-    const int I = 5;
+    const int I = 4;
     cout << IDENT(I - 1) << "ComputationParams::PrintAll()..." << endl;
     // these params don't change during execution
     cout << IDENT(I) << "qubit_count = " << qubit_count << endl;

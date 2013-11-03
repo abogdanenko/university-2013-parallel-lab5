@@ -34,7 +34,7 @@ complexd WorkerBase::ScalarProduct() const
 void WorkerBase::InitVector()
 {
     #ifdef DEBUG
-    cout << IDENT(2) << "WorkerBase::InitVector()..." << endl;
+    cout << IDENT(1) << "WorkerBase::InitVector()..." << endl;
     #endif
 
     #ifdef NORANDOM
@@ -47,7 +47,7 @@ void WorkerBase::InitVector()
     NormalizeGlobal();
 
     #ifdef DEBUG
-    cout << IDENT(2) << "WorkerBase::InitVector() return" << endl;
+    cout << IDENT(1) << "WorkerBase::InitVector() return" << endl;
     #endif
 }
 
@@ -72,7 +72,7 @@ void WorkerBase::NormalizeGlobal()
 void WorkerBase::ApplyOperator()
 {
     #ifdef DEBUG
-    cout << IDENT(3) << "WorkerBase::ApplyOperator()..." << endl;
+    cout << IDENT(2) << "WorkerBase::ApplyOperator()..." << endl;
     params.PrintAll();
     #endif
 
@@ -88,14 +88,14 @@ void WorkerBase::ApplyOperator()
     }
 
     #ifdef DEBUG
-    cout << IDENT(3) << "WorkerBase::ApplyOperator()... return" << endl;
+    cout << IDENT(2) << "WorkerBase::ApplyOperator()... return" << endl;
     #endif
 }
 
 void WorkerBase::ApplyOperatorToEachQubit()
 {
     #ifdef DEBUG
-    cout << IDENT(2) << "WorkerBase::ApplyOperatorToEachQubit()..." << endl;
+    cout << IDENT(1) << "WorkerBase::ApplyOperatorToEachQubit()..." << endl;
     #endif
 
     for (int target_qubit = 1; target_qubit <= args.QubitCount();
@@ -106,7 +106,7 @@ void WorkerBase::ApplyOperatorToEachQubit()
     }
 
     #ifdef DEBUG
-    cout << IDENT(2) << "WorkerBase::ApplyOperatorToEachQubit() return" << endl;
+    cout << IDENT(1) << "WorkerBase::ApplyOperatorToEachQubit() return" << endl;
     #endif
 }
 
@@ -118,7 +118,7 @@ void WorkerBase::SaveNoiselessVector()
 void WorkerBase::SwapWithPartner()
 {
     #ifdef DEBUG
-    cout << IDENT(3) << "WorkerBase::SwapWithPartner()... " << endl;
+    cout << IDENT(3) << "WorkerBase::SwapWithPartner()..." << endl;
     #endif
 
     const auto middle = psi.begin() + params.WorkerVectorSize() / 2;

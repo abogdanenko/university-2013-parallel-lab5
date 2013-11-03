@@ -10,14 +10,14 @@ void PrintVector(const Vector& psi)
 {
     for (auto it = psi.begin(); it != psi.end(); it++)
     {
-        cout << IDENT(6) << *it << endl;
+        cout << IDENT(5) << *it << endl;
     }
 }
 
 void PrintMatrix(const Matrix& U)
 {
-    cout << IDENT(6) << U[0][0] << " " << U[0][1] << endl;
-    cout << IDENT(6) << U[1][0] << " " << U[1][1] << endl;
+    cout << IDENT(5) << U[0][0] << " " << U[0][1] << endl;
+    cout << IDENT(5) << U[1][0] << " " << U[1][1] << endl;
 }
 #endif
 
@@ -28,13 +28,13 @@ void ApplyOperator(Vector& psi, const Matrix& U, const int k)
     const Index mask = 1L << (n - k);
 
     #ifdef DEBUG
-    cout << IDENT(4) << "ApplyOperator()..." << endl;
-    cout << IDENT(5) << "psi:" << endl;
+    cout << IDENT(3) << "ApplyOperator()..." << endl;
+    cout << IDENT(4) << "psi:" << endl;
     PrintVector(psi);
-    cout << IDENT(5) << "Matrix U:" << endl;
+    cout << IDENT(4) << "Matrix U:" << endl;
     PrintMatrix(U);
-    cout << IDENT(5) << "target_qubit = " << k << endl;
-    cout << IDENT(5) << "Applying operator..." << endl;
+    cout << IDENT(4) << "target_qubit = " << k << endl;
+    cout << IDENT(4) << "Applying operator..." << endl;
     #endif
 
     for (Index i = 0; i < N; i++)
@@ -53,10 +53,10 @@ void ApplyOperator(Vector& psi, const Matrix& U, const int k)
         }
     }
     #ifdef DEBUG
-    cout << IDENT(5) << "Applying operator DONE" << endl;
-    cout << IDENT(5) << "psi:" << endl;
+    cout << IDENT(4) << "Applying operator DONE" << endl;
+    cout << IDENT(4) << "psi:" << endl;
     PrintVector(psi);
-    cout << IDENT(4) << "ApplyOperator() return" << endl;
+    cout << IDENT(3) << "ApplyOperator() return" << endl;
     #endif
 }
 
