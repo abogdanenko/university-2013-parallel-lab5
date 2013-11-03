@@ -14,6 +14,7 @@ class Master: ComputationBase
     LocalWorker local_worker;
     Timer timer; // measure computation time
 
+    void InitMatrix();
     void BroadcastMatrix();
     void FidelityWriteToFile();
     void ComputationTimeWriteToFile();

@@ -3,6 +3,8 @@
 #include <iterator>
 
 #include "master.h"
+#include "routines.h"
+#include "normaldistributiongenerator.h"
 
 #ifdef DEBUG
 #include "debug.h"
@@ -32,6 +34,33 @@ Master::IdleWorkersError::IdleWorkersError():
     runtime_error("Too many processes for given number of qubits.")
 {
 
+}
+
+void Master::InitMatrix()
+{
+    #ifdef DEBUG
+    cout << IDENT(1) << "Master::InitMatrix()..." << endl;
+    #endif
+
+    static NormalDistributionGenerator gen;
+    const double xi = gen();
+    const double theta = args.Epsilon() * xi;
+    const complexd c = cos(theta);
+    const complexd s = sin(theta);
+    const Vector row1 = {c, s};
+    const Vector row2 = {-1.0 * s, c};
+    const Matrix U_theta = {row1, row2};
+
+    U = MatrixMultiply(HadamardMatrix(), U_theta);
+
+    #ifdef DEBUG
+    cout << IDENT(1) << "xi = " << xi << endl;
+    cout << IDENT(1) << "theta = " << theta << endl;
+    #endif
+
+    #ifdef DEBUG
+    cout << IDENT(1) << "Master::InitMatrix() return" << endl;
+    #endif
 }
 
 void Master::BroadcastMatrix()
