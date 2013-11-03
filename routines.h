@@ -6,6 +6,7 @@
 #include "typedefs.h"
 
 using std::stringstream;
+using std::string;
 
 // for n = 2**m returns m
 template <class Integer>
@@ -27,6 +28,6 @@ Number string_to_number(const string& s)
     return n;
 }
 
-Matrix& MatrixMultiply(const Matrix& A, const Matrix& B);
+Matrix MatrixMultiply(const Matrix& A, const Matrix& B);
 
 #endif

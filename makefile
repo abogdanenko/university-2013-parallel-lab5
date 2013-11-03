@@ -1,6 +1,6 @@
 CC=mpiCC
 CFLAGS=-c -Wall -Wextra -pedantic -Wno-long-long
-EXTRADEBUGFLAGS="" # should be overriden by command line arguments to make
+EXTRADEBUGFLAGS= # should be overriden by command line arguments to make
 DEBUGDIR=debug
 RELEASEDIR=release
 HFILES=*.h

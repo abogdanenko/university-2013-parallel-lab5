@@ -3,7 +3,7 @@
 Args::Args():
     qubit_count(-1),
     iteration_count(-1),
-    epsilon(-1.0)
+    epsilon(-1.0),
     fidelity_filename(NULL),
     computation_time_filename(NULL)
 {

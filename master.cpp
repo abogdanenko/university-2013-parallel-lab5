@@ -125,7 +125,7 @@ void Master::Run()
         vector<double> sum = {s.real(), s.imag()};
         MPI_Reduce(MPI_IN_PLACE, &sum.front(), 2, MPI_DOUBLE, MPI_SUM,
             master_rank, MPI_COMM_WORLD);
-        *it = (complexd (sum[0], sum[1])).norm();
+        *it = norm(complexd (sum[0], sum[1]));
     }
     if (args.FidelityWriteToFileFlag())
     {

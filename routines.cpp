@@ -1,4 +1,6 @@
-Matrix& MatrixMultiply(const Matrix& A, const Matrix& B)
+#include "routines.h"
+
+Matrix MatrixMultiply(const Matrix& A, const Matrix& B)
 {
     const int rows_A = A.size();
     const int columns_A = A[0].size();

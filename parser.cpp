@@ -31,7 +31,7 @@ void Parser::PrintUsage()
             "-e epsilon"
             "[-i iteration_count] "
             "[-f fidelity_output_file] "
-            "[-t computation_time_output_file]
+            "[-t computation_time_output_file]"
         "]" << endl;
 }
 

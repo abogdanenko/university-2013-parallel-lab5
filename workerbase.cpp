@@ -12,7 +12,7 @@
 #include "randomcomplexgenerator.h"
 #endif
 
-#include "worker.h"
+#include "workerbase.h"
 #include "applyoperator.h"
 
 using std::multiplies;
@@ -91,7 +91,7 @@ void WorkerBase::ApplyOperatorToEachQubit()
     cout << IDENT(3) << "WorkerBase::ApplyOperatorToEachQubit()..." << endl;
     #endif
 
-    for (int target_qubit = 1; target_qubit <= params.QubitCount();
+    for (int target_qubit = 1; target_qubit <= args.QubitCount();
         target_qubit++)
     {
         params.SetTargetQubit(target_qubit);

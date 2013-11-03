@@ -2,12 +2,12 @@
 
 ComputationBase::ComputationBase(const Args& args):
     args(args),
-    params(args.QubitCount(), args.TargetQubit()),
+    params(args.QubitCount()),
     U(HadamardMatrix())
 {
 }
 
-static Matrix& ComputationBase::HadamardMatrix() const
+Matrix ComputationBase::HadamardMatrix()
 {
     const double elem = 1.0 / sqrt(2.0);
     const Vector row = {elem, elem};

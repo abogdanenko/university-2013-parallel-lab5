@@ -56,11 +56,6 @@ int ComputationParams::BufSize() const
     return buf_size;
 }
 
-int ComputationParams::MostSignificantLocalQubit() const
-{
-    return most_significant_local_qubit;
-}
-
 bool ComputationParams::TargetQubitIsGlobal() const
 {
     return target_qubit_is_global;
