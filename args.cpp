@@ -20,6 +20,11 @@ int Args::IterationCount() const
     return iteration_count;
 }
 
+double Args::Epsilon() const
+{
+    return epsilon;
+}
+
 string Args::FidelityFileName() const
 {
     return fidelity_filename;
