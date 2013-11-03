@@ -52,8 +52,8 @@ void Master::InitMatrix()
     U = MatrixMultiply(HadamardMatrix(), U_theta);
 
     #ifdef DEBUG
-    cout << IDENT(1) << "xi = " << xi << endl;
-    cout << IDENT(1) << "theta = " << theta << endl;
+    cout << IDENT(2) << "xi = " << xi << endl;
+    cout << IDENT(2) << "theta = " << theta << endl;
     #endif
 
     #ifdef DEBUG
