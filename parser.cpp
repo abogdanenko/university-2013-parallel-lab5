@@ -28,7 +28,7 @@ void Parser::PrintUsage()
 {
     cout << "Usage: fidelity-mpi ["
             "-n qubit_count "
-            "-e epsilon"
+            "-e epsilon "
             "[-i iteration_count] "
             "[-f fidelity_output_file] "
             "[-t computation_time_output_file]"
