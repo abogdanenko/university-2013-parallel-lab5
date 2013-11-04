@@ -1,5 +1,4 @@
-#include <stdlib.h> // srand, rand
-#include <time.h> // time
+#include <stdlib.h> // rand
 
 #include "randomcomplexgenerator.h"
 
@@ -20,7 +19,6 @@ double RandomComplexGenerator::random01d()
 
 RandomComplexGenerator::RandomComplexGenerator()
 {
-    srand(time(NULL));
     m_z = rand();
     m_w = rand();
 }
@@ -31,4 +29,3 @@ complexd RandomComplexGenerator::operator()()
     double im = random01d() - 0.5;
     return complexd(re, im);
 }
-

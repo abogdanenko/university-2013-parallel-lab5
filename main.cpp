@@ -30,6 +30,7 @@
 #include <mpi.h>
 #include <cstdlib> // EXIT_FAILURE, EXIT_SUCCESS
 
+
 #ifdef WAITFORGDB
 #include "debug.h"
 #endif
@@ -38,6 +39,7 @@
 #include "parser.h"
 #include "remoteworker.h"
 #include "master.h"
+#include "routines.h"
 
 using std::cerr;
 using std::endl;
@@ -54,6 +56,8 @@ int main(int argc, char** argv)
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+
+    CommWorldSrand();
 
     try
     {

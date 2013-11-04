@@ -40,7 +40,7 @@ void Master::InitMatrix()
     cout << IDENT(1) << "Master::InitMatrix()..." << endl;
     #endif
 
-    static NormalDistributionGenerator gen;
+    NormalDistributionGenerator gen;
     const double xi = gen();
     const double theta = args.Epsilon() * xi;
     const complexd c = cos(theta);

@@ -1,4 +1,7 @@
 #include "routines.h"
+#include <mpi.h>
+#include <stdlib.h> // srand
+#include <time.h> // time
 
 using std::conj;
 
@@ -34,4 +37,18 @@ Matrix MatrixMultiply(const Matrix& A, const Matrix& B)
     }
 
     return C;
+}
+
+void CommWorldSrand()
+{
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    // something like 0x10000
+    const unsigned half = 1 << (4 * sizeof(unsigned));
+
+    // something like 0x00rrtttt
+    const unsigned seed = rank * half + time(NULL) % half;
+
+    srand(seed);
 }
