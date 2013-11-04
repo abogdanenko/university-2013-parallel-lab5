@@ -2,8 +2,7 @@
 
 ComputationBase::ComputationBase(const Args& args):
     args(args),
-    params(args.QubitCount()),
-    U(HadamardMatrix())
+    params(args.QubitCount())
 {
 }
 

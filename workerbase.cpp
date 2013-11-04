@@ -31,10 +31,10 @@ complexd WorkerBase::ScalarProduct() const
     return ::ScalarProduct(psi, psi_noiseless);
 }
 
-void WorkerBase::InitVector()
+void WorkerBase::InitVectors()
 {
     #ifdef DEBUG
-    cout << IDENT(1) << "WorkerBase::InitVector()..." << endl;
+    cout << IDENT(1) << "WorkerBase::InitVectors()..." << endl;
     #endif
 
     #ifdef NORANDOM
@@ -46,8 +46,10 @@ void WorkerBase::InitVector()
     generate(psi.begin(), psi.end(), gen);
     NormalizeGlobal();
 
+    psi_noiseless = psi;
+
     #ifdef DEBUG
-    cout << IDENT(1) << "WorkerBase::InitVector() return" << endl;
+    cout << IDENT(1) << "WorkerBase::InitVectors() return" << endl;
     #endif
 }
 
@@ -110,9 +112,9 @@ void WorkerBase::ApplyOperatorToEachQubit()
     #endif
 }
 
-void WorkerBase::SaveNoiselessVector()
+void WorkerBase::SwapVectors()
 {
-    psi_noiseless = psi;
+    psi.swap(psi_noiseless);
 }
 
 void WorkerBase::SwapWithPartner()

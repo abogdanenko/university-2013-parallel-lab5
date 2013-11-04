@@ -112,15 +112,19 @@ void Master::Run()
     MPI_Barrier(MPI_COMM_WORLD);
     timer.Start();
 
-    local_worker.InitVector();
-    local_worker.ApplyOperatorToEachQubit();
-    local_worker.SaveNoiselessVector();
     for (auto it = fidelity.begin(); it != fidelity.end(); it++)
     {
+        local_worker.InitVectors();
+
+        local_worker.U = HadamardMatrix();
+        local_worker.ApplyOperatorToEachQubit();
+
+        local_worker.SwapVectors();
+
         InitMatrix();
         BroadcastMatrix();
-        local_worker.InitVector();
         local_worker.ApplyOperatorToEachQubit();
+
         auto s = local_worker.ScalarProduct();
         vector<double> sum = {s.real(), s.imag()};
         MPI_Reduce(MPI_IN_PLACE, &sum.front(), 2, MPI_DOUBLE, MPI_SUM,

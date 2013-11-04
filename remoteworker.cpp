@@ -37,14 +37,18 @@ void RemoteWorker::Run()
     cout << "RemoteWorker::Run()..." << endl;
     #endif
     MPI_Barrier(MPI_COMM_WORLD);
-    InitVector();
-    ApplyOperatorToEachQubit();
-    SaveNoiselessVector();
     for (int  i = 0; i < args.IterationCount(); i++)
     {
-        ReceiveMatrix();
-        InitVector();
+        InitVectors();
+
+        U = HadamardMatrix();
         ApplyOperatorToEachQubit();
+
+        SwapVectors();
+
+        ReceiveMatrix();
+        ApplyOperatorToEachQubit();
+
         auto sp = ScalarProduct();
         vector<double> sendbuf = {sp.real(), sp.imag()};
         MPI_Reduce(&sendbuf.front(), NULL, 2, MPI_DOUBLE, MPI_SUM, master_rank,
