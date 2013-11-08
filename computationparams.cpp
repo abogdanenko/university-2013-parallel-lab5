@@ -84,7 +84,8 @@ void ComputationParams::PrintAll() const
     // these params don't change during execution
     cout << INDENT(I) << "qubit_count = " << qubit_count << endl;
     cout << INDENT(I) << "global_qubit_count = " << global_qubit_count << endl;
-    cout << INDENT(I) << "most_significant_local_qubit = " << most_significant_local_qubit << endl;
+    cout << INDENT(I) << "most_significant_local_qubit = "
+        << most_significant_local_qubit << endl;
     cout << INDENT(I) << "worker_vector_size = " << worker_vector_size << endl;
     cout << INDENT(I) << "max_buf_size = " << max_buf_size << endl;
     cout << INDENT(I) << "buf_size = " << buf_size << endl;

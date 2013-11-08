@@ -108,7 +108,8 @@ void WorkerBase::ApplyOperatorToEachQubit()
     }
 
     #ifdef DEBUG
-    cout << INDENT(1) << "WorkerBase::ApplyOperatorToEachQubit() return" << endl;
+    cout << INDENT(1) << "WorkerBase::ApplyOperatorToEachQubit() return"
+        << endl;
     #endif
 }
 
