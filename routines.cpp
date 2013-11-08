@@ -69,7 +69,7 @@ unsigned GetUniqueSeed()
         + time(NULL) % half;
 
     #ifdef DEBUG
-    cout << IDENT(1) << "seed = " << "0x" << setfill('0')
+    cout << INDENT(1) << "seed = " << "0x" << setfill('0')
         << setw(2 * sizeof(unsigned)) // two hex digits per byte
         << hex << seed << endl;
     cout << "GetUniqueSeed() return" << endl;

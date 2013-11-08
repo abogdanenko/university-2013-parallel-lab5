@@ -6,9 +6,9 @@
 #endif
 
 #ifdef DEBUG
-#define IDENT_WIDTH 4
-#define IDENT_CHAR ' '
-#define IDENT(level) string((level) * IDENT_WIDTH, IDENT_CHAR)
+#define INDENT_WIDTH 4
+#define INDENT_CHAR ' '
+#define INDENT(level) string((level) * INDENT_WIDTH, INDENT_CHAR)
 #endif
 
 #ifdef DEBUG

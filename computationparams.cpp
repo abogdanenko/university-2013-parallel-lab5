@@ -80,32 +80,32 @@ int ComputationParams::PartnerRank() const
 void ComputationParams::PrintAll() const
 {
     const int I = 4;
-    cout << IDENT(I - 1) << "ComputationParams::PrintAll()..." << endl;
+    cout << INDENT(I - 1) << "ComputationParams::PrintAll()..." << endl;
     // these params don't change during execution
-    cout << IDENT(I) << "qubit_count = " << qubit_count << endl;
-    cout << IDENT(I) << "global_qubit_count = " << global_qubit_count << endl;
-    cout << IDENT(I) << "most_significant_local_qubit = " << most_significant_local_qubit << endl;
-    cout << IDENT(I) << "worker_vector_size = " << worker_vector_size << endl;
-    cout << IDENT(I) << "max_buf_size = " << max_buf_size << endl;
-    cout << IDENT(I) << "buf_size = " << buf_size << endl;
+    cout << INDENT(I) << "qubit_count = " << qubit_count << endl;
+    cout << INDENT(I) << "global_qubit_count = " << global_qubit_count << endl;
+    cout << INDENT(I) << "most_significant_local_qubit = " << most_significant_local_qubit << endl;
+    cout << INDENT(I) << "worker_vector_size = " << worker_vector_size << endl;
+    cout << INDENT(I) << "max_buf_size = " << max_buf_size << endl;
+    cout << INDENT(I) << "buf_size = " << buf_size << endl;
 
     // these params change every time target_qubit changes
     if (target_qubit != -1)
     {
-        cout << IDENT(I) << "target_qubit = " << target_qubit << endl;
-        cout << IDENT(I) << "worker_target_qubit = " << worker_target_qubit
+        cout << INDENT(I) << "target_qubit = " << target_qubit << endl;
+        cout << INDENT(I) << "worker_target_qubit = " << worker_target_qubit
             << endl;
-        cout << IDENT(I) << "target_qubit_is_global = "
+        cout << INDENT(I) << "target_qubit_is_global = "
             << target_qubit_is_global << endl;
 
         // these params are defined only when target qubit is global
         if (target_qubit_is_global)
         {
-            cout << IDENT(I) << "target_qubit_value = " << target_qubit_value
+            cout << INDENT(I) << "target_qubit_value = " << target_qubit_value
                 << endl;
-            cout << IDENT(I) << "partner_rank = " << partner_rank << endl;
+            cout << INDENT(I) << "partner_rank = " << partner_rank << endl;
         }
     }
-    cout << IDENT(I - 1) << "ComputationParams::PrintAll() return" << endl;
+    cout << INDENT(I - 1) << "ComputationParams::PrintAll() return" << endl;
 }
 #endif

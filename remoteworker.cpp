@@ -15,7 +15,7 @@ RemoteWorker::RemoteWorker(const Args& args):
 void RemoteWorker::ReceiveMatrix()
 {
     #ifdef DEBUG
-    cout << IDENT(1) << "RemoteWorker::ReceiveMatrix()..." << endl;
+    cout << INDENT(1) << "RemoteWorker::ReceiveMatrix()..." << endl;
     #endif
     Vector buf(4);
 
@@ -27,7 +27,7 @@ void RemoteWorker::ReceiveMatrix()
     U[1][0] = buf[2];
     U[1][1] = buf[3];
     #ifdef DEBUG
-    cout << IDENT(1) << "RemoteWorker::ReceiveMatrix() return" << endl;
+    cout << INDENT(1) << "RemoteWorker::ReceiveMatrix() return" << endl;
     #endif
 }
 

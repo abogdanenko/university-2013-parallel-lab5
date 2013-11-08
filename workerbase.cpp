@@ -34,7 +34,7 @@ complexd WorkerBase::ScalarProduct() const
 void WorkerBase::InitVectors()
 {
     #ifdef DEBUG
-    cout << IDENT(1) << "WorkerBase::InitVectors()..." << endl;
+    cout << INDENT(1) << "WorkerBase::InitVectors()..." << endl;
     #endif
 
     #ifdef NORANDOM
@@ -49,7 +49,7 @@ void WorkerBase::InitVectors()
     psi_noiseless = psi;
 
     #ifdef DEBUG
-    cout << IDENT(1) << "WorkerBase::InitVectors() return" << endl;
+    cout << INDENT(1) << "WorkerBase::InitVectors() return" << endl;
     #endif
 }
 
@@ -74,7 +74,7 @@ void WorkerBase::NormalizeGlobal()
 void WorkerBase::ApplyOperator()
 {
     #ifdef DEBUG
-    cout << IDENT(2) << "WorkerBase::ApplyOperator()..." << endl;
+    cout << INDENT(2) << "WorkerBase::ApplyOperator()..." << endl;
     params.PrintAll();
     #endif
 
@@ -90,14 +90,14 @@ void WorkerBase::ApplyOperator()
     }
 
     #ifdef DEBUG
-    cout << IDENT(2) << "WorkerBase::ApplyOperator()... return" << endl;
+    cout << INDENT(2) << "WorkerBase::ApplyOperator()... return" << endl;
     #endif
 }
 
 void WorkerBase::ApplyOperatorToEachQubit()
 {
     #ifdef DEBUG
-    cout << IDENT(1) << "WorkerBase::ApplyOperatorToEachQubit()..." << endl;
+    cout << INDENT(1) << "WorkerBase::ApplyOperatorToEachQubit()..." << endl;
     #endif
 
     for (int target_qubit = 1; target_qubit <= args.QubitCount();
@@ -108,7 +108,7 @@ void WorkerBase::ApplyOperatorToEachQubit()
     }
 
     #ifdef DEBUG
-    cout << IDENT(1) << "WorkerBase::ApplyOperatorToEachQubit() return" << endl;
+    cout << INDENT(1) << "WorkerBase::ApplyOperatorToEachQubit() return" << endl;
     #endif
 }
 
@@ -120,7 +120,7 @@ void WorkerBase::SwapVectors()
 void WorkerBase::SwapWithPartner()
 {
     #ifdef DEBUG
-    cout << IDENT(3) << "WorkerBase::SwapWithPartner()..." << endl;
+    cout << INDENT(3) << "WorkerBase::SwapWithPartner()..." << endl;
     #endif
 
     const auto middle = psi.begin() + params.WorkerVectorSize() / 2;
@@ -142,6 +142,6 @@ void WorkerBase::SwapWithPartner()
     }
 
     #ifdef DEBUG
-        cout << IDENT(3) << "WorkerBase::SwapWithPartner() return" << endl;
+        cout << INDENT(3) << "WorkerBase::SwapWithPartner() return" << endl;
     #endif
 }

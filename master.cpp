@@ -37,7 +37,7 @@ Master::IdleWorkersError::IdleWorkersError():
 void Master::InitMatrix()
 {
     #ifdef DEBUG
-    cout << IDENT(1) << "Master::InitMatrix()..." << endl;
+    cout << INDENT(1) << "Master::InitMatrix()..." << endl;
     #endif
 
     NormalDistributionGenerator gen;
@@ -52,19 +52,19 @@ void Master::InitMatrix()
     U = MatrixMultiply(HadamardMatrix(), U_theta);
 
     #ifdef DEBUG
-    cout << IDENT(2) << "xi = " << xi << endl;
-    cout << IDENT(2) << "theta = " << theta << endl;
+    cout << INDENT(2) << "xi = " << xi << endl;
+    cout << INDENT(2) << "theta = " << theta << endl;
     #endif
 
     #ifdef DEBUG
-    cout << IDENT(1) << "Master::InitMatrix() return" << endl;
+    cout << INDENT(1) << "Master::InitMatrix() return" << endl;
     #endif
 }
 
 void Master::BroadcastMatrix()
 {
     #ifdef DEBUG
-    cout << IDENT(1) << "Master::BroadcastMatrix()..." << endl;
+    cout << INDENT(1) << "Master::BroadcastMatrix()..." << endl;
     #endif
 
     Vector buf = {
@@ -80,7 +80,7 @@ void Master::BroadcastMatrix()
         MPI_COMM_WORLD);
 
     #ifdef DEBUG
-    cout << IDENT(1) << "Master::BroadcastMatrix() return" << endl;
+    cout << INDENT(1) << "Master::BroadcastMatrix() return" << endl;
     #endif
 }
 
