@@ -1,3 +1,6 @@
+#ifndef TYPEDEFS_H
+#define TYPEDEFS_H
+
 #include <complex>
 #include <vector>
 
@@ -8,3 +11,5 @@ typedef complex<double> complexd;
 typedef vector<complexd> Vector;
 typedef Vector::size_type Index;
 typedef vector<Vector> Matrix;
+
+#endif
