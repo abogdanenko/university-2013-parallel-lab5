@@ -13,7 +13,6 @@ class Args
     int iteration_count;
     double epsilon;
     // NULL means 'not specified by user', "-" means 'write to stdout'
-    char* fidelity_filename;
     char* computation_time_filename;
 
     public:
@@ -22,9 +21,7 @@ class Args
     int QubitCount() const;
     int IterationCount() const;
     double Epsilon() const;
-    string FidelityFileName() const;
     string ComputationTimeFileName() const;
-    bool FidelityWriteToFileFlag() const;
     bool ComputationTimeWriteToFileFlag() const;
 };
 

@@ -91,17 +91,6 @@ void Master::ComputationTimeWriteToFile()
     s << timer.GetDelta() << endl;
 }
 
-void Master::OneMinusFidelityWriteToFile()
-{
-    ofstream fs;
-    ostream& s = (args.FidelityFileName() == "-") ? cout :
-        (fs.open(args.FidelityFileName().c_str()), fs);
-    for (auto it = fidelity.begin(); it != fidelity.end(); it++)
-    {
-        s << 1.0 - *it << endl;
-    }
-}
-
 void Master::Run()
 {
     #ifdef DEBUG

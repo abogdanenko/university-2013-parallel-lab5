@@ -16,9 +16,7 @@ class Master: ComputationBase
 
     void InitMatrix();
     void BroadcastMatrix();
-    void OneMinusFidelityWriteToFile();
     void ComputationTimeWriteToFile();
-    vector<double> fidelity;
     public:
     Master(const Args& args);
     class IdleWorkersError: public runtime_error

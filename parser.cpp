@@ -26,11 +26,10 @@ Parser::Parser(const int argc, char** const argv):
 
 void Parser::PrintUsage()
 {
-    cout << "Usage: fidelity-mpi ["
+    cout << "Usage: transform-each-qubit-shmem ["
             "-n qubit_count "
             "-e epsilon "
             "[-i iteration_count] "
-            "[-f fidelity_output_file] "
             "[-t computation_time_output_file]"
         "]" << endl;
 }
@@ -40,7 +39,7 @@ Args Parser::Parse()
     Args result;
     ostringstream oss;
     int c; // option character
-    while ((c = getopt(argc, argv, ":n:e:i:f:t:")) != -1)
+    while ((c = getopt(argc, argv, ":n:e:i:t:")) != -1)
     {
         switch(c)
         {
@@ -52,9 +51,6 @@ Args Parser::Parse()
                 break;
             case 'i':
                 result.iteration_count = string_to_number<int>(optarg);
-                break;
-            case 'f':
-                result.fidelity_filename = optarg;
                 break;
             case 't':
                 result.computation_time_filename = optarg;
