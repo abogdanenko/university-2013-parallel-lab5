@@ -5,7 +5,7 @@ CFLAGS=-c -std=c++0x -Wall -Wextra -pedantic -Wno-long-long -Werror
 EXTRADEBUGFLAGS= # should be overriden by command line arguments to make
 DEBUGDIR=debug
 RELEASEDIR=release
-HFILES=*.h
+HFILES=$(wildcard *.h)
 CPPFILES=$(wildcard *.cpp)
 OBASENAMES=$(CPPFILES:.cpp=.o)
 DEBUGOFILES=$(addprefix $(DEBUGDIR)/,$(OBASENAMES))
@@ -26,7 +26,7 @@ create_dir_debug:
 $(DEBUGDIR)/fidelity-mpi: $(DEBUGOFILES)
 	$(CC) -o $@ $(DEBUGDIR)/*.o
 
-$(DEBUGDIR)/%.o: %.cpp *.h
+$(DEBUGDIR)/%.o: %.cpp $(HFILES)
 	$(CC) -o $@ $(CFLAGS) $<
 
 .PHONY: release
@@ -40,7 +40,7 @@ create_dir_release:
 $(RELEASEDIR)/fidelity-mpi: $(RELEASEOFILES)
 	$(CC) -o $@ $(RELEASEDIR)/*.o
 
-$(RELEASEDIR)/%.o: %.cpp *.h
+$(RELEASEDIR)/%.o: %.cpp $(HFILES)
 	$(CC) -o $@ $(CFLAGS) $<
 
 .PHONY: clean
