@@ -1,30 +1,26 @@
 /*
-    Name: fidelity-mpi
+    Name: transform-each-qubit-shmem
     Author: Alexey Bogdanenko
     Contact: alex01@vpsbox.ru
     Date: Nov 2013
-    Description: This program performs hadamard transform on each qubit of
-        n-qubit system, then adds noise to the transform matrix and performs
-        the transform again. The transform with noise is performed a number of
-        times. The number of iterations is specified by the user.
+    Description: This program performs a unitary transform on each qubit of
+        n-qubit system. The transform is obtained by adding noise to the matrix
+        specified by user.
 
         Only pure states are considered so system state is represented by a
         vector 2**n complex numbers long.
 
-        First, result vector is computed by applying (noiseless) transform
-        to initial vector. Then, on each iteration, a different result vector
-        is computed by applying noisy transform to initial vector.
+        Input vector is generated randomly or read from file.
 
-        On each iteration scalar product is taken of these two result vectors.
-        Fidelity is computed as square of absolute value of the scalar product.
+        The output vector is written to a file.
 
         See Parser::PrintUsage function for invocation information.
 
-        This is program uses MPI to speed up each iteration and allow for
-        larger vectors.
+        This program uses a parallel algorithm to speed up the transform and
+        allow for larger vectors.
 
-        The iterations are not performed in parallel.
-
+        A specific shmem implementation (DISLIB) is used for communication
+        between processes.
 */
 
 #include <mpi.h>
