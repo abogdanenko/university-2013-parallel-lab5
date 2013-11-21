@@ -19,7 +19,6 @@ using std::endl;
 Master::Master(const Args& args):
     ComputationBase(args),
     local_worker(args),
-    fidelity(args.IterationCount())
 {
     #ifdef DEBUG
     cout << "Master::Master()..." << endl;
@@ -111,29 +110,24 @@ void Master::Run()
 
     shmem_barrier_all();
     timer.Start();
-
-    for (auto it = fidelity.begin(); it != fidelity.end(); it++)
+    if (args.MatrixReadFromFileFlag())
     {
-        local_worker.InitVectors();
-
-        local_worker.U = HadamardMatrix();
-        local_worker.ApplyOperatorToEachQubit();
-
-        local_worker.SwapVectors();
-
-        InitMatrix();
-        BroadcastMatrix();
-        local_worker.ApplyOperatorToEachQubit();
-
-        auto s = local_worker.ScalarProduct();
-        vector<double> sum = {s.real(), s.imag()};
-        MPI_Reduce(MPI_IN_PLACE, &sum.front(), 2, MPI_DOUBLE, MPI_SUM,
-            master_rank, MPI_COMM_WORLD);
-        *it = norm(complexd (sum[0], sum[1]));
+        MatrixReadFromFile();
     }
-    if (args.FidelityWriteToFileFlag())
+    if (args.VectorReadFromFileFlag())
     {
-        OneMinusFidelityWriteToFile();
+        VectorReadFromFile();
+    }
+    else
+    {
+        local_worker.InitRandom();
+    }
+
+    local_worker.ApplyOperatorToEachQubit();
+
+    if (args.VectorWriteToFileFlag())
+    {
+        VectorWriteToFile();
     }
     shmem_barrier_all();
     timer.Stop();
