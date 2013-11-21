@@ -1,7 +1,10 @@
 # usage: make [release | debug [EXTRADEBUGFLAGS='-DNORANDOM -DWAITFORGDB']]
 
-CC=mpiCC
-CXXFLAGS=-std=c++0x -Wall -Wextra -pedantic -Wno-long-long -Werror
+EXECUTABLE=transform-each-qubit-shmem
+CC=mpicxx
+HEADERDIRFLAG=-I/opt/dislib
+LINKERFLAGS=-L/opt/dislib -ldislib
+CXXFLAGS=-std=c++11 -Wall -Wextra -pedantic -Wno-long-long -Werror $(HEADERDIRFLAG)
 EXTRADEBUGFLAGS= # should be overriden by command line arguments to make
 DEBUGDIR=debug
 RELEASEDIR=release
@@ -10,7 +13,6 @@ CPPFILES=$(wildcard *.cpp)
 OBASENAMES=$(CPPFILES:.cpp=.o)
 DEBUGOFILES=$(addprefix $(DEBUGDIR)/,$(OBASENAMES))
 RELEASEOFILES=$(addprefix $(RELEASEDIR)/,$(OBASENAMES))
-EXECUTABLE=fidelity-mpi
 
 .PHONY: all
 all: debug release
@@ -25,7 +27,7 @@ create_dir_debug:
 	test -d $(DEBUGDIR) || mkdir $(DEBUGDIR)
 
 $(DEBUGDIR)/$(EXECUTABLE): $(DEBUGOFILES)
-	$(CC) -o $@ $(DEBUGDIR)/*.o
+	$(CC) -o $@ $(DEBUGDIR)/*.o $(LINKERFLAGS)
 
 $(DEBUGDIR)/%.o: %.cpp $(HFILES)
 	$(CC) -c -o $@ $(CXXFLAGS) $<
@@ -39,7 +41,7 @@ create_dir_release:
 	test -d $(RELEASEDIR) || mkdir $(RELEASEDIR)
 
 $(RELEASEDIR)/$(EXECUTABLE): $(RELEASEOFILES)
-	$(CC) -o $@ $(RELEASEDIR)/*.o
+	$(CC) -o $@ $(RELEASEDIR)/*.o $(LINKERFLAGS)
 
 $(RELEASEDIR)/%.o: %.cpp $(HFILES)
 	$(CC) -c -o $@ $(CXXFLAGS) $<
