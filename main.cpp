@@ -23,7 +23,7 @@
         between processes.
 */
 
-#include <mpi.h>
+#include <dislib.h>
 #include <cstdlib> // EXIT_FAILURE, EXIT_SUCCESS
 #include <stdlib.h> // srand
 
@@ -45,13 +45,11 @@ int main(int argc, char** argv)
     #ifdef WAITFORGDB
     WaitForGdb();
     #endif
-    int rank;
-    int world_size;
     int exit_code = EXIT_SUCCESS;
 
-    MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+    shmem_init(&argc, &argv);
+    const int rank = shmem_my_pe();
+    const int world_size = shmem_n_pes();
 
     srand(GetUniqueSeed());
 
@@ -102,7 +100,7 @@ int main(int argc, char** argv)
         }
         exit_code = EXIT_FAILURE;
     }
-    MPI_Finalize();
+    shmem_finalize();
     return exit_code;
 }
 
