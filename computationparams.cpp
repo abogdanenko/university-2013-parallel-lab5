@@ -1,4 +1,4 @@
-#include <mpi.h>
+#include <dislib.h>
 
 #ifdef DEBUG
 #include "debug.h"
@@ -14,8 +14,7 @@ ComputationParams::ComputationParams(const int qubit_count):
     qubit_count(qubit_count),
     target_qubit(-1)
 {
-    int worker_count;
-    MPI_Comm_size(MPI_COMM_WORLD, &worker_count);
+    const int worker_count = shmem_n_pes();
 
     const Index vector_size      = 1L << qubit_count;
     worker_vector_size           = vector_size / worker_count;
@@ -28,8 +27,7 @@ ComputationParams::ComputationParams(const int qubit_count):
 
 void ComputationParams::SetTargetQubit(const int target_qubit)
 {
-    int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    const int rank = shmem_my_pe();
 
     this->target_qubit     = target_qubit;
     target_qubit_is_global = target_qubit < most_significant_local_qubit;

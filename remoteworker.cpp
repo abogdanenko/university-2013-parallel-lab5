@@ -1,4 +1,4 @@
-#include <mpi.h>
+#include <dislib.h>
 
 #ifdef DEBUG
 #include "debug.h"
@@ -36,7 +36,7 @@ void RemoteWorker::Run()
     #ifdef DEBUG
     cout << "RemoteWorker::Run()..." << endl;
     #endif
-    MPI_Barrier(MPI_COMM_WORLD);
+    shmem_barrier_all();
     for (int  i = 0; i < args.IterationCount(); i++)
     {
         InitVectors();
@@ -54,7 +54,7 @@ void RemoteWorker::Run()
         MPI_Reduce(&sendbuf.front(), NULL, 2, MPI_DOUBLE, MPI_SUM, master_rank,
             MPI_COMM_WORLD);
     }
-    MPI_Barrier(MPI_COMM_WORLD);
+    shmem_barrier_all();
     #ifdef DEBUG
     cout << "RemoteWorker::Run() return" << endl;
     #endif

@@ -1,4 +1,4 @@
-#include <mpi.h>
+#include <dislib.h>
 #include <fstream>
 
 #include "master.h"
@@ -109,7 +109,7 @@ void Master::Run()
     cout << "Master::Run()..." << endl;
     #endif
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    shmem_barrier_all();
     timer.Start();
 
     for (auto it = fidelity.begin(); it != fidelity.end(); it++)
@@ -135,7 +135,7 @@ void Master::Run()
     {
         OneMinusFidelityWriteToFile();
     }
-    MPI_Barrier(MPI_COMM_WORLD);
+    shmem_barrier_all();
     timer.Stop();
     if (args.ComputationTimeWriteToFileFlag())
     {

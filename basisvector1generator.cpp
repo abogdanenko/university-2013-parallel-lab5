@@ -1,4 +1,4 @@
-#include <mpi.h>
+#include <dislib.h>
 
 #include "basisvector1generator.h"
 #include "computationbase.h"
@@ -16,8 +16,7 @@ complexd BasisVector1Generator::operator()()
     {
         first_call = false;
 
-        int rank;
-        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        const int rank = shmem_my_pe();
         if (rank == ComputationBase::master_rank)
         {
             x = complexd(1.0, 0.0);

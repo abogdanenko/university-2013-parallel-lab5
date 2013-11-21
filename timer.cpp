@@ -1,15 +1,15 @@
-#include <mpi.h>
+#include <dislib.h>
 
 #include "timer.h"
 
 void Timer::Start()
 {
-    start = MPI_Wtime();
+    start = shmem_time();
 }
 
 void Timer::Stop()
 {
-    end = MPI_Wtime();
+    end = shmem_time();
 }
 
 double Timer::GetDelta() const

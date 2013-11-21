@@ -1,5 +1,5 @@
 #include "routines.h"
-#include <mpi.h>
+#include <dislib.h>
 #include <time.h> // time
 #include <unistd.h> // getpid
 
@@ -55,8 +55,7 @@ unsigned GetUniqueSeed()
     #ifdef DEBUG
     cout << "GetUniqueSeed()..." << endl;
     #endif
-    int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    const int rank = shmem_my_pe();
 
     unsigned pid = (unsigned) getpid();
 

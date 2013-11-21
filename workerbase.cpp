@@ -1,6 +1,6 @@
 #include <algorithm> // generate, copy
 #include <functional> // multiplies
-#include <mpi.h>
+#include <dislib.h>
 
 #ifdef DEBUG
 #include "debug.h"
