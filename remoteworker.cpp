@@ -37,7 +37,6 @@ void RemoteWorker::Run()
     cout << "RemoteWorker::Run()..." << endl;
     #endif
     shmem_barrier_all();
-    for (int  i = 0; i < args.IterationCount(); i++)
     {
         InitVectors();
 

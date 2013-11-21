@@ -10,7 +10,6 @@ class Args
     friend class Parser;
 
     int qubit_count;
-    int iteration_count;
     double epsilon;
     // NULL means 'not specified by user', "-" means 'write to stdout'
     char* computation_time_filename;
@@ -19,7 +18,6 @@ class Args
 
     Args();
     int QubitCount() const;
-    int IterationCount() const;
     double Epsilon() const;
     string ComputationTimeFileName() const;
     bool ComputationTimeWriteToFileFlag() const;

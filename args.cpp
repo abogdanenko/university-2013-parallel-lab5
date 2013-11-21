@@ -2,7 +2,6 @@
 
 Args::Args():
     qubit_count(-1),
-    iteration_count(1),
     epsilon(-1.0),
     computation_time_filename(NULL)
 {
@@ -12,11 +11,6 @@ Args::Args():
 int Args::QubitCount() const
 {
     return qubit_count;
-}
-
-int Args::IterationCount() const
-{
-    return iteration_count;
 }
 
 double Args::Epsilon() const
