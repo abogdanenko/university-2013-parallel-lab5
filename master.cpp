@@ -27,6 +27,26 @@ Master::Master(const Args& args):
     #endif
 }
 
+void Master::MatrixReadFromFile()
+{
+    #ifdef DEBUG
+    cout << IDENT(1) << "Master::MatrixReadFromFile()..." << endl;
+    #endif
+    // read matrix from file or stdin
+    ifstream fs;
+    istream& s = (args.MatrixFileName() == "-") ? cin :
+        (fs.open(args.MatrixFileName().c_str()), fs);
+
+    s >> U[0][0];
+    s >> U[0][1];
+    s >> U[1][0];
+    s >> U[1][1];
+
+    #ifdef DEBUG
+    cout << IDENT(1) << "Master::MatrixReadFromFile() return" << endl;
+    #endif
+}
+
 Master::IdleWorkersError::IdleWorkersError():
     runtime_error("Too many processes for given number of qubits.")
 {
