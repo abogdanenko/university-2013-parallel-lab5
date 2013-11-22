@@ -11,7 +11,7 @@ class ComputationBase
     Args args;
     ComputationParams params;
     Matrix U;
-    static Matrix HadamardMatrix();
+    static Matrix IdentityMatrix();
     ComputationBase(const Args& args);
     public:
     static const int master_rank = 0;

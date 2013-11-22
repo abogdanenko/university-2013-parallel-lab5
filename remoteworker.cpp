@@ -40,7 +40,6 @@ void RemoteWorker::Run()
     {
         InitVectors();
 
-        U = HadamardMatrix();
         ApplyOperatorToEachQubit();
 
         SwapVectors();

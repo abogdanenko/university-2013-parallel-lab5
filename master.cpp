@@ -33,10 +33,10 @@ Master::IdleWorkersError::IdleWorkersError():
 
 }
 
-void Master::InitMatrix()
+void Master::AddNoiseToMatrix()
 {
     #ifdef DEBUG
-    cout << INDENT(1) << "Master::InitMatrix()..." << endl;
+    cout << INDENT(1) << "Master::AddNoiseToMatrix()..." << endl;
     #endif
 
     NormalDistributionGenerator gen;
@@ -48,7 +48,7 @@ void Master::InitMatrix()
     const Vector row2 = {-1.0 * s, c};
     const Matrix U_theta = {row1, row2};
 
-    U = MatrixMultiply(HadamardMatrix(), U_theta);
+    U = MatrixMultiply(U, U_theta);
 
     #ifdef DEBUG
     cout << INDENT(2) << "xi = " << xi << endl;
@@ -56,7 +56,7 @@ void Master::InitMatrix()
     #endif
 
     #ifdef DEBUG
-    cout << INDENT(1) << "Master::InitMatrix() return" << endl;
+    cout << INDENT(1) << "Master::AddNoiseToMatrix() return" << endl;
     #endif
 }
 
@@ -103,6 +103,8 @@ void Master::Run()
     {
         MatrixReadFromFile();
     }
+    AddNoiseToMatrix();
+    BroadCastMatrix();
     if (args.VectorReadFromFileFlag())
     {
         VectorReadFromFile();
