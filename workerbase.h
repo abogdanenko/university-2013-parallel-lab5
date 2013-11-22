@@ -9,10 +9,9 @@ class WorkerBase: protected ComputationBase
     void ApplyOperator();
     void NormalizeGlobal();
     Vector psi;
-    Vector psi_noiseless;
     protected:
     WorkerBase(const Args& args);
-    void InitVectors();
+    void VectorInitRandom();
     void ApplyOperatorToEachQubit();
 };
 

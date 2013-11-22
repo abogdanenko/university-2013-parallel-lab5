@@ -26,10 +26,10 @@ WorkerBase::WorkerBase(const Args& args):
     psi.resize(params.WorkerVectorSize());
 }
 
-void WorkerBase::InitVectors()
+void WorkerBase::VectorInitRandom()
 {
     #ifdef DEBUG
-    cout << INDENT(1) << "WorkerBase::InitVectors()..." << endl;
+    cout << INDENT(1) << "WorkerBase::VectorInitRandom()..." << endl;
     #endif
 
     #ifdef NORANDOM
@@ -41,10 +41,8 @@ void WorkerBase::InitVectors()
     generate(psi.begin(), psi.end(), gen);
     NormalizeGlobal();
 
-    psi_noiseless = psi;
-
     #ifdef DEBUG
-    cout << INDENT(1) << "WorkerBase::InitVectors() return" << endl;
+    cout << INDENT(1) << "WorkerBase::VectorInitRandom() return" << endl;
     #endif
 }
 
