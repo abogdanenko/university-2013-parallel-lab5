@@ -17,15 +17,20 @@ void RemoteWorker::ReceiveMatrix()
     #ifdef DEBUG
     cout << INDENT(1) << "RemoteWorker::ReceiveMatrix()..." << endl;
     #endif
-    Vector buf(4);
 
-    MPI_Bcast(&buf[0], buf.size() * sizeof(complexd), MPI_BYTE, master_rank,
-        MPI_COMM_WORLD);
+    for (auto& row: U)
+    {
+        for (auto& elem: row)
+        {
+            vector<double> complex_array(2);
+            for (auto& x: complex_array)
+            {
+                shmem_double_toall(&x, master_rank);
+            }
+            elem = complexd(complex_array[0], complex_array[1]);
+        }
+    }
 
-    U[0][0] = buf[0];
-    U[0][1] = buf[1];
-    U[1][0] = buf[2];
-    U[1][1] = buf[3];
     #ifdef DEBUG
     cout << INDENT(1) << "RemoteWorker::ReceiveMatrix() return" << endl;
     #endif

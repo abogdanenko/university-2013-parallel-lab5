@@ -66,17 +66,19 @@ void Master::BroadcastMatrix()
     cout << INDENT(1) << "Master::BroadcastMatrix()..." << endl;
     #endif
 
-    Vector buf = {
-        U[0][0],
-        U[0][1],
-        U[1][0],
-        U[1][1]
-    };
-
     local_worker.U = U;
 
-    MPI_Bcast(&buf[0], buf.size() * sizeof(complexd), MPI_BYTE, master_rank,
-        MPI_COMM_WORLD);
+    for (auto row: U)
+    {
+        for (auto elem: row)
+        {
+            const vector<double> complex_array = {elem.real(), elem.imag()};
+            for (auto x: complex_array)
+            {
+                shmem_double_toall(&x, master_rank);
+            }
+        }
+    }
 
     #ifdef DEBUG
     cout << INDENT(1) << "Master::BroadcastMatrix() return" << endl;
