@@ -113,11 +113,6 @@ void WorkerBase::ApplyOperatorToEachQubit()
     #endif
 }
 
-void WorkerBase::SwapVectors()
-{
-    psi.swap(psi_noiseless);
-}
-
 void WorkerBase::SwapWithPartner()
 {
     #ifdef DEBUG

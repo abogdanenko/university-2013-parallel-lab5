@@ -15,7 +15,6 @@ class WorkerBase: protected ComputationBase
     complexd ScalarProduct() const;
     void InitVectors();
     void ApplyOperatorToEachQubit();
-    void SwapVectors();
 };
 
 #endif
