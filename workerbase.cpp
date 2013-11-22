@@ -24,6 +24,7 @@ WorkerBase::WorkerBase(const Args& args):
     ComputationBase(args)
 {
     psi.resize(params.WorkerVectorSize());
+    buffer.resize(params.WorkerVectorSize() / 2);
 }
 
 void WorkerBase::VectorInitRandom()
@@ -110,23 +111,18 @@ void WorkerBase::SwapWithPartner()
     cout << INDENT(3) << "WorkerBase::SwapWithPartner()..." << endl;
     #endif
 
-    const auto middle = psi.begin() + params.WorkerVectorSize() / 2;
+    const auto middle = psi.begin() + buffer.size();
     const auto begin = params.TargetQubitValue() ? psi.begin() : middle;
-    const auto end = params.TargetQubitValue() ? middle : psi.end();
 
-    for (auto it = begin; it != end; it += params.BufSize())
-    {
-        MPI_Sendrecv_replace(
-            &*it,
-            params.BufSize() * sizeof(complexd),
-            MPI_BYTE,
-            params.PartnerRank(),
-            tag,
-            params.PartnerRank(),
-            MPI_ANY_TAG,
-            MPI_COMM_WORLD,
-            MPI_STATUS_IGNORE);
-    }
+    ShmemTransfer s();
+
+    s.Receive(&buffer.front());
+    s.Send(
+        &*begin, // data pointer
+        buffer.size() * sizeof(complexd), // data size in bytes
+        params.PartnerRank()); // destination rank
+    shmem_barrier_all();
+    copy(buffer.begin(), buffer.end(), begin);
 
     #ifdef DEBUG
         cout << INDENT(3) << "WorkerBase::SwapWithPartner() return" << endl;

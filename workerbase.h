@@ -9,6 +9,7 @@ class WorkerBase: protected ComputationBase
     void ApplyOperator();
     void NormalizeGlobal();
     Vector psi;
+    Vector buffer;
     protected:
     WorkerBase(const Args& args);
     void VectorInitRandom();
