@@ -47,6 +47,105 @@ void Master::MatrixReadFromFile()
     #endif
 }
 
+void Master::VectorReadFromFile()
+{
+    #ifdef DEBUG
+    cout << IDENT(1) << "Master::VectorReadFromFile()..." << endl;
+    #endif
+    // read state vector from file or stdin
+    ifstream fs;
+    istream& s = (args.VectorInputFileName() == "-") ? cin :
+        (fs.open(args.VectorInputFileName().c_str()), fs);
+
+    // read data for local_worker
+    for (auto& x: local_worker.psi)
+    {
+        s >> x;
+    }
+
+    auto& buffer = local_worker.buffer; // share buffer with local_worker
+
+    for (
+        int worker = 1; // skip local_worker
+        worker < params.WorkerCount();
+        worker++)
+    {
+        #ifdef DEBUG
+        cout << IDENT(2) << "Transfer with worker " << worker << "..."
+            << endl;
+        #endif
+
+        // repeat twice because psi is two buffers long
+        for (int i = 0; i < 1; i++)
+        {
+            for (auto& x : buffer)
+            {
+                s >> x;
+            }
+
+            ShmemTransfer transfer;
+
+            transfer.Send(
+                &buffer.front(), // data pointer
+                buffer.size() * sizeof(complexd), // data size in bytes
+                worker); // destination rank
+            shmem_barrier_all();
+        }
+
+        #ifdef DEBUG
+        cout << IDENT(2) << "Transfer with worker " << worker << " DONE"
+            << endl;
+        #endif
+    }
+
+    #ifdef DEBUG
+    cout << IDENT(1) << "Master::VectorReadFromFile() return" << endl;
+    #endif
+}
+
+void Master::VectorWriteToFile()
+{
+    #ifdef DEBUG
+    cout << IDENT(1) << "Master::VectorWriteToFile()..." << endl;
+    #endif
+    ofstream fs;
+    ostream& s = (args.VectorOutputFileName() == "-") ? cout :
+        (fs.open(args.VectorOutputFileName().c_str()), fs);
+
+    out_it = ostream_iterator<complexd>(s, "\n");
+
+    // write local_worker data
+    copy(local_worker.psi.begin(), local_worker.psi.end(), out_it);
+
+    auto& buffer = local_worker.psi; // use local_worker's array as buffer
+
+    for (
+        int worker = 1; // skip local_worker
+        worker < params.WorkerCount();
+        worker++)
+    {
+        #ifdef DEBUG
+        cout << IDENT(2) << "Transfer with worker " << worker << "..."
+            << endl;
+        #endif
+
+        ShmemTransfer transfer;
+
+        transfer.Receive(&buffer.front());
+        shmem_barrier_all();
+        copy(buffer.begin(), buffer.end(), out_it);
+
+        #ifdef DEBUG
+        cout << IDENT(2) << "Transfer with worker " << worker << " DONE"
+            << endl;
+        #endif
+    }
+
+    #ifdef DEBUG
+    cout << IDENT(1) << "Master::VectorWriteToFile() return" << endl;
+    #endif
+}
+
 Master::IdleWorkersError::IdleWorkersError():
     runtime_error("Too many processes for given number of qubits.")
 {

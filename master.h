@@ -15,6 +15,8 @@ class Master: ComputationBase
     Timer timer; // measure computation time
 
     void MatrixReadFromFile();
+    void VectorReadFromFile();
+    void VectorWriteToFile();
     void AddNoiseToMatrix();
     void BroadcastMatrix();
     void ComputationTimeWriteToFile();

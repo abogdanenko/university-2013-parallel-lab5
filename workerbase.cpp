@@ -114,7 +114,7 @@ void WorkerBase::SwapWithPartner()
     const auto middle = psi.begin() + buffer.size();
     const auto begin = params.TargetQubitValue() ? psi.begin() : middle;
 
-    ShmemTransfer s();
+    ShmemTransfer s;
 
     s.Receive(&buffer.front());
     s.Send(
