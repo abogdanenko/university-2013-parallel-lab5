@@ -28,7 +28,6 @@ Number string_to_number(const string& s)
     return n;
 }
 
-complexd ScalarProduct(const Vector& a, const Vector& b);
 Matrix MatrixMultiply(const Matrix& A, const Matrix& B);
 // get seed based on current time, process pid and mpi rank
 unsigned GetUniqueSeed();

@@ -12,7 +12,6 @@ class WorkerBase: protected ComputationBase
     Vector psi_noiseless;
     protected:
     WorkerBase(const Args& args);
-    complexd ScalarProduct() const;
     void InitVectors();
     void ApplyOperatorToEachQubit();
 };

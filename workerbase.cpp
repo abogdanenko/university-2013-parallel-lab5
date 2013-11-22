@@ -26,11 +26,6 @@ WorkerBase::WorkerBase(const Args& args):
     psi.resize(params.WorkerVectorSize());
 }
 
-complexd WorkerBase::ScalarProduct() const
-{
-    return ::ScalarProduct(psi, psi_noiseless);
-}
-
 void WorkerBase::InitVectors()
 {
     #ifdef DEBUG

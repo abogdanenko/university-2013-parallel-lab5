@@ -8,23 +8,11 @@
 #include "debug.h"
 #endif
 
-using std::conj;
-
 #ifdef DEBUG
 using std::hex;
 using std::setfill;
 using std::setw;
 #endif
-
-complexd ScalarProduct(const Vector& a, const Vector& b)
-{
-    complexd sum (0.0, 0.0);
-    for (Index i = 0; i < a.size(); i++)
-    {
-        sum += conj(a[i]) * b[i];
-    }
-    return sum;
-}
 
 Matrix MatrixMultiply(const Matrix& A, const Matrix& B)
 {
