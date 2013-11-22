@@ -37,21 +37,22 @@ void RemoteWorker::Run()
     cout << "RemoteWorker::Run()..." << endl;
     #endif
     shmem_barrier_all();
+
+    ReceiveMatrix();
+    if (args.VectorReadFromFileFlag())
     {
-        InitVectors();
-
-        ApplyOperatorToEachQubit();
-
-        SwapVectors();
-
-        ReceiveMatrix();
-        ApplyOperatorToEachQubit();
-
-        auto sp = ScalarProduct();
-        vector<double> sendbuf = {sp.real(), sp.imag()};
-        MPI_Reduce(&sendbuf.front(), NULL, 2, MPI_DOUBLE, MPI_SUM, master_rank,
-            MPI_COMM_WORLD);
+        ReceiveVector();
     }
+    else
+    {
+        VectorInitRandom();
+    }
+    ApplyOperatorToEachQubit();
+    if (args.VectorWriteToFileFlag())
+    {
+        SendVector();
+    }
+
     shmem_barrier_all();
     #ifdef DEBUG
     cout << "RemoteWorker::Run() return" << endl;
