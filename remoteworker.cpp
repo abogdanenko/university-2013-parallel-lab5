@@ -49,12 +49,7 @@ void RemoteWorker::VectorSendToMaster() const
     {
         if (worker == shmem_my_pe())
         {
-            ShmemTransfer transfer;
-
-            transfer.Send(
-                &psi.front(), // data pointer
-                psi.size() * sizeof(complexd), // data size in bytes
-                master_rank); // destination rank
+            ShmemSendArray(&psi.front(), psi.size(), master_rank);
         }
         shmem_barrier_all();
     }
@@ -80,10 +75,9 @@ void RemoteWorker::VectorReceiveFromMaster()
         {
             if (worker == shmem_my_pe())
             {
-                ShmemTransfer transfer;
 
                 const auto begin = psi.begin() + i * psi.size() / 2;
-                transfer.Receive(&*begin);
+                ShmemSetReceiveAddr(&*begin);
             }
             shmem_barrier_all();
         }
