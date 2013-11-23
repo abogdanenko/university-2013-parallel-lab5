@@ -5,14 +5,12 @@
 
 class ComputationParams
 {
-    const int max_buf_size;
     // these params don't change during execution
     int qubit_count;
     int global_qubit_count;
     int most_significant_local_qubit;
 
     Index worker_vector_size;
-    int buf_size;
 
     // these params change every time target_qubit changes
     int target_qubit;
@@ -29,7 +27,6 @@ class ComputationParams
 
     // these params don't change during execution
     Index WorkerVectorSize() const;
-    int BufSize() const;
 
     // these params change every time target_qubit changes
     int WorkerTargetQubit() const;

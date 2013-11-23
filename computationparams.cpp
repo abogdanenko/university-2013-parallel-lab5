@@ -10,14 +10,11 @@
 using std::min;
 
 ComputationParams::ComputationParams(const int qubit_count):
-    max_buf_size(1024),
     qubit_count(qubit_count),
     target_qubit(-1)
 {
     const Index vector_size      = 1L << qubit_count;
     worker_vector_size           = vector_size / shmem_n_pes();
-    buf_size                     = min((Index) max_buf_size,
-                                       worker_vector_size / 2);
     const int worker_qubit_count = intlog2(worker_vector_size);
     global_qubit_count           = qubit_count - worker_qubit_count;
     most_significant_local_qubit = global_qubit_count + 1;
@@ -43,11 +40,6 @@ void ComputationParams::SetTargetQubit(const int target_qubit)
 Index ComputationParams::WorkerVectorSize() const
 {
     return worker_vector_size;
-}
-
-int ComputationParams::BufSize() const
-{
-    return buf_size;
 }
 
 bool ComputationParams::TargetQubitIsGlobal() const
@@ -81,8 +73,6 @@ void ComputationParams::PrintAll() const
     cout << INDENT(I) << "most_significant_local_qubit = "
         << most_significant_local_qubit << endl;
     cout << INDENT(I) << "worker_vector_size = " << worker_vector_size << endl;
-    cout << INDENT(I) << "max_buf_size = " << max_buf_size << endl;
-    cout << INDENT(I) << "buf_size = " << buf_size << endl;
 
     // these params change every time target_qubit changes
     if (target_qubit != -1)
