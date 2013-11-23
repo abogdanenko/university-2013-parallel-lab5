@@ -49,7 +49,7 @@ void RemoteWorker::VectorSendToMaster() const
     {
         if (worker == shmem_my_pe())
         {
-            ShmemSendArray(&psi.front(), psi.size(), master_rank);
+            Shmem::SendVector(psi.begin(), psi.end(), master_rank);
         }
         shmem_barrier_all();
     }
@@ -77,7 +77,7 @@ void RemoteWorker::VectorReceiveFromMaster()
             {
 
                 const auto begin = psi.begin() + i * psi.size() / 2;
-                ShmemSetReceiveAddr(&*begin);
+                Shmem::SetReceiveVector(begin);
             }
             shmem_barrier_all();
         }

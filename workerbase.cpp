@@ -113,9 +113,10 @@ void WorkerBase::SwapWithPartner()
 
     const auto middle = psi.begin() + buffer.size();
     const auto begin = params.TargetQubitValue() ? psi.begin() : middle;
+    const auto end = params.TargetQubitValue() ? middle : psi.end();
 
-    ShmemSetReceiveAddr(&buffer.front());
-    ShmemSendArray(&*begin, buffer.size(), params.PartnerRank());
+    Shmem::SetReceiveVector(buffer.begin());
+    Shmem::SendVector(begin, end, params.PartnerRank());
     shmem_barrier_all();
     copy(buffer.begin(), buffer.end(), begin);
 

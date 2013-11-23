@@ -36,6 +36,7 @@
 #include "remoteworker.h"
 #include "master.h"
 #include "routines.h"
+#include "shmem.h"
 
 using std::cerr;
 using std::endl;
@@ -48,6 +49,7 @@ int main(int argc, char** argv)
     int exit_code = EXIT_SUCCESS;
 
     shmem_init(&argc, &argv);
+    shmem_register_handler(ShmemReceiveElem, Shmem::HandlerNumber());
     const int rank = shmem_my_pe();
     const int world_size = shmem_n_pes();
 

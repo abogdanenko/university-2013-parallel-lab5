@@ -83,7 +83,7 @@ void Master::VectorReadFromFile()
                 s >> x;
             }
 
-            ShmemSendArray(&buffer.front(), buffer.size(), worker);
+            Shmem::SendVector(buffer.begin(), buffer.end(), worker);
             shmem_barrier_all();
         }
 
@@ -125,7 +125,7 @@ void Master::VectorWriteToFile()
         #endif
 
 
-        ShmemSetReceiveAddr(&buffer.front());
+        Shmem::SetReceiveVector(buffer.begin());
         shmem_barrier_all();
         copy(buffer.begin(), buffer.end(), out_it);
 
