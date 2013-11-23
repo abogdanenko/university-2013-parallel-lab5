@@ -1,4 +1,5 @@
 #include "routines.h"
+#include "shmem.h"
 #include <dislib.h>
 #include <time.h> // time
 #include <unistd.h> // getpid
@@ -13,6 +14,18 @@ using std::hex;
 using std::setfill;
 using std::setw;
 #endif
+
+void ShmemReceiveElem(int from, void* data, int sz)
+{
+    #ifdef DEBUG
+    cout << "::ShmemReceiveElem()..." << endl;
+    #endif
+    const IndexElemPair* p = (IndexElemPair*) data;
+    *(Shmem::receive_begin + p->first) = p->second;
+    #ifdef DEBUG
+        cout << "::ShmemReceiveElem() return" << endl;
+    #endif
+}
 
 Matrix MatrixMultiply(const Matrix& A, const Matrix& B)
 {

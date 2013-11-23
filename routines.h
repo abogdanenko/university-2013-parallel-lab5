@@ -8,6 +8,8 @@
 using std::stringstream;
 using std::string;
 
+void ShmemReceiveElem(int from, void* data, int sz);
+
 // for n = 2**m returns m
 template <class Integer>
 int intlog2(const Integer n)
