@@ -6,9 +6,6 @@
 #include "localworker.h"
 #include "timer.h"
 
-class Master;
-typedef void (Master::* WorkerBufTransferOp)(int);
-
 class Master: ComputationBase
 {
     LocalWorker local_worker;
