@@ -24,7 +24,7 @@ WorkerBase::WorkerBase(const Args& args):
     ComputationBase(args)
 {
     psi.resize(params.WorkerVectorSize());
-    buffer.resize(params.WorkerVectorSize() / 2);
+    buffer.resize(psi.size() / 2);
 }
 
 void WorkerBase::VectorInitRandom()
@@ -111,7 +111,7 @@ void WorkerBase::SwapWithPartner()
     cout << INDENT(3) << "WorkerBase::SwapWithPartner()..." << endl;
     #endif
 
-    const auto middle = psi.begin() + buffer.size();
+    const auto middle = psi.begin() + psi.size() / 2;
     const auto begin = params.TargetQubitValue() ? psi.begin() : middle;
     const auto end = params.TargetQubitValue() ? middle : psi.end();
 
