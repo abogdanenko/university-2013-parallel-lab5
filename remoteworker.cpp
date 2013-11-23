@@ -39,7 +39,7 @@ void RemoteWorker::ReceiveMatrix()
 void RemoteWorker::VectorSendToMaster() const
 {
     #ifdef DEBUG
-    cout << IDENT(1) << "RemoteWorker::VectorSendToMaster()..." << endl;
+    cout << INDENT(1) << "RemoteWorker::VectorSendToMaster()..." << endl;
     #endif
 
     for (
@@ -55,14 +55,14 @@ void RemoteWorker::VectorSendToMaster() const
     }
 
     #ifdef DEBUG
-    cout << IDENT(1) << "RemoteWorker::VectorSendToMaster() return" << endl;
+    cout << INDENT(1) << "RemoteWorker::VectorSendToMaster() return" << endl;
     #endif
 }
 
 void RemoteWorker::VectorReceiveFromMaster()
 {
     #ifdef DEBUG
-    cout << IDENT(1) << "RemoteWorker::VectorReceiveFromMaster()..." << endl;
+    cout << INDENT(1) << "RemoteWorker::VectorReceiveFromMaster()..." << endl;
     #endif
 
     for (
@@ -84,7 +84,7 @@ void RemoteWorker::VectorReceiveFromMaster()
     }
 
     #ifdef DEBUG
-    cout << IDENT(1) << "RemoteWorker::VectorReceiveFromMaster() return" << endl;
+    cout << INDENT(1) << "RemoteWorker::VectorReceiveFromMaster() return" << endl;
     #endif
 }
 

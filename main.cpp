@@ -26,6 +26,7 @@
 #include <dislib.h>
 #include <cstdlib> // EXIT_FAILURE, EXIT_SUCCESS
 #include <stdlib.h> // srand
+#include <iostream> // std::cout, std::cerr
 
 #ifdef WAITFORGDB
 #include "debug.h"

@@ -12,7 +12,7 @@ class Shmem
     static void SendVector(
         const Vector::iterator& begin,
         const Vector::iterator& end,
-        const int dest_pe)
+        const int dest_pe);
 };
 
 #endif

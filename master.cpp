@@ -9,7 +9,9 @@
 #include "debug.h"
 #endif
 
+using std::ifstream;
 using std::ofstream;
+using std::istream;
 using std::ostream;
 
 using std::cin;
@@ -18,7 +20,7 @@ using std::endl;
 
 Master::Master(const Args& args):
     ComputationBase(args),
-    local_worker(args),
+    local_worker(args)
 {
     #ifdef DEBUG
     cout << "Master::Master()..." << endl;
@@ -30,7 +32,7 @@ Master::Master(const Args& args):
 void Master::MatrixReadFromFile()
 {
     #ifdef DEBUG
-    cout << IDENT(1) << "Master::MatrixReadFromFile()..." << endl;
+    cout << INDENT(1) << "Master::MatrixReadFromFile()..." << endl;
     #endif
     // read matrix from file or stdin
     ifstream fs;
@@ -43,14 +45,14 @@ void Master::MatrixReadFromFile()
     s >> U[1][1];
 
     #ifdef DEBUG
-    cout << IDENT(1) << "Master::MatrixReadFromFile() return" << endl;
+    cout << INDENT(1) << "Master::MatrixReadFromFile() return" << endl;
     #endif
 }
 
 void Master::VectorReadFromFile()
 {
     #ifdef DEBUG
-    cout << IDENT(1) << "Master::VectorReadFromFile()..." << endl;
+    cout << INDENT(1) << "Master::VectorReadFromFile()..." << endl;
     #endif
     // read state vector from file or stdin
     ifstream fs;
@@ -71,7 +73,7 @@ void Master::VectorReadFromFile()
         worker++)
     {
         #ifdef DEBUG
-        cout << IDENT(2) << "Transfer with worker " << worker << "..."
+        cout << INDENT(2) << "Transfer with worker " << worker << "..."
             << endl;
         #endif
 
@@ -88,20 +90,20 @@ void Master::VectorReadFromFile()
         }
 
         #ifdef DEBUG
-        cout << IDENT(2) << "Transfer with worker " << worker << " DONE"
+        cout << INDENT(2) << "Transfer with worker " << worker << " DONE"
             << endl;
         #endif
     }
 
     #ifdef DEBUG
-    cout << IDENT(1) << "Master::VectorReadFromFile() return" << endl;
+    cout << INDENT(1) << "Master::VectorReadFromFile() return" << endl;
     #endif
 }
 
 void Master::VectorWriteToFile()
 {
     #ifdef DEBUG
-    cout << IDENT(1) << "Master::VectorWriteToFile()..." << endl;
+    cout << INDENT(1) << "Master::VectorWriteToFile()..." << endl;
     #endif
     ofstream fs;
     ostream& s = (args.VectorOutputFileName() == "-") ? cout :
@@ -120,7 +122,7 @@ void Master::VectorWriteToFile()
         worker++)
     {
         #ifdef DEBUG
-        cout << IDENT(2) << "Transfer with worker " << worker << "..."
+        cout << INDENT(2) << "Transfer with worker " << worker << "..."
             << endl;
         #endif
 
@@ -130,13 +132,13 @@ void Master::VectorWriteToFile()
         copy(buffer.begin(), buffer.end(), out_it);
 
         #ifdef DEBUG
-        cout << IDENT(2) << "Transfer with worker " << worker << " DONE"
+        cout << INDENT(2) << "Transfer with worker " << worker << " DONE"
             << endl;
         #endif
     }
 
     #ifdef DEBUG
-    cout << IDENT(1) << "Master::VectorWriteToFile() return" << endl;
+    cout << INDENT(1) << "Master::VectorWriteToFile() return" << endl;
     #endif
 }
 
