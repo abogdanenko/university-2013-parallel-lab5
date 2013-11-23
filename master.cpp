@@ -67,7 +67,7 @@ void Master::VectorReadFromFile()
 
     for (
         int worker = 1; // skip local_worker
-        worker < params.WorkerCount();
+        worker < shmem_n_pes();
         worker++)
     {
         #ifdef DEBUG
@@ -116,7 +116,7 @@ void Master::VectorWriteToFile()
 
     for (
         int worker = 1; // skip local_worker
-        worker < params.WorkerCount();
+        worker < shmem_n_pes();
         worker++)
     {
         #ifdef DEBUG

@@ -44,7 +44,7 @@ void RemoteWorker::VectorSendToMaster() const
 
     for (
         int worker = 1; // skip local_worker
-        worker < params.WorkerCount();
+        worker < shmem_n_pes();
         worker++)
     {
         if (worker == shmem_my_pe())
@@ -67,7 +67,7 @@ void RemoteWorker::VectorReceiveFromMaster()
 
     for (
         int worker = 1; // skip local_worker
-        worker < params.WorkerCount();
+        worker < shmem_n_pes();
         worker++)
     {
         // repeat twice because psi is two buffers long
