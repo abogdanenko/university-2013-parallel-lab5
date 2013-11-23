@@ -162,9 +162,12 @@ void Master::AddNoiseToMatrix()
     const double theta = args.Epsilon() * xi;
     const complexd c = cos(theta);
     const complexd s = sin(theta);
-    const Vector row1 = {c, s};
-    const Vector row2 = {-1.0 * s, c};
-    const Matrix U_theta = {row1, row2};
+    Matrix U_theta(IdentityMatrix());
+
+    U_theta [0][0] = c;
+    U_theta [0][1] = s;
+    U_theta [1][0] = -1.0 * s;
+    U_theta [1][1] = c;
 
     U = MatrixMultiply(U, U_theta);
 
@@ -190,7 +193,9 @@ void Master::BroadcastMatrix()
     {
         for (auto elem: row)
         {
-            const vector<double> complex_array = {elem.real(), elem.imag()};
+            vector<double> complex_array(2);
+            complex_array[0] = elem.real();
+            complex_array[1] = elem.imag();
             for (auto x: complex_array)
             {
                 shmem_double_toall(&x, master_rank);
