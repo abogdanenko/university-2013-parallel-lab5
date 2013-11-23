@@ -3,12 +3,12 @@
 
 #include <stdexcept> // runtime_error
 
-#include "localworker.h"
+#include "workerbase.h"
 #include "timer.h"
 
 class Master: ComputationBase
 {
-    LocalWorker local_worker;
+    WorkerBase local_worker;
     Timer timer; // measure computation time
 
     void MatrixReadFromFile();

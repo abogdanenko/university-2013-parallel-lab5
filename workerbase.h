@@ -5,6 +5,7 @@
 
 class WorkerBase: protected ComputationBase
 {
+    friend class Master;
     void SwapWithPartner();
     void ApplyOperator();
     void NormalizeGlobal();
