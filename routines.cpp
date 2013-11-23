@@ -56,7 +56,6 @@ unsigned GetUniqueSeed()
     #ifdef DEBUG
     cout << "GetUniqueSeed()..." << endl;
     #endif
-    const int rank = shmem_my_pe();
 
     unsigned pid = (unsigned) getpid();
 
@@ -65,8 +64,8 @@ unsigned GetUniqueSeed()
         << (8 * sizeof(unsigned) / 2); // half bit length
 
     // something like 0xpprrtttt
-    const unsigned seed = ((pid % 0x100) * 0x100 + rank % 0x100) * half
-        + time(NULL) % half;
+    const unsigned seed = ((pid % 0x100) * 0x100
+        + shmem_my_pe() % 0x100) * half + time(NULL) % half;
 
     #ifdef DEBUG
     cout << INDENT(1) << "seed = " << "0x" << setfill('0')

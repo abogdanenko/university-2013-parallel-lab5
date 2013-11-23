@@ -31,7 +31,7 @@ Number string_to_number(const string& s)
 }
 
 Matrix MatrixMultiply(const Matrix& A, const Matrix& B);
-// get seed based on current time, process pid and mpi rank
+// get seed based on current time, process pid and rank
 unsigned GetUniqueSeed();
 
 #endif

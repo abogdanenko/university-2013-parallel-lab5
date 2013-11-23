@@ -16,8 +16,7 @@ complexd BasisVector1Generator::operator()()
     {
         first_call = false;
 
-        const int rank = shmem_my_pe();
-        if (rank == ComputationBase::master_rank)
+        if (shmem_my_pe() == ComputationBase::master_rank)
         {
             x = complexd(1.0, 0.0);
         }

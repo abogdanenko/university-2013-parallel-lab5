@@ -14,10 +14,8 @@ ComputationParams::ComputationParams(const int qubit_count):
     qubit_count(qubit_count),
     target_qubit(-1)
 {
-    const int worker_count = shmem_n_pes();
-
     const Index vector_size      = 1L << qubit_count;
-    worker_vector_size           = vector_size / worker_count;
+    worker_vector_size           = vector_size / shmem_n_pes();
     buf_size                     = min((Index) max_buf_size,
                                        worker_vector_size / 2);
     const int worker_qubit_count = intlog2(worker_vector_size);
@@ -27,16 +25,14 @@ ComputationParams::ComputationParams(const int qubit_count):
 
 void ComputationParams::SetTargetQubit(const int target_qubit)
 {
-    const int rank = shmem_my_pe();
-
     this->target_qubit     = target_qubit;
     target_qubit_is_global = target_qubit < most_significant_local_qubit;
     if (target_qubit_is_global)
     {
         worker_target_qubit = 1;
         const Index mask    = 1L << (global_qubit_count - target_qubit);
-        target_qubit_value  = (rank & mask) ? 1 : 0;
-        partner_rank        = rank ^ mask;
+        target_qubit_value  = (shmem_my_pe() & mask) ? 1 : 0;
+        partner_rank        = shmem_my_pe() ^ mask;
     }
     else
     {

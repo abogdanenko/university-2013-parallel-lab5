@@ -50,8 +50,6 @@ int main(int argc, char** argv)
 
     shmem_init(&argc, &argv);
     shmem_register_handler(ShmemReceiveElem, Shmem::HandlerNumber());
-    const int rank = shmem_my_pe();
-    const int world_size = shmem_n_pes();
 
     srand(GetUniqueSeed());
 
@@ -59,7 +57,7 @@ int main(int argc, char** argv)
     {
         if (argc == 1)
         {
-            if (rank == ComputationBase::master_rank)
+            if (shmem_my_pe() == ComputationBase::master_rank)
             {
                 Parser::PrintUsage();
             }
@@ -69,11 +67,11 @@ int main(int argc, char** argv)
             Parser parser(argc, argv);
             Args args = parser.Parse();
             const int vector_size = 1L << args.QubitCount();
-            if (world_size * 2 > vector_size)
+            if (shmem_n_pes() * 2 > vector_size)
             {
                 throw Master::IdleWorkersError();
             }
-            if (rank == ComputationBase::master_rank)
+            if (shmem_my_pe() == ComputationBase::master_rank)
             {
                 Master master(args);
                 master.Run();
@@ -87,7 +85,7 @@ int main(int argc, char** argv)
     }
     catch (Parser::ParseError& e)
     {
-        if (rank == ComputationBase::master_rank)
+        if (shmem_my_pe() == ComputationBase::master_rank)
         {
             cerr << e.what() << endl;
             Parser::PrintUsage();
@@ -96,7 +94,7 @@ int main(int argc, char** argv)
     }
     catch (Master::IdleWorkersError& e)
     {
-        if (rank == ComputationBase::master_rank)
+        if (shmem_my_pe() == ComputationBase::master_rank)
         {
             cerr << e.what() << endl;
         }
