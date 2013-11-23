@@ -6,6 +6,8 @@
 class RemoteWorker: WorkerBase
 {
     void ReceiveMatrix();
+    void VectorReceiveFromMaster();
+    void VectorSendToMaster() const;
     public:
     RemoteWorker(const Args& args);
     void Run();

@@ -36,6 +36,64 @@ void RemoteWorker::ReceiveMatrix()
     #endif
 }
 
+void RemoteWorker::VectorSendToMaster() const
+{
+    #ifdef DEBUG
+    cout << IDENT(1) << "RemoteWorker::VectorSendToMaster()..." << endl;
+    #endif
+
+    for (
+        int worker = 1; // skip local_worker
+        worker < params.WorkerCount();
+        worker++)
+    {
+        if (worker == shmem_my_pe())
+        {
+            ShmemTransfer transfer;
+
+            transfer.Send(
+                &psi.front(), // data pointer
+                psi.size() * sizeof(complexd), // data size in bytes
+                master_rank); // destination rank
+        }
+        shmem_barrier_all();
+    }
+
+    #ifdef DEBUG
+    cout << IDENT(1) << "RemoteWorker::VectorSendToMaster() return" << endl;
+    #endif
+}
+
+void RemoteWorker::VectorReceiveFromMaster()
+{
+    #ifdef DEBUG
+    cout << IDENT(1) << "RemoteWorker::VectorReceiveFromMaster()..." << endl;
+    #endif
+
+    for (
+        int worker = 1; // skip local_worker
+        worker < params.WorkerCount();
+        worker++)
+    {
+        // repeat twice because psi is two buffers long
+        for (int i = 0; i < 1; i++)
+        {
+            if (worker == shmem_my_pe())
+            {
+                ShmemTransfer transfer;
+
+                const auto begin = psi.begin() + i * psi.size() / 2;
+                transfer.Receive(&*begin);
+            }
+            shmem_barrier_all();
+        }
+    }
+
+    #ifdef DEBUG
+    cout << IDENT(1) << "RemoteWorker::VectorReceiveFromMaster() return" << endl;
+    #endif
+}
+
 void RemoteWorker::Run()
 {
     #ifdef DEBUG
