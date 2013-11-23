@@ -1,9 +1,11 @@
 #include <dislib.h>
 #include <fstream>
+#include <iterator> // std::ostream_iterator
 
 #include "master.h"
 #include "routines.h"
 #include "normaldistributiongenerator.h"
+#include "shmem.h"
 
 #ifdef DEBUG
 #include "debug.h"
@@ -13,6 +15,7 @@ using std::ifstream;
 using std::ofstream;
 using std::istream;
 using std::ostream;
+using std::ostream_iterator;
 
 using std::cin;
 using std::cout;
@@ -109,7 +112,7 @@ void Master::VectorWriteToFile()
     ostream& s = (args.VectorOutputFileName() == "-") ? cout :
         (fs.open(args.VectorOutputFileName().c_str()), fs);
 
-    out_it = ostream_iterator<complexd>(s, "\n");
+    ostream_iterator<complexd> out_it(s, "\n");
 
     // write local_worker data
     copy(local_worker.psi.begin(), local_worker.psi.end(), out_it);
@@ -221,14 +224,14 @@ void Master::Run()
         MatrixReadFromFile();
     }
     AddNoiseToMatrix();
-    BroadCastMatrix();
+    BroadcastMatrix();
     if (args.VectorReadFromFileFlag())
     {
         VectorReadFromFile();
     }
     else
     {
-        local_worker.InitRandom();
+        local_worker.VectorInitRandom();
     }
 
     local_worker.ApplyOperatorToEachQubit();
