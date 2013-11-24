@@ -1,5 +1,4 @@
 #include <algorithm> // generate, copy
-#include <functional> // multiplies
 #include <dislib.h>
 
 #ifdef DEBUG
@@ -17,8 +16,6 @@
 #include "routines.h"
 #include "shmem.h"
 
-using std::multiplies;
-using std::transform;
 using std::copy;
 
 WorkerBase::WorkerBase(const Args& args):
@@ -51,17 +48,19 @@ void WorkerBase::VectorInitRandom()
 void WorkerBase::NormalizeGlobal()
 {
     double sum = 0.0;
-    for (auto it = psi.begin(); it != psi.end(); it++)
+    for (auto x: psi)
     {
-        sum += norm(*it);
+        sum += norm(x);
     }
 
     shmem_double_allsum(&sum);
 
     const complexd coef = 1.0 / sqrt(sum);
     // multiply each element by coef
-    transform(psi.begin(), psi.end(), psi.begin(),
-        bind1st(multiplies<complexd>(), coef));
+    for (auto &x: psi)
+    {
+        x *= coef;
+    }
 }
 
 void WorkerBase::ApplyOperator()

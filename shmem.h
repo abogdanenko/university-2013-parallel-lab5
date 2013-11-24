@@ -6,14 +6,14 @@
 
 class Shmem
 {
-    friend void ShmemReceiveElem(int from, void* data, int sz);
-    static Vector::iterator receive_begin;
+    friend ShmemHandler ShmemReceiveElem;
+    static Vector::iterator receive_first;
     public:
     static int HandlerNumber();
-    static void SetReceiveVector(const Vector::iterator& begin);
+    static void SetReceiveVector(const Vector::iterator& first);
     static void SendVector(
-        const Vector::const_iterator& begin,
-        const Vector::const_iterator& end,
+        const Vector::const_iterator& first,
+        const Vector::const_iterator& last,
         const int dest_pe);
 };
 

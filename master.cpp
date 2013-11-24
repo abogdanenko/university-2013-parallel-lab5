@@ -38,8 +38,13 @@ void Master::MatrixReadFromFile()
     #ifdef DEBUG
     cout << INDENT(1) << "Master::MatrixReadFromFile()..." << endl;
     #endif
+
     // read matrix from file or stdin
     ifstream fs;
+
+    // throw exceptions if unable to read the file for some reason
+    fs.exceptions(ifstream::failbit | ifstream::badbit);
+
     istream& s = (args.MatrixFileName() == "-") ? cin :
         (fs.open(args.MatrixFileName().c_str()), fs);
 
@@ -58,8 +63,13 @@ void Master::VectorReadFromFile()
     #ifdef DEBUG
     cout << INDENT(1) << "Master::VectorReadFromFile()..." << endl;
     #endif
+
     // read state vector from file or stdin
     ifstream fs;
+
+    // throw exceptions if unable to read the file for some reason
+    fs.exceptions(ifstream::failbit | ifstream::badbit);
+
     istream& s = (args.VectorInputFileName() == "-") ? cin :
         (fs.open(args.VectorInputFileName().c_str()), fs);
 
@@ -109,7 +119,13 @@ void Master::VectorWriteToFile()
     #ifdef DEBUG
     cout << INDENT(1) << "Master::VectorWriteToFile()..." << endl;
     #endif
+
+    // write the vector to file or stdout
     ofstream fs;
+
+    // throw exceptions if unable to write to the file for some reason
+    fs.exceptions(ofstream::failbit | ofstream::badbit);
+
     ostream& s = (args.VectorOutputFileName() == "-") ? cout :
         (fs.open(args.VectorOutputFileName().c_str()), fs);
 
