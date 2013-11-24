@@ -8,35 +8,35 @@
 
 using std::distance;
 
-Vector::iterator Shmem::receive_begin;
+Vector::iterator Shmem::receive_first;
 
 int Shmem::HandlerNumber()
 {
     return 1;
 }
 
-void Shmem::SetReceiveVector(const Vector::iterator& begin)
+void Shmem::SetReceiveVector(const Vector::iterator& first)
 {
     #ifdef DEBUG
     cout << INDENT(4) << "Shmem::SetReceiveVector()..." << endl;
     #endif
-    receive_begin = begin;
+    receive_first = first;
     #ifdef DEBUG
         cout << INDENT(4) << "Shmem::SetReceiveVector() return" << endl;
     #endif
 }
 
 void Shmem::SendVector(
-    const Vector::const_iterator& begin,
-    const Vector::const_iterator& end,
+    const Vector::const_iterator& first,
+    const Vector::const_iterator& last,
     const int dest_pe)
 {
     #ifdef DEBUG
     cout << INDENT(4) << "Shmem::SendVector()..." << endl;
     #endif
-    for (auto it = begin; it != end; it++)
+    for (auto it = first; it != last; it++)
     {
-        const Index index = distance(begin, it);
+        const Index index = distance(first, it);
         IndexElemPair p(index, *it);
         shmem_send(&p, HandlerNumber(), sizeof(p), dest_pe);
     }
