@@ -37,8 +37,8 @@ void Shmem::SendVector(
     for (auto it = begin; it != end; it++)
     {
         const Index index = distance(begin, it);
-        IndexElemPair p(*it, index);
-        shmem_send(&p, HandlerNumber, sizeof(p), dest_pe);
+        IndexElemPair p(index, *it);
+        shmem_send(&p, HandlerNumber(), sizeof(p), dest_pe);
     }
     #ifdef DEBUG
         cout << INDENT(4) << "Shmem::SendVector() return" << endl;

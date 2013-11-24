@@ -99,7 +99,7 @@ void RemoteWorker::Run()
     ReceiveMatrix();
     if (args.VectorReadFromFileFlag())
     {
-        ReceiveVector();
+        VectorReceiveFromMaster();
     }
     else
     {
@@ -108,7 +108,7 @@ void RemoteWorker::Run()
     ApplyOperatorToEachQubit();
     if (args.VectorWriteToFileFlag())
     {
-        SendVector();
+        VectorSendToMaster();
     }
 
     shmem_barrier_all();
