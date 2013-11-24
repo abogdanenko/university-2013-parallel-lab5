@@ -23,6 +23,8 @@ void ShmemReceiveElem(int from, void* data, int sz)
     const IndexElemPair* p = (IndexElemPair*) data;
     *(Shmem::receive_first + p->first) = p->second;
     #ifdef DEBUG
+        cout << INDENT(1) << "Index = " << p->first
+            << ", Value = " << p->second << endl;
         cout << "::ShmemReceiveElem() return" << endl;
     #endif
 }

@@ -92,7 +92,7 @@ void Master::VectorReadFromFile()
         #endif
 
         // repeat twice because psi is two buffers long
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i < 2; i++)
         {
             for (auto& x : buffer)
             {

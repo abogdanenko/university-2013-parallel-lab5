@@ -72,7 +72,7 @@ void RemoteWorker::VectorReceiveFromMaster()
         worker++)
     {
         // repeat twice because psi is two buffers long
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i < 2; i++)
         {
             if (worker == shmem_my_pe())
             {
