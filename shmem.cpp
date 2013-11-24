@@ -8,6 +8,8 @@
 
 using std::distance;
 
+Vector::iterator Shmem::receive_begin;
+
 int Shmem::HandlerNumber()
 {
     return 1;
