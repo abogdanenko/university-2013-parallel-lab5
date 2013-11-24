@@ -14,5 +14,6 @@ typedef vector<complexd> Vector;
 typedef Vector::size_type Index;
 typedef vector<Vector> Matrix;
 typedef pair<Index, complexd> IndexElemPair;
+typedef void (ShmemHandler)(int, void*, int);
 
 #endif

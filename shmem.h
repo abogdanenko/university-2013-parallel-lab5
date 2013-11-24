@@ -6,7 +6,7 @@
 
 class Shmem
 {
-    friend void ShmemReceiveElem(int from, void* data, int sz);
+    friend ShmemHandler ShmemReceiveElem;
     static Vector::iterator receive_first;
     public:
     static int HandlerNumber();
