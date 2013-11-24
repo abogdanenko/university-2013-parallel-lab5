@@ -5,6 +5,7 @@
 #endif
 
 #include "remoteworker.h"
+#include "shmem.h"
 
 RemoteWorker::RemoteWorker(const Args& args):
     WorkerBase(args)

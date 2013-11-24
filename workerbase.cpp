@@ -15,6 +15,7 @@
 #include "workerbase.h"
 #include "applyoperator.h"
 #include "routines.h"
+#include "shmem.h"
 
 using std::multiplies;
 using std::transform;

@@ -2,6 +2,7 @@
 #define SHMEM_H
 
 #include "typedefs.h"
+#include "routines.h"
 
 class Shmem
 {

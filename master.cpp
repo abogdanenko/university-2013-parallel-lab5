@@ -1,5 +1,6 @@
 #include <dislib.h>
 #include <fstream>
+#include <iostream> // std::cin, std::cout
 #include <iterator> // std::ostream_iterator
 
 #include "master.h"
