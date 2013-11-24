@@ -3,7 +3,7 @@
 
 #include "workerbase.h"
 
-class RemoteWorker: WorkerBase
+class RemoteWorker: protected WorkerBase
 {
     void ReceiveMatrix();
     void VectorReceiveFromMaster();

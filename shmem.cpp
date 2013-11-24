@@ -27,8 +27,8 @@ void Shmem::SetReceiveVector(const Vector::iterator& begin)
 }
 
 void Shmem::SendVector(
-    const Vector::iterator& begin,
-    const Vector::iterator& end,
+    const Vector::const_iterator& begin,
+    const Vector::const_iterator& end,
     const int dest_pe)
 {
     #ifdef DEBUG
