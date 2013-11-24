@@ -8,9 +8,9 @@
 #ifdef DEBUG
 void PrintVector(const Vector& psi)
 {
-    for (auto it = psi.begin(); it != psi.end(); it++)
+    for (auto x: psi)
     {
-        cout << INDENT(5) << *it << endl;
+        cout << INDENT(5) << x << endl;
     }
 }
 
