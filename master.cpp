@@ -140,6 +140,7 @@ void Master::VectorWriteToFile()
     copy(local_worker.psi.begin(), local_worker.psi.end(), out_it);
 
     auto& buffer = local_worker.psi; // use local_worker's array as buffer
+    Shmem::SetReceiveVector(buffer.begin());
 
     for (
         int worker = 1; // skip local_worker
@@ -151,9 +152,12 @@ void Master::VectorWriteToFile()
             << endl;
         #endif
 
-
-        Shmem::SetReceiveVector(buffer.begin());
         shmem_barrier_all();
+        // remote worker starts transfer
+
+        shmem_barrier_all();
+        // transfer complete
+
         copy(buffer.begin(), buffer.end(), out_it);
 
         #ifdef DEBUG

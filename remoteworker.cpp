@@ -48,11 +48,17 @@ void RemoteWorker::VectorSendToMaster() const
         worker < shmem_n_pes();
         worker++)
     {
+        // master sets receive address and flushes previous buffer
+        shmem_barrier_all();
+        // receive address is set, buffer ready, can start transfer
+
         if (worker == shmem_my_pe())
         {
             Shmem::SendVector(psi.begin(), psi.end(), master_rank);
         }
+
         shmem_barrier_all();
+        // transfer complete, master can start copying data from buffer
     }
 
     #ifdef DEBUG
