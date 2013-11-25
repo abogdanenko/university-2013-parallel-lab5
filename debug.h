@@ -16,5 +16,7 @@ using std::endl;
 void WaitForGdb();
 #endif
 
+void PrintBarrierCount();
+
 #endif // DEBUG
 #endif // DEBUG_H
