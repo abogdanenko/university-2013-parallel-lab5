@@ -49,7 +49,7 @@ void RemoteWorker::VectorSendToMaster() const
         worker++)
     {
         // master sets receive address and flushes previous buffer
-        shmem_barrier_all();
+        ShmemBarrierAll();
         // receive address is set, buffer ready, can start transfer
 
         if (worker == shmem_my_pe())
@@ -57,7 +57,7 @@ void RemoteWorker::VectorSendToMaster() const
             Shmem::SendVector(psi.begin(), psi.end(), master_rank);
         }
 
-        shmem_barrier_all();
+        ShmemBarrierAll();
         // transfer complete, master can start copying data from buffer
     }
 
@@ -87,10 +87,10 @@ void RemoteWorker::VectorReceiveFromMaster()
             }
 
             // ready to receive if necessary at this point
-            shmem_barrier_all();
+            ShmemBarrierAll();
 
             // transfer done
-            shmem_barrier_all();
+            ShmemBarrierAll();
         }
     }
 
@@ -104,7 +104,7 @@ void RemoteWorker::Run()
     #ifdef DEBUG
     cout << "RemoteWorker::Run()..." << endl;
     #endif
-    shmem_barrier_all();
+    ShmemBarrierAll();
 
     ReceiveMatrix();
     if (args.VectorReadFromFileFlag())
@@ -121,7 +121,7 @@ void RemoteWorker::Run()
         VectorSendToMaster();
     }
 
-    shmem_barrier_all();
+    ShmemBarrierAll();
     #ifdef DEBUG
     cout << "RemoteWorker::Run() return" << endl;
     #endif

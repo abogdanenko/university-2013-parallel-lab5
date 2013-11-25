@@ -118,10 +118,10 @@ void WorkerBase::SwapWithPartner()
     Shmem::SetReceiveVector(buffer.begin());
 
     // make sure partner is ready to receive before sending
-    shmem_barrier_all();
+    ShmemBarrierAll();
 
     Shmem::SendVector(begin, end, params.PartnerRank());
-    shmem_barrier_all();
+    ShmemBarrierAll();
     copy(buffer.begin(), buffer.end(), begin);
 
     #ifdef DEBUG

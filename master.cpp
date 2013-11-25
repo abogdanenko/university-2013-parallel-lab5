@@ -100,12 +100,12 @@ void Master::VectorReadFromFile()
             }
 
             // make sure remote worker is ready to receive
-            shmem_barrier_all();
+            ShmemBarrierAll();
 
             Shmem::SendVector(buffer.begin(), buffer.end(), worker);
 
             // transfer done
-            shmem_barrier_all();
+            ShmemBarrierAll();
         }
 
         #ifdef DEBUG
@@ -152,10 +152,10 @@ void Master::VectorWriteToFile()
             << endl;
         #endif
 
-        shmem_barrier_all();
+        ShmemBarrierAll();
         // remote worker starts transfer
 
-        shmem_barrier_all();
+        ShmemBarrierAll();
         // transfer complete
 
         copy(buffer.begin(), buffer.end(), out_it);
@@ -248,7 +248,7 @@ void Master::Run()
     cout << "Master::Run()..." << endl;
     #endif
 
-    shmem_barrier_all();
+    ShmemBarrierAll();
     timer.Start();
     if (args.MatrixReadFromFileFlag())
     {
@@ -271,7 +271,7 @@ void Master::Run()
     {
         VectorWriteToFile();
     }
-    shmem_barrier_all();
+    ShmemBarrierAll();
     timer.Stop();
     if (args.ComputationTimeWriteToFileFlag())
     {
