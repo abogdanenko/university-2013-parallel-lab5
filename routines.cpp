@@ -37,7 +37,7 @@ void ShmemBarrierAll()
     #ifdef DEBUG
     {
         static int count = 0;
-        const int len = 20;
+        const int len = 2 * INDENT_WIDTH;
         const char c = '-';
         const string line (len, c);
         cout
@@ -45,6 +45,7 @@ void ShmemBarrierAll()
             << "barrier "
             << setw(6)
             << count
+            << line
             << endl;
 
         count++;
