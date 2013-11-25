@@ -13,6 +13,8 @@
 using std::hex;
 using std::setfill;
 using std::setw;
+using std::string;
+using std::endl;
 #endif
 
 void ShmemReceiveElem(int from, void* data, int sz)
@@ -27,6 +29,28 @@ void ShmemReceiveElem(int from, void* data, int sz)
             << ", Value = " << p->second << endl;
         cout << "::ShmemReceiveElem() return" << endl;
     #endif
+}
+
+void ShmemBarrierAll()
+{
+    #ifdef DEBUG
+    {
+        static int count = 0;
+        const int len = 20;
+        const char c = '-';
+        const string line (len, c);
+        cout
+            << line
+            << "barrier "
+            << setw(6)
+            << count
+            << endl;
+
+        count++;
+    }
+    #endif
+
+    shmem_barrier_all();
 }
 
 Matrix MatrixMultiply(const Matrix& A, const Matrix& B)
