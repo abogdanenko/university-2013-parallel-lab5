@@ -99,7 +99,12 @@ void Master::VectorReadFromFile()
                 s >> x;
             }
 
+            // make sure remote worker is ready to receive
+            shmem_barrier_all();
+
             Shmem::SendVector(buffer.begin(), buffer.end(), worker);
+
+            // transfer done
             shmem_barrier_all();
         }
 

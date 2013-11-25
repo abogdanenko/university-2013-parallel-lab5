@@ -76,10 +76,14 @@ void RemoteWorker::VectorReceiveFromMaster()
         {
             if (worker == shmem_my_pe())
             {
-
                 const auto begin = psi.begin() + i * psi.size() / 2;
                 Shmem::SetReceiveVector(begin);
             }
+
+            // ready to receive if necessary at this point
+            shmem_barrier_all();
+
+            // transfer done
             shmem_barrier_all();
         }
     }
