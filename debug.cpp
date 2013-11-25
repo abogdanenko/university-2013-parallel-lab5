@@ -1,8 +1,6 @@
 #ifdef DEBUG
 #include "debug.h"
 
-using std::hex;
-using std::setfill;
 using std::setw;
 
 #ifdef WAITFORGDB
@@ -27,10 +25,7 @@ void PrintBarrierCount()
     cout
         << line
         << "barrier "
-        << "0x"
-        << setfill('0')
-        << setw(2 * sizeof(count)) // two hex digits per byte
-        << hex
+        << setw(6)
         << count
         << endl;
 
