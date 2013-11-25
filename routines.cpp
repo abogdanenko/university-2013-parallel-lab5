@@ -15,6 +15,7 @@ using std::setfill;
 using std::setw;
 using std::string;
 using std::endl;
+using std::ostringstream;
 #endif
 
 void ShmemReceiveElem(int from, void* data, int sz)
@@ -94,9 +95,15 @@ unsigned GetUniqueSeed()
         + shmem_my_pe() % 0x100) * half + time(NULL) % half;
 
     #ifdef DEBUG
-    cout << INDENT(1) << "seed = " << "0x" << setfill('0')
+    // convert seed to hex
+    ostringstream convert;
+    convert
+        << "0x"
+        << setfill('0')
         << setw(2 * sizeof(unsigned)) // two hex digits per byte
-        << hex << seed << endl;
+        << hex
+        << seed;
+    cout << INDENT(1) << "seed = " << convert.str() << endl;
     cout << "GetUniqueSeed() return" << endl;
     #endif
     return seed;
