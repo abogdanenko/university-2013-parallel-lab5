@@ -38,6 +38,10 @@ void Shmem::SendVector(
     {
         const Index index = distance(first, it);
         IndexElemPair p(index, *it);
+        #ifdef DEBUG
+        cout << INDENT(5) << "Index = " << p.first
+            << ", Value = " << p.second << endl;
+        #endif
         shmem_send(&p, HandlerNumber(), sizeof(p), dest_pe);
     }
     #ifdef DEBUG
