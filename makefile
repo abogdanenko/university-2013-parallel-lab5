@@ -1,6 +1,6 @@
 # usage: make [release | debug [EXTRADEBUGFLAGS='-DNORANDOM -DWAITFORGDB']]
 
-EXECUTABLE=transform-each-qubit-shmem
+EXECUTABLE=fidelity-shmem
 CC=mpicxx
 HEADERDIRFLAG=-I/opt/dislib
 LINKERFLAGS=-L/opt/dislib -ldislib
