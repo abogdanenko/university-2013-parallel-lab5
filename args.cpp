@@ -3,8 +3,6 @@
 Args::Args():
     qubit_count(-1),
     epsilon(0.0),
-    vector_input_filename(NULL),
-    vector_output_filename(NULL),
     computation_time_filename(NULL)
 {
 
@@ -29,24 +27,3 @@ bool Args::ComputationTimeWriteToFileFlag() const
 {
     return computation_time_filename;
 }
-
-string Args::VectorInputFileName() const
-{
-    return vector_input_filename;
-}
-
-string Args::VectorOutputFileName() const
-{
-    return vector_output_filename;
-}
-
-bool Args::VectorReadFromFileFlag() const
-{
-    return vector_input_filename;
-}
-
-bool Args::VectorWriteToFileFlag() const
-{
-    return vector_output_filename;
-}
-

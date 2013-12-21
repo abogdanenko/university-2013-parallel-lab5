@@ -29,8 +29,6 @@ void Parser::PrintUsage()
     cout << "Usage: transform-each-qubit-shmem ["
             "-n qubit_count "
             "[-e epsilon] "
-            "[-x state_vector_file] "
-            "[-y state_vector_output_file] "
             "[-t computation_time_output_file]"
         "]" << endl;
 }
@@ -40,7 +38,7 @@ Args Parser::Parse()
     Args result;
     ostringstream oss;
     int c; // option character
-    while ((c = getopt(argc, argv, ":n:e:i:t:x:y:")) != -1)
+    while ((c = getopt(argc, argv, ":n:e:i:t:")) != -1)
     {
         switch(c)
         {
@@ -52,12 +50,6 @@ Args Parser::Parse()
                 break;
             case 't':
                 result.computation_time_filename = optarg;
-                break;
-            case 'x':
-                result.vector_input_filename = optarg;
-                break;
-            case 'y':
-                result.vector_output_filename = optarg;
                 break;
             case ':':
                 oss << "Option -" << char(optopt) << " requires an argument.";
@@ -90,4 +82,3 @@ Args Parser::Parse()
 
     return result;
 }
-

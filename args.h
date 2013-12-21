@@ -12,8 +12,6 @@ class Args
     int qubit_count;
     double epsilon;
     // NULL means 'not specified by user', "-" means 'write to stdout'
-    char* vector_input_filename;
-    char* vector_output_filename;
     char* computation_time_filename;
 
     public:
@@ -23,10 +21,6 @@ class Args
     double Epsilon() const;
     string ComputationTimeFileName() const;
     bool ComputationTimeWriteToFileFlag() const;
-    string VectorInputFileName() const;
-    string VectorOutputFileName() const;
-    bool VectorReadFromFileFlag() const;
-    bool VectorWriteToFileFlag() const;
 };
 
 #endif
