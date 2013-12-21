@@ -11,7 +11,6 @@ class Master: ComputationBase
     WorkerBase local_worker;
     Timer timer; // measure computation time
 
-    void MatrixReadFromFile();
     void VectorReadFromFile();
     void VectorWriteToFile();
     void AddNoiseToMatrix();

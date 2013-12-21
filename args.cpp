@@ -5,7 +5,6 @@ Args::Args():
     epsilon(0.0),
     vector_input_filename(NULL),
     vector_output_filename(NULL),
-    matrix_filename(NULL),
     computation_time_filename(NULL)
 {
 
@@ -29,16 +28,6 @@ string Args::ComputationTimeFileName() const
 bool Args::ComputationTimeWriteToFileFlag() const
 {
     return computation_time_filename;
-}
-
-string Args::MatrixFileName() const
-{
-    return matrix_filename;
-}
-
-bool Args::MatrixReadFromFileFlag() const
-{
-    return matrix_filename;
 }
 
 string Args::VectorInputFileName() const
