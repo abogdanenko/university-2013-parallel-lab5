@@ -1,18 +1,18 @@
 /*
-    Name: transform-each-qubit-shmem
+    Name: fidelity-shmem
     Author: Alexey Bogdanenko
     Contact: alex01@vpsbox.ru
-    Date: Nov 2013
-    Description: This program performs a unitary transform on each qubit of
-        n-qubit system. The transform is obtained by adding noise to the matrix
-        specified by user.
+    Date: Dec 2013
+    Description: This program performs hadamard transform on each qubit of
+        n-qubit system, then adds noise and performs the transform again. The
+        transform is performed a number of times. The number of iterations is
+        specified by user. Initial state is randomly generated.
 
         Only pure states are considered so system state is represented by a
         vector 2**n complex numbers long.
 
-        Input vector is generated randomly or read from file.
-
-        The output vector is written to a file.
+        On each iteration scalar product is taken of the two result vectors.
+        Fidelity is computed as square of absolute value of the scalar product.
 
         See Parser::PrintUsage function for invocation information.
 
@@ -104,4 +104,3 @@ int main(int argc, char** argv)
     shmem_finalize();
     return exit_code;
 }
-
