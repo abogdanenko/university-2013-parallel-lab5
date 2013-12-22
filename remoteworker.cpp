@@ -44,9 +44,21 @@ void RemoteWorker::Run()
     #endif
 
     ShmemBarrierAll();
-    ReceiveMatrix();
-    VectorInitRandom();
-    ApplyOperatorToEachQubit();
+    for (int i = 0; i < args.IterationCount(); i++)
+    {
+        VectorInitRandom();
+        U = HadamardMatrix();
+        ApplyOperatorToEachQubit();
+        SwapVectors();
+        ReceiveMatrix();
+        ApplyOperatorToEachQubit();
+
+        complexd  sp = ScalarProduct();
+        double real = sp.real();
+        double imag = sp.imag();
+        shmem_double_allsum(&real);
+        shmem_double_allsum(&imag);
+    }
     ShmemBarrierAll();
 
     #ifdef DEBUG
