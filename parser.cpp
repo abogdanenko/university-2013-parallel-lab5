@@ -29,6 +29,7 @@ void Parser::PrintUsage()
     cout << "Usage: transform-each-qubit-shmem ["
             "-n qubit_count "
             "[-e epsilon] "
+            "[-i iteration_count] "
             "[-f fidelity_output_file] "
             "[-t computation_time_output_file]"
         "]" << endl;
@@ -48,6 +49,9 @@ Args Parser::Parse()
                 break;
             case 'e':
                 result.epsilon = string_to_number<double>(optarg);
+                break;
+            case 'i':
+                result.iteration_count = string_to_number<int>(optarg);
                 break;
             case 'f':
                 result.fidelity_filename = optarg;
