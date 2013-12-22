@@ -1,7 +1,6 @@
 #include <dislib.h>
 #include <fstream>
 #include <iostream> // std::cin, std::cout
-#include <iterator> // std::ostream_iterator
 
 #include "master.h"
 #include "routines.h"
@@ -12,11 +11,8 @@
 #include "debug.h"
 #endif
 
-using std::ifstream;
 using std::ofstream;
-using std::istream;
 using std::ostream;
-using std::ostream_iterator;
 
 using std::cin;
 using std::cout;
