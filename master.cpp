@@ -51,7 +51,7 @@ void Master::AddNoiseToMatrix()
     const double theta = args.Epsilon() * xi;
     const complexd c = cos(theta);
     const complexd s = sin(theta);
-    Matrix U_theta(IdentityMatrix());
+    Matrix U_theta(2, Vector(2));
 
     U_theta [0][0] = c;
     U_theta [0][1] = s;
