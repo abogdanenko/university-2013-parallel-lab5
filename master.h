@@ -10,6 +10,7 @@ class Master: ComputationBase
 {
     WorkerBase local_worker;
     Timer timer; // measure computation time
+    vector<double> fidelity;
 
     void OneMinusFidelityWriteToFile();
     void AddNoiseToMatrix();

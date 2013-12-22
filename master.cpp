@@ -124,12 +124,27 @@ void Master::Run()
 
     ShmemBarrierAll();
     timer.Start();
-    AddNoiseToMatrix();
-    BroadcastMatrix();
-    local_worker.VectorInitRandom();
 
-    local_worker.ApplyOperatorToEachQubit();
+    for (auto f: fidelity)
+    {
+        local_worker.VectorInitRandom();
+        local_worker.U = HadamardMatrix();
+        local_worker.ApplyOperatorToEachQubit();
+        local_worker.SwapVectors();
 
+        AddNoiseToMatrix();
+        BroadcastMatrix();
+        local_worker.ApplyOperatorToEachQubit();
+
+        const complexd sp = local_worker.ScalarProduct();
+        double real = sp.real();
+        double imag = sp.imag();
+        shmem_double_allsum(&real);
+        shmem_double_allsum(&imag);
+        const complexd sp_sum = complexd(real, imag);
+
+        f = norm(sp_sum);
+    }
     ShmemBarrierAll();
     timer.Stop();
     if (args.ComputationTimeWriteToFileFlag())
