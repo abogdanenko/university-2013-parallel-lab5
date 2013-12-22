@@ -128,7 +128,8 @@ void Master::Run()
         local_worker.VectorInitRandom();
         timer_init.Stop();
 
-        local_worker.U = HadamardMatrix();
+        U = HadamardMatrix();
+        local_worker.U = U;
 
         timer_transform.Start();
         local_worker.ApplyOperatorToEachQubit();
