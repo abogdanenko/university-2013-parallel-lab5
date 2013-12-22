@@ -8,9 +8,12 @@ ComputationBase::ComputationBase(const Args& args):
 
 Matrix ComputationBase::HadamardMatrix()
 {
-  const double elem = 1.0 / sqrt(2.0);
-  const Vector row = {elem, elem};
-  Matrix m(2, row);
-  m[1][1] *= -1.0;
-  return m;
+    Matrix m(2, Vector(2));
+    const complexd elem = 1.0 / sqrt(2.0);
+    m[0][0] = elem;
+    m[0][1] = elem;
+    m[1][0] = elem;
+    m[1][1] = -1.0 * elem;
+
+    return m;
 }

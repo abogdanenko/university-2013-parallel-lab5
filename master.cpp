@@ -1,7 +1,6 @@
 #include <dislib.h>
 #include <fstream>
 #include <iostream> // std::cin, std::cout
-#include <iterator> // std::ostream_iterator
 
 #include "master.h"
 #include "routines.h"
@@ -12,11 +11,8 @@
 #include "debug.h"
 #endif
 
-using std::ifstream;
 using std::ofstream;
-using std::istream;
 using std::ostream;
-using std::ostream_iterator;
 
 using std::cin;
 using std::cout;
@@ -51,7 +47,7 @@ void Master::AddNoiseToMatrix()
     const double theta = args.Epsilon() * xi;
     const complexd c = cos(theta);
     const complexd s = sin(theta);
-    Matrix U_theta(IdentityMatrix());
+    Matrix U_theta(2, Vector(2));
 
     U_theta [0][0] = c;
     U_theta [0][1] = s;
@@ -126,13 +122,14 @@ void Master::Run()
 
     timer_total.Start();
 
-    for (auto f: fidelity)
+    for (auto& f: fidelity)
     {
         timer_init.Start();
         local_worker.VectorInitRandom();
         timer_init.Stop();
 
-        local_worker.U = HadamardMatrix();
+        U = HadamardMatrix();
+        local_worker.U = U;
 
         timer_transform.Start();
         local_worker.ApplyOperatorToEachQubit();
@@ -158,9 +155,15 @@ void Master::Run()
     }
 
     timer_total.Stop();
+
     if (args.ComputationTimeWriteToFileFlag())
     {
         ComputationTimeWriteToFile();
+    }
+
+    if (args.FidelityWriteToFileFlag())
+    {
+        OneMinusFidelityWriteToFile();
     }
 
     #ifdef DEBUG

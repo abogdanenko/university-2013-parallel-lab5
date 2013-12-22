@@ -1,5 +1,7 @@
+#include <dislib.h> // shmem_time
+
 #include "timer.h"
-#include <routines.h>
+#include "routines.h"
 
 Timer::Timer():
     sum(0.0)

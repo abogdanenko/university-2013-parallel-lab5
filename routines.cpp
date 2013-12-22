@@ -67,6 +67,10 @@ complexd ScalarProduct(const Vector& a, const Vector& b)
 
 Matrix MatrixMultiply(const Matrix& A, const Matrix& B)
 {
+    #ifdef DEBUG
+    cout << "MatrixMultiply()..." << endl;
+    #endif
+
     const int rows_A = A.size();
     const int columns_A = A[0].size();
     const int columns_B = B[0].size();
@@ -85,6 +89,10 @@ Matrix MatrixMultiply(const Matrix& A, const Matrix& B)
             }
         }
     }
+
+    #ifdef DEBUG
+    cout << "MatrixMultiply() return" << endl;
+    #endif
 
     return C;
 }
