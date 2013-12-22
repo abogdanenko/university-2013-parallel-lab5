@@ -4,12 +4,13 @@
 class Timer
 {
     double start;
-    double end;
+    double sum;
 
     public:
+    Timer();
     void Start();
     void Stop();
-    double GetDelta() const;
+    double Total() const;
 };
 
 #endif

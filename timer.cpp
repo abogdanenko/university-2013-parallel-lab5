@@ -1,20 +1,27 @@
-#include <dislib.h>
-
 #include "timer.h"
+#include <routines.h>
+
+Timer::Timer():
+    sum(0.0)
+{
+
+}
 
 void Timer::Start()
 {
+    ShmemBarrierAll();
     start = shmem_time();
 }
 
 void Timer::Stop()
 {
-    end = shmem_time();
+    ShmemBarrierAll();
+    const double end = shmem_time();
+    const double delta = end - start;
+    sum += delta;
 }
 
-double Timer::GetDelta() const
+double Timer::Total() const
 {
-    return end - start;
+    return sum;
 }
-
-
