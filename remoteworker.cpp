@@ -36,27 +36,32 @@ void RemoteWorker::Run()
     #ifdef DEBUG
     cout << "RemoteWorker::Run()..." << endl;
     #endif
-    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(MPI_COMM_WORLD); // timer_total
     for (int  i = 0; i < args.IterationCount(); i++)
     {
+        MPI_Barrier(MPI_COMM_WORLD); // timer_init
         InitVectors();
+        MPI_Barrier(MPI_COMM_WORLD); // timer_init
 
         U = HadamardMatrix();
+        MPI_Barrier(MPI_COMM_WORLD); // timer_transform
         ApplyOperatorToEachQubit();
+        MPI_Barrier(MPI_COMM_WORLD); // timer_transform
 
         SwapVectors();
 
         ReceiveMatrix();
+        MPI_Barrier(MPI_COMM_WORLD); // timer_transform
         ApplyOperatorToEachQubit();
+        MPI_Barrier(MPI_COMM_WORLD); // timer_transform
 
         auto sp = ScalarProduct();
         vector<double> sendbuf = {sp.real(), sp.imag()};
         MPI_Reduce(&sendbuf.front(), NULL, 2, MPI_DOUBLE, MPI_SUM, master_rank,
             MPI_COMM_WORLD);
     }
-    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(MPI_COMM_WORLD); // timer_total
     #ifdef DEBUG
     cout << "RemoteWorker::Run() return" << endl;
     #endif
 }
-

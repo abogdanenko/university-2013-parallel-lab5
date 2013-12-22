@@ -89,7 +89,9 @@ void Master::ComputationTimeWriteToFile()
     ofstream fs;
     ostream& s = (args.ComputationTimeFileName() == "-") ? cout :
         (fs.open(args.ComputationTimeFileName().c_str()), fs);
-    s << timer.GetDelta() << endl;
+    s << timer_total.Total() << endl;
+    s << timer_init.Total() << endl;
+    s << timer_transform.Total() << endl;
 }
 
 void Master::OneMinusFidelityWriteToFile()
@@ -109,21 +111,28 @@ void Master::Run()
     cout << "Master::Run()..." << endl;
     #endif
 
-    MPI_Barrier(MPI_COMM_WORLD);
-    timer.Start();
+    timer_total.Start();
 
     for (auto it = fidelity.begin(); it != fidelity.end(); it++)
     {
+        timer_init.Start();
         local_worker.InitVectors();
+        timer_init.Stop();
 
         local_worker.U = HadamardMatrix();
+
+        timer_transform.Start();
         local_worker.ApplyOperatorToEachQubit();
+        timer_transform.Stop();
 
         local_worker.SwapVectors();
 
         InitMatrix();
         BroadcastMatrix();
+
+        timer_transform.Start();
         local_worker.ApplyOperatorToEachQubit();
+        timer_transform.Stop();
 
         auto s = local_worker.ScalarProduct();
         vector<double> sum = {s.real(), s.imag()};
@@ -131,12 +140,14 @@ void Master::Run()
             master_rank, MPI_COMM_WORLD);
         *it = norm(complexd (sum[0], sum[1]));
     }
+
+    timer_total.Stop();
+
     if (args.FidelityWriteToFileFlag())
     {
         OneMinusFidelityWriteToFile();
     }
-    MPI_Barrier(MPI_COMM_WORLD);
-    timer.Stop();
+
     if (args.ComputationTimeWriteToFileFlag())
     {
         ComputationTimeWriteToFile();
@@ -146,4 +157,3 @@ void Master::Run()
     cout << "Master::Run() return" << endl;
     #endif
 }
-

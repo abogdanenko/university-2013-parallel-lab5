@@ -12,7 +12,9 @@ typedef void (Master::* WorkerBufTransferOp)(int);
 class Master: ComputationBase
 {
     LocalWorker local_worker;
-    Timer timer; // measure computation time
+    Timer timer_init;
+    Timer timer_transform;
+    Timer timer_total;
 
     void InitMatrix();
     void BroadcastMatrix();
