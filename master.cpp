@@ -122,7 +122,7 @@ void Master::Run()
 
     timer_total.Start();
 
-    for (auto f: fidelity)
+    for (auto& f: fidelity)
     {
         timer_init.Start();
         local_worker.VectorInitRandom();
@@ -154,9 +154,15 @@ void Master::Run()
     }
 
     timer_total.Stop();
+
     if (args.ComputationTimeWriteToFileFlag())
     {
         ComputationTimeWriteToFile();
+    }
+
+    if (args.FidelityWriteToFileFlag())
+    {
+        OneMinusFidelityWriteToFile();
     }
 
     #ifdef DEBUG
