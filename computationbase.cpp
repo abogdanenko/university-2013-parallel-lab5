@@ -2,17 +2,15 @@
 
 ComputationBase::ComputationBase(const Args& args):
     args(args),
-    params(args.QubitCount()),
-    U(IdentityMatrix())
+    params(args.QubitCount())
 {
 }
 
-Matrix ComputationBase::IdentityMatrix()
+Matrix ComputationBase::HadamardMatrix()
 {
-    Matrix m(2, Vector(2));
-    m[0][0] = 1.0;
-    m[0][1] = 0.0;
-    m[1][0] = 0.0;
-    m[1][1] = 1.0;
-    return m;
+  const double elem = 1.0 / sqrt(2.0);
+  const Vector row = {elem, elem};
+  Matrix m(2, row);
+  m[1][1] *= -1.0;
+  return m;
 }
