@@ -3,6 +3,7 @@
 Args::Args():
     qubit_count(-1),
     epsilon(0.0),
+    fidelity_filename(NULL),
     computation_time_filename(NULL)
 {
 
@@ -16,6 +17,16 @@ int Args::QubitCount() const
 double Args::Epsilon() const
 {
     return epsilon;
+}
+
+string Args::FidelityFileName() const
+{
+    return fidelity_filename;
+}
+
+bool Args::FidelityWriteToFileFlag() const
+{
+    return fidelity_filename;
 }
 
 string Args::ComputationTimeFileName() const

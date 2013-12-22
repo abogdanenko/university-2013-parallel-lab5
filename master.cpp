@@ -24,6 +24,7 @@ using std::endl;
 
 Master::Master(const Args& args):
     ComputationBase(args),
+    fidelity(args.IterationCount()),
     local_worker(args)
 {
     #ifdef DEBUG
@@ -102,6 +103,17 @@ void Master::ComputationTimeWriteToFile()
     ostream& s = (args.ComputationTimeFileName() == "-") ? cout :
         (fs.open(args.ComputationTimeFileName().c_str()), fs);
     s << timer.GetDelta() << endl;
+}
+
+void Master::OneMinusFidelityWriteToFile()
+{
+    ofstream fs;
+    ostream& s = (args.FidelityFileName() == "-") ? cout :
+        (fs.open(args.FidelityFileName().c_str()), fs);
+    for (auto x: fidelity)
+    {
+        s << 1.0 - x << endl;
+    }
 }
 
 void Master::Run()

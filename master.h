@@ -11,6 +11,7 @@ class Master: ComputationBase
     WorkerBase local_worker;
     Timer timer; // measure computation time
 
+    void OneMinusFidelityWriteToFile();
     void AddNoiseToMatrix();
     void BroadcastMatrix();
     void ComputationTimeWriteToFile();
