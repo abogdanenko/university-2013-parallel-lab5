@@ -25,6 +25,11 @@ WorkerBase::WorkerBase(const Args& args):
     buffer.resize(psi.size() / 2);
 }
 
+complexd WorkerBase::ScalarProduct() const
+{
+  return ::ScalarProduct(psi, psi_noiseless);
+}
+
 void WorkerBase::VectorInitRandom()
 {
     #ifdef DEBUG
@@ -39,6 +44,8 @@ void WorkerBase::VectorInitRandom()
 
     generate(psi.begin(), psi.end(), gen);
     NormalizeGlobal();
+
+    psi_noiseless = psi;
 
     #ifdef DEBUG
     cout << INDENT(1) << "WorkerBase::VectorInitRandom() return" << endl;
@@ -103,6 +110,11 @@ void WorkerBase::ApplyOperatorToEachQubit()
     cout << INDENT(1) << "WorkerBase::ApplyOperatorToEachQubit() return"
         << endl;
     #endif
+}
+
+void WorkerBase::SwapVectors()
+{
+  psi.swap(psi_noiseless);
 }
 
 void WorkerBase::SwapWithPartner()

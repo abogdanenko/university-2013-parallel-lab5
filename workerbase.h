@@ -10,11 +10,14 @@ class WorkerBase: protected ComputationBase
     void ApplyOperator();
     void NormalizeGlobal();
     Vector buffer;
-    protected:
     Vector psi;
+    Vector psi_noiseless;
+    protected:
     WorkerBase(const Args& args);
+    complexd ScalarProduct() const;
     void VectorInitRandom();
     void ApplyOperatorToEachQubit();
+    void SwapVectors();
 };
 
 #endif

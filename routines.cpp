@@ -55,6 +55,16 @@ void ShmemBarrierAll()
     shmem_barrier_all();
 }
 
+complexd ScalarProduct(const Vector& a, const Vector& b)
+{
+    complexd sum (0.0, 0.0);
+    for (Index i = 0; i < a.size(); i++)
+    {
+        sum += conj(a[i]) * b[i];
+    }
+    return sum;
+}
+
 Matrix MatrixMultiply(const Matrix& A, const Matrix& B)
 {
     const int rows_A = A.size();
