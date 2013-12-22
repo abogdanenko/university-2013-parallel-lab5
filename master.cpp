@@ -102,7 +102,9 @@ void Master::ComputationTimeWriteToFile()
     ofstream fs;
     ostream& s = (args.ComputationTimeFileName() == "-") ? cout :
         (fs.open(args.ComputationTimeFileName().c_str()), fs);
-    s << timer.GetDelta() << endl;
+    s << timer_total.Total() << endl;
+    s << timer_init.Total() << endl;
+    s << timer_transform.Total() << endl;
 }
 
 void Master::OneMinusFidelityWriteToFile()
@@ -122,19 +124,28 @@ void Master::Run()
     cout << "Master::Run()..." << endl;
     #endif
 
-    ShmemBarrierAll();
-    timer.Start();
+    timer_total.Start();
 
     for (auto f: fidelity)
     {
+        timer_init.Start();
         local_worker.VectorInitRandom();
+        timer_init.Stop();
+
         local_worker.U = HadamardMatrix();
+
+        timer_transform.Start();
         local_worker.ApplyOperatorToEachQubit();
+        timer_transform.Stop();
+
         local_worker.SwapVectors();
 
         AddNoiseToMatrix();
         BroadcastMatrix();
+
+        timer_transform.Start();
         local_worker.ApplyOperatorToEachQubit();
+        timer_transform.Stop();
 
         const complexd sp = local_worker.ScalarProduct();
         double real = sp.real();
@@ -145,8 +156,8 @@ void Master::Run()
 
         f = norm(sp_sum);
     }
-    ShmemBarrierAll();
-    timer.Stop();
+
+    timer_total.Stop();
     if (args.ComputationTimeWriteToFileFlag())
     {
         ComputationTimeWriteToFile();

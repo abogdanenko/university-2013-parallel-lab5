@@ -9,7 +9,9 @@
 class Master: ComputationBase
 {
     WorkerBase local_worker;
-    Timer timer; // measure computation time
+    Timer timer_init;
+    Timer timer_transform;
+    Timer timer_total;
     vector<double> fidelity;
 
     void OneMinusFidelityWriteToFile();

@@ -43,15 +43,25 @@ void RemoteWorker::Run()
     cout << "RemoteWorker::Run()..." << endl;
     #endif
 
-    ShmemBarrierAll();
+    ShmemBarrierAll(); // timer_total
     for (int i = 0; i < args.IterationCount(); i++)
     {
+        ShmemBarrierAll(); // timer_init
         VectorInitRandom();
+        ShmemBarrierAll(); // timer_init
+
         U = HadamardMatrix();
+
+        ShmemBarrierAll(); // timer_transform
         ApplyOperatorToEachQubit();
+        ShmemBarrierAll(); // timer_transform
+
         SwapVectors();
         ReceiveMatrix();
+
+        ShmemBarrierAll(); // timer_transform
         ApplyOperatorToEachQubit();
+        ShmemBarrierAll(); // timer_transform
 
         complexd  sp = ScalarProduct();
         double real = sp.real();
@@ -59,7 +69,7 @@ void RemoteWorker::Run()
         shmem_double_allsum(&real);
         shmem_double_allsum(&imag);
     }
-    ShmemBarrierAll();
+    ShmemBarrierAll(); // timer_total
 
     #ifdef DEBUG
     cout << "RemoteWorker::Run() return" << endl;
