@@ -5,7 +5,8 @@ Args::Args():
     iteration_count(1),
     epsilon(0.0),
     fidelity_filename(NULL),
-    computation_time_filename(NULL)
+    computation_time_filename(NULL),
+    stats_filename(NULL)
 {
 
 }
@@ -43,4 +44,14 @@ string Args::ComputationTimeFileName() const
 bool Args::ComputationTimeWriteToFileFlag() const
 {
     return computation_time_filename;
+}
+
+string Args::StatsFileName() const
+{
+    return stats_filename;
+}
+
+bool Args::StatsWriteToFileFlag() const
+{
+    return stats_filename;
 }

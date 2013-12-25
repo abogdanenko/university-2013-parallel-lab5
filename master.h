@@ -18,6 +18,7 @@ class Master: ComputationBase
     void AddNoiseToMatrix();
     void BroadcastMatrix();
     void ComputationTimeWriteToFile();
+    void StatsWriteToFile();
     public:
     Master(const Args& args);
     class IdleWorkersError: public runtime_error

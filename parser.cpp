@@ -32,6 +32,7 @@ void Parser::PrintUsage()
             "[-i iteration_count] "
             "[-f fidelity_output_file] "
             "[-t computation_time_output_file]"
+            "[-s stats_file]"
         "]" << endl;
 }
 
@@ -40,7 +41,7 @@ Args Parser::Parse()
     Args result;
     ostringstream oss;
     int c; // option character
-    while ((c = getopt(argc, argv, ":n:e:i:f:t:")) != -1)
+    while ((c = getopt(argc, argv, ":n:e:i:f:t:s:")) != -1)
     {
         switch(c)
         {
@@ -58,6 +59,9 @@ Args Parser::Parse()
                 break;
             case 't':
                 result.computation_time_filename = optarg;
+                break;
+            case 's':
+                result.stats_filename = optarg;
                 break;
             case ':':
                 oss << "Option -" << char(optopt) << " requires an argument.";

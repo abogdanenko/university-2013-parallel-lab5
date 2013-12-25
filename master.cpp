@@ -6,6 +6,7 @@
 #include "routines.h"
 #include "normaldistributiongenerator.h"
 #include "shmem.h"
+#include "stats.h"
 
 #ifdef DEBUG
 #include "debug.h"
@@ -103,6 +104,15 @@ void Master::ComputationTimeWriteToFile()
     s << timer_transform.Total() << endl;
 }
 
+void Master::StatsWriteToFile()
+{
+    ofstream fs;
+    ostream& s = (args.StatsFileName() == "-") ? cout :
+        (fs.open(args.StatsFileName().c_str()), fs);
+    s << Stats::SendOpCounter() * shmem_n_pes() << endl;
+    s << Stats::SendDataCounter() * shmem_n_pes() << endl;
+}
+
 void Master::OneMinusFidelityWriteToFile()
 {
     ofstream fs;
@@ -119,6 +129,8 @@ void Master::Run()
     #ifdef DEBUG
     cout << "Master::Run()..." << endl;
     #endif
+
+    Stats::ResetCounters();
 
     timer_total.Start();
 
@@ -164,6 +176,11 @@ void Master::Run()
     if (args.FidelityWriteToFileFlag())
     {
         OneMinusFidelityWriteToFile();
+    }
+
+    if (args.StatsWriteToFileFlag())
+    {
+        StatsWriteToFile();
     }
 
     #ifdef DEBUG
