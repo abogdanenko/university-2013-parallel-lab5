@@ -15,6 +15,7 @@ class Args
     // NULL means 'not specified by user', "-" means 'write to stdout'
     char* fidelity_filename;
     char* computation_time_filename;
+    char* stats_filename;
 
     public:
 
@@ -26,6 +27,8 @@ class Args
     string ComputationTimeFileName() const;
     bool FidelityWriteToFileFlag() const;
     bool ComputationTimeWriteToFileFlag() const;
+    string StatsFileName() const;
+    bool StatsWriteToFileFlag() const;
 };
 
 #endif

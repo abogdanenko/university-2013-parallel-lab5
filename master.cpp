@@ -4,6 +4,7 @@
 #include "master.h"
 #include "routines.h"
 #include "normaldistributiongenerator.h"
+#include "stats.h"
 
 #ifdef DEBUG
 #include "debug.h"
@@ -94,6 +95,18 @@ void Master::ComputationTimeWriteToFile()
     s << timer_transform.Total() << endl;
 }
 
+void Master::StatsWriteToFile()
+{
+    ofstream fs;
+    ostream& s = (args.StatsFileName() == "-") ? cout :
+        (fs.open(args.StatsFileName().c_str()), fs);
+    int worker_count;
+    MPI_Comm_size(MPI_COMM_WORLD, &worker_count);
+    s << Stats::SendOpCounter() * worker_count << endl;
+    s << Stats::SendDataCounter() * worker_count << endl;
+}
+
+
 void Master::OneMinusFidelityWriteToFile()
 {
     ofstream fs;
@@ -110,6 +123,8 @@ void Master::Run()
     #ifdef DEBUG
     cout << "Master::Run()..." << endl;
     #endif
+
+    Stats::ResetCounters();
 
     timer_total.Start();
 
@@ -151,6 +166,11 @@ void Master::Run()
     if (args.ComputationTimeWriteToFileFlag())
     {
         ComputationTimeWriteToFile();
+    }
+
+    if (args.StatsWriteToFileFlag())
+    {
+        StatsWriteToFile();
     }
 
     #ifdef DEBUG

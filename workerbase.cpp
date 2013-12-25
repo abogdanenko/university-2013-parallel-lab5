@@ -1,6 +1,7 @@
 #include <algorithm> // generate, copy
 #include <functional> // multiplies
 #include <mpi.h>
+#include "stats.h"
 
 #ifdef DEBUG
 #include "debug.h"
@@ -140,6 +141,8 @@ void WorkerBase::SwapWithPartner()
             MPI_ANY_TAG,
             MPI_COMM_WORLD,
             MPI_STATUS_IGNORE);
+        Stats::SendOpCounterInc();
+        Stats::SendDataCounterAdd(params.BufSize() * sizeof(complexd));
     }
 
     #ifdef DEBUG

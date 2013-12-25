@@ -20,6 +20,7 @@ class Master: ComputationBase
     void BroadcastMatrix();
     void OneMinusFidelityWriteToFile();
     void ComputationTimeWriteToFile();
+    void StatsWriteToFile();
     vector<double> fidelity;
     public:
     Master(const Args& args);
