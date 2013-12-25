@@ -1,5 +1,8 @@
 #include "stats.h"
 
+Index Stats::send_op_counter;
+Index Stats::send_data_counter;
+
 void Stats::ResetCounters()
 {
     send_op_counter = 0;
