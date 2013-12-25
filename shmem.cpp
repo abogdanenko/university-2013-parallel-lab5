@@ -1,6 +1,7 @@
 #include <dislib.h>
 #include <iterator> // std::distance
 #include "shmem.h"
+#include "stats.h"
 
 #ifdef DEBUG
 #include "debug.h"
@@ -43,6 +44,8 @@ void Shmem::SendVector(
             << ", Value = " << p.second << endl;
         #endif
         shmem_send(&p, HandlerNumber(), sizeof(p), dest_pe);
+        Stats::SendOpCounterInc();
+        Stats::SendDataCounterAdd(sizeof(p));
     }
     #ifdef DEBUG
         cout << INDENT(4) << "Shmem::SendVector() return" << endl;
